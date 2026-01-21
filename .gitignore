@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Turbo
+.turbo/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Mobile
+*.apk
+*.aab
+*.ipa
+.expo/
+.expo-shared/
+android/
+ios/
+*.jks
+*.keystore
+
+# Misc
+*.tsbuildinfo
+.cache/
