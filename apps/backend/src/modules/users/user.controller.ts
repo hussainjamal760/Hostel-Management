@@ -17,11 +17,6 @@ export class UserController {
     const filters: any = {
       ...req.query,
     };
-
-    if (req.user?.role === 'OWNER') {
-      // filters.hostelId = ... (Logic discussed previously, keeping relaxed for now or strictly owner's scope?)
-      // We left it open in previous step.
-    }
     
     const result = await userService.getAllUsers(filters);
 

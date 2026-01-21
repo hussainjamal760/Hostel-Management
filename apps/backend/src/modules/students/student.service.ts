@@ -5,6 +5,7 @@ import { ApiError } from '../../utils';
 import userService from '../users/user.service';
 import { Room } from '../rooms/room.model';
 import { User } from '../users/user.model';
+import { Role } from '@hostelite/shared-types';
 
 export class StudentService {
   async createStudent(data: CreateStudentInput, hostelId: string) {
@@ -86,6 +87,7 @@ export class StudentService {
       .exec();
 
     const total = await Student.countDocuments(filter);
+    const totalPages = Math.ceil(total / limit);
 
     return {
       students,
@@ -93,7 +95,9 @@ export class StudentService {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit),
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   }
@@ -121,10 +125,14 @@ export class StudentService {
     return student;
   }
 
-  async updateStudent(id: string, data: UpdateStudentInput) {
+  async updateStudent(id: string, data: UpdateStudentInput, requesterHostelId?: string, requesterRole?: Role) {
     const student = await Student.findById(id);
     if (!student) {
       throw ApiError.notFound('Student not found');
+    }
+
+    if (requesterRole === 'MANAGER' && student.hostelId.toString() !== requesterHostelId) {
+        throw ApiError.forbidden('Access denied');
     }
 
     if (data.roomId && data.roomId !== student.roomId.toString()) {
@@ -144,10 +152,14 @@ export class StudentService {
     return student;
   }
 
-  async deleteStudent(id: string) {
+  async deleteStudent(id: string, requesterHostelId?: string, requesterRole?: Role) {
     const student = await Student.findById(id);
     if (!student) {
       throw ApiError.notFound('Student not found');
+    }
+
+    if (requesterRole === 'MANAGER' && student.hostelId.toString() !== requesterHostelId) {
+        throw ApiError.forbidden('Access denied');
     }
 
     if (student.isActive) {

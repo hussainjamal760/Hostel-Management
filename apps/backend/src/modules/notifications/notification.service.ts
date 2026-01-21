@@ -37,6 +37,7 @@ export class NotificationService {
 
     const total = await Notification.countDocuments(filter);
     const unreadCount = await Notification.countDocuments({ userId, isRead: false });
+    const totalPages = Math.ceil(total / limit);
 
     return {
       notifications,
@@ -45,7 +46,9 @@ export class NotificationService {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit),
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   }

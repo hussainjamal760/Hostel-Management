@@ -62,6 +62,7 @@ export class RoomService {
       .exec();
 
     const total = await Room.countDocuments(filter);
+    const totalPages = Math.ceil(total / limit);
 
     return {
       rooms,
@@ -69,7 +70,9 @@ export class RoomService {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit),
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   }
@@ -82,7 +85,7 @@ export class RoomService {
     return room;
   }
 
-  async updateRoom(id: string, data: UpdateRoomInput, requesterId: string, role: Role) {
+  async updateRoom(id: string, data: UpdateRoomInput, requesterId: string, role: Role, requesterHostelId?: string) {
     const room = await Room.findById(id);
     if (!room) {
       throw ApiError.notFound('Room not found');
@@ -95,11 +98,10 @@ export class RoomService {
       if (role === 'OWNER' && hostel.ownerId.toString() !== requesterId) {
         throw ApiError.forbidden('Permission denied');
       }
-      if (role === 'MANAGER') {
- 
+      if (role === 'MANAGER' && room.hostelId.toString() !== requesterHostelId) {
+        throw ApiError.forbidden('Permission denied');
       }
     }
-
 
     let bedDiff = 0;
     if (data.totalBeds !== undefined) {
@@ -121,7 +123,7 @@ export class RoomService {
     return room;
   }
 
-  async deleteRoom(id: string, requesterId: string, role: Role) {
+  async deleteRoom(id: string, requesterId: string, role: Role, requesterHostelId?: string) {
     const room = await Room.findById(id);
     if (!room) {
       throw ApiError.notFound('Room not found');
@@ -136,6 +138,9 @@ export class RoomService {
 
     if (role !== 'ADMIN') {
       if (role === 'OWNER' && hostel.ownerId.toString() !== requesterId) {
+        throw ApiError.forbidden('Permission denied');
+      }
+      if (role === 'MANAGER' && room.hostelId.toString() !== requesterHostelId) {
         throw ApiError.forbidden('Permission denied');
       }
     }

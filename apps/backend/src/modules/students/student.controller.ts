@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { asyncHandler, ApiResponse, ApiError } from '../../utils';
 import studentService from './student.service';
+import { Role } from '@hostelite/shared-types';
 
 export class StudentController {
   createStudent = asyncHandler(async (req: Request, res: Response) => {
@@ -49,12 +50,21 @@ export class StudentController {
   });
 
   updateStudent = asyncHandler(async (req: Request, res: Response) => {
-    const result = await studentService.updateStudent(req.params.id, req.body);
+    const result = await studentService.updateStudent(
+        req.params.id, 
+        req.body, 
+        req.user?.hostelId,
+        req.user?.role as Role
+    );
     ApiResponse.success(res, result, 'Student updated successfully');
   });
 
   deleteStudent = asyncHandler(async (req: Request, res: Response) => {
-    await studentService.deleteStudent(req.params.id);
+    await studentService.deleteStudent(
+        req.params.id, 
+        req.user?.hostelId,
+        req.user?.role as Role
+    );
     ApiResponse.success(res, null, 'Student deleted successfully');
   });
 }

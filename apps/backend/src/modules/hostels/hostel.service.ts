@@ -5,12 +5,17 @@ import { ApiError } from '../../utils';
 import { Role } from '@hostelite/shared-types';
 
 export class HostelService {
-  async createHostel(data: CreateHostelInput, ownerId: string) {
+  async createHostel(data: CreateHostelInput, requesterId: string, requesterRole: Role) {
     if (data.code) {
       const existing = await Hostel.findOne({ code: data.code });
       if (existing) {
         throw ApiError.badRequest(`Hostel with code ${data.code} already exists`);
       }
+    }
+
+    let ownerId = requesterId;
+    if (requesterRole === 'ADMIN' && (data as any).ownerId) {
+      ownerId = (data as any).ownerId;
     }
 
     const hostel = await Hostel.create({
@@ -54,6 +59,7 @@ export class HostelService {
       .exec();
 
     const total = await Hostel.countDocuments(filter);
+    const totalPages = Math.ceil(total / limit);
 
     return {
       hostels,
@@ -61,7 +67,9 @@ export class HostelService {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit),
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   }

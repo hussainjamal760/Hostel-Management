@@ -49,7 +49,8 @@ export class RoomController {
       req.params.id,
       req.body,
       req.user!._id,
-      req.user!.role as Role
+      req.user!.role as Role,
+      req.user!.hostelId
     );
     ApiResponse.success(res, result, 'Room updated successfully');
   });
@@ -58,7 +59,8 @@ export class RoomController {
     await roomService.deleteRoom(
       req.params.id,
       req.user!._id,
-      req.user!.role as Role
+      req.user!.role as Role,
+      req.user!.hostelId
     );
     ApiResponse.success(res, null, 'Room deleted successfully');
   });

@@ -3,12 +3,17 @@ import { Payment, IPaymentDocument } from './payment.model';
 import { CreatePaymentInput, UpdatePaymentInput } from '@hostelite/shared-validators';
 import { ApiError } from '../../utils';
 import { Student } from '../students/student.model';
+import { Role } from '@hostelite/shared-types';
 
 export class PaymentService {
-  async createPayment(data: CreatePaymentInput, collectedBy: string) {
+  async createPayment(data: CreatePaymentInput, collectedBy: string, requesterHostelId?: string, requesterRole?: Role) {
     const student = await Student.findById(data.studentId);
     if (!student) {
       throw ApiError.notFound('Student not found');
+    }
+
+    if (requesterRole === 'MANAGER' && student.hostelId.toString() !== requesterHostelId) {
+        throw ApiError.forbidden('Access denied');
     }
 
     const date = new Date();
@@ -57,6 +62,7 @@ export class PaymentService {
       .exec();
 
     const total = await Payment.countDocuments(filter);
+    const totalPages = Math.ceil(total / limit);
 
     return {
       payments,
@@ -64,7 +70,9 @@ export class PaymentService {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit),
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   }

@@ -10,14 +10,7 @@ import {
 import { logger, env } from '../../config';
 import { LoginInput, ChangePasswordInput } from '@hostelite/shared-validators';
 
-/**
- * Auth Service
- * Handles authentication logic
- */
 export class AuthService {
-  /**
-   * Login user with username and password
-   */
   async login(data: LoginInput) {
     const user = await User.findOne({ username: data.username.toLowerCase() })
       .select('+password +refreshToken')
@@ -37,14 +30,12 @@ export class AuthService {
       throw ApiError.unauthorized('Invalid credentials');
     }
 
-    // Generate tokens
     const tokens = generateTokens({
       id: user._id.toString(),
       role: user.role,
       hostelId: user.hostelId?.toString(),
     });
 
-    // Save refresh token
     user.refreshToken = tokens.refreshToken;
     user.lastLoginAt = new Date();
     await user.save();
@@ -63,9 +54,6 @@ export class AuthService {
     };
   }
 
-  /**
-   * Refresh access token
-   */
   async refreshToken(refreshToken: string) {
     try {
       const decoded = verifyRefreshToken(refreshToken);
@@ -80,14 +68,12 @@ export class AuthService {
         throw ApiError.forbidden('Account is deactivated');
       }
 
-      // Generate new tokens
       const tokens = generateTokens({
         id: user._id.toString(),
         role: user.role,
         hostelId: user.hostelId?.toString(),
       });
 
-      // Save new refresh token
       user.refreshToken = tokens.refreshToken;
       await user.save();
 
@@ -97,16 +83,10 @@ export class AuthService {
     }
   }
 
-  /**
-   * Logout user
-   */
   async logout(userId: string) {
     await User.findByIdAndUpdate(userId, { refreshToken: null });
   }
 
-  /**
-   * Change password
-   */
   async changePassword(userId: string, data: ChangePasswordInput) {
     const user = await User.findById(userId).select('+password').exec();
 
@@ -132,9 +112,6 @@ export class AuthService {
     return { message: 'Password changed successfully. Please login again.' };
   }
 
-  /**
-   * Seed initial admin user
-   */
   async seedAdmin() {
     const existingAdmin = await User.findOne({ role: 'ADMIN' });
 

@@ -1,10 +1,16 @@
 import { Request, Response } from 'express';
 import { asyncHandler, ApiResponse, ApiError } from '../../utils';
 import paymentService from './payment.service';
+import { Role } from '@hostelite/shared-types';
 
 export class PaymentController {
   createPayment = asyncHandler(async (req: Request, res: Response) => {
-    const result = await paymentService.createPayment(req.body, req.user!._id);
+    const result = await paymentService.createPayment(
+        req.body, 
+        req.user!._id,
+        req.user?.hostelId,
+        req.user?.role as Role
+    );
     ApiResponse.created(res, result, 'Payment recorded successfully');
   });
 

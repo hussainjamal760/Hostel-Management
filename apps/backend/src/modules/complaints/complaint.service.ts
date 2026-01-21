@@ -32,23 +32,17 @@ export class ComplaintService {
       priority?: string;
       page?: number;
       limit?: number;
+      hostelId?: string;
     }
   ) {
-    const { status, category, priority, page = 1, limit = 10 } = query;
+    const { status, category, priority, page = 1, limit = 10, hostelId } = query;
     const skip = (page - 1) * limit;
 
     const filter: FilterQuery<IComplaintDocument> = {};
     if (status) filter.status = status;
     if (category) filter.category = category;
     if (priority) filter.priority = priority;
-
-    if (role === 'STUDENT') {
-      const student = await Student.findOne({ userId });
-      if (!student) throw ApiError.notFound('Student profile not found');
-      filter.studentId = student._id;
-    } else if (role === 'MANAGER' || role === 'OWNER') {
-     
-    }
+    if (hostelId) filter.hostelId = hostelId;
 
     if (role === 'STUDENT') {
       const student = await Student.findOne({ userId });
@@ -65,6 +59,7 @@ export class ComplaintService {
       .exec();
 
     const total = await Complaint.countDocuments(filter);
+    const totalPages = Math.ceil(total / limit);
 
     return {
       complaints,
@@ -72,7 +67,9 @@ export class ComplaintService {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit),
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   }
@@ -98,7 +95,6 @@ export class ComplaintService {
   }
 
   async deleteComplaint(id: string) {
- 
     const complaint = await Complaint.findByIdAndDelete(id);
     if (!complaint) {
       throw ApiError.notFound('Complaint not found');

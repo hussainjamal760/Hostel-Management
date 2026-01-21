@@ -40,11 +40,9 @@ export class UserService {
       }
     }
 
-    // Generate temporary password
     const rawPassword = generatePassword(10); 
     const hashedPassword = await hashPassword(rawPassword);
 
-    // Check hostel existence if provided
     if (data.hostelId) {
       const hostel = await Hostel.findById(data.hostelId);
       if (!hostel) {
@@ -80,7 +78,6 @@ export class UserService {
       filter.$or = [
         { username: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
-        { fullName: { $regex: search, $options: 'i' } }, // Note: User model does not have fullName, but filter supports it if we add it to model later or join. For now keeping it.
       ];
     }
 
@@ -91,6 +88,7 @@ export class UserService {
       .exec();
 
     const total = await User.countDocuments(filter);
+    const totalPages = Math.ceil(total / limit);
 
     return {
       users,
@@ -98,12 +96,13 @@ export class UserService {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit),
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   }
 
- 
   async getUserById(id: string) {
     const user = await User.findById(id).exec();
     if (!user) {
@@ -111,7 +110,6 @@ export class UserService {
     }
     return user;
   }
-
 
   async updateUser(id: string, data: UpdateUserInput) {
     const user = await User.findByIdAndUpdate(id, data, { new: true }).exec();
@@ -121,7 +119,6 @@ export class UserService {
     return user;
   }
 
-  
   async deleteUser(id: string) {
     const user = await User.findByIdAndUpdate(id, { isActive: false }, { new: true }).exec();
     if (!user) {

@@ -1,6 +1,5 @@
 import { Response } from 'express';
 
-
 export interface ApiResponseData<T = unknown> {
   success: boolean;
   message: string;
@@ -13,7 +12,9 @@ export interface PaginationMeta {
   page: number;
   limit: number;
   total: number;
-  pages: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
 
 export class ApiResponse {
@@ -38,7 +39,7 @@ export class ApiResponse {
     message = 'Success'
   ): Response {
     res.setHeader('X-Total-Count', pagination.total.toString());
-    res.setHeader('X-Total-Pages', pagination.pages.toString());
+    res.setHeader('X-Total-Pages', pagination.totalPages.toString());
 
     return res.status(200).json({
       success: true,
