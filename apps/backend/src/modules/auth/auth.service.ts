@@ -5,7 +5,6 @@ import {
   generateTokens,
   verifyRefreshToken,
   ApiError,
-  generateAdminUsername,
 } from '../../utils';
 import { logger, env } from '../../config';
 import { LoginInput, ChangePasswordInput } from '@hostelite/shared-validators';
@@ -17,6 +16,7 @@ export class AuthService {
       .exec();
 
     if (!user) {
+      logger.warn(`Login failed: User not found [${data.username}]`);
       throw ApiError.unauthorized('Invalid credentials');
     }
 
@@ -27,6 +27,7 @@ export class AuthService {
     const isPasswordValid = await comparePassword(data.password, user.password);
 
     if (!isPasswordValid) {
+      logger.warn(`Login failed: Invalid password for [${data.username}]`);
       throw ApiError.unauthorized('Invalid credentials');
     }
 
@@ -113,28 +114,37 @@ export class AuthService {
   }
 
   async seedAdmin() {
-    const existingAdmin = await User.findOne({ role: 'ADMIN' });
+    try {
+      const username = env.ADMIN_USERNAME.toLowerCase().trim();
+      logger.info(`Checking for admin user: ${username}`);
+      
+      const existingAdmin = await User.findOne({ username });
 
-    if (existingAdmin) {
-      logger.info('Admin user already exists');
-      return;
+      if (existingAdmin) {
+        logger.info(`Admin user already exists with ID: ${existingAdmin._id}`);
+        return;
+      }
+
+      const hashedPassword = await hashPassword(env.ADMIN_PASSWORD);
+
+      const admin = new User({
+        username,
+        email: env.ADMIN_EMAIL,
+        password: hashedPassword,
+        role: 'ADMIN',
+        isFirstLogin: true,
+        isActive: true,
+      });
+
+      await admin.save();
+      logger.info(`✅ Admin user successfully seeded: ${username}`);
+    } catch (error) {
+      if ((error as any).code === 11000) {
+        logger.info('Admin user already exists (duplicate key caught in seed)');
+        return;
+      }
+      logger.error('Failed to seed admin user:', error);
     }
-
-    const adminCount = await User.countDocuments({ role: 'ADMIN' });
-    const username = generateAdminUsername(adminCount + 1);
-    const hashedPassword = await hashPassword(env.ADMIN_PASSWORD);
-
-    const admin = new User({
-      username,
-      email: env.ADMIN_EMAIL,
-      password: hashedPassword,
-      role: 'ADMIN',
-      isFirstLogin: true,
-      isActive: true,
-    });
-
-    await admin.save();
-    logger.info(`✅ Admin user created: ${username}`);
   }
 }
 
