@@ -2,14 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { IStudent } from '@hostelite/shared-types';
 import { GENDERS, FEE_STATUS } from '@hostelite/shared-constants';
 
-/**
- * Student Document Interface
- */
 export interface IStudentDocument extends Omit<IStudent, '_id'>, Document {}
 
-/**
- * Emergency Contact Sub-Schema
- */
 const emergencyContactSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -19,9 +13,6 @@ const emergencyContactSchema = new Schema(
   { _id: false }
 );
 
-/**
- * Student Schema
- */
 const studentSchema = new Schema<IStudentDocument>(
   {
     userId: {
@@ -48,7 +39,6 @@ const studentSchema = new Schema<IStudentDocument>(
       required: [true, 'Bed number is required'],
       trim: true,
     },
-    // Personal Info
     fullName: {
       type: String,
       required: [true, 'Full name is required'],
@@ -74,7 +64,6 @@ const studentSchema = new Schema<IStudentDocument>(
       type: String,
       trim: true,
     },
-    // Contact
     emergencyContact: {
       type: emergencyContactSchema,
       required: [true, 'Emergency contact is required'],
@@ -84,7 +73,6 @@ const studentSchema = new Schema<IStudentDocument>(
       required: [true, 'Permanent address is required'],
       maxlength: [500, 'Address cannot exceed 500 characters'],
     },
-    // Academic
     institution: {
       type: String,
       trim: true,
@@ -95,7 +83,6 @@ const studentSchema = new Schema<IStudentDocument>(
       trim: true,
       maxlength: [100, 'Course name cannot exceed 100 characters'],
     },
-    // Hostel Status
     joinDate: {
       type: Date,
       required: [true, 'Join date is required'],
@@ -115,16 +102,6 @@ const studentSchema = new Schema<IStudentDocument>(
       default: 0,
       min: 0,
     },
-    // Gamification
-    points: {
-      type: Number,
-      default: 0,
-    },
-    badges: {
-      type: [String],
-      default: [],
-    },
-    // Documents
     idProof: {
       type: String,
     },
@@ -149,14 +126,10 @@ const studentSchema = new Schema<IStudentDocument>(
   }
 );
 
-// Indexes
 studentSchema.index({ hostelId: 1, isActive: 1 });
 studentSchema.index({ hostelId: 1, feeStatus: 1 });
 studentSchema.index({ roomId: 1, bedNumber: 1 }, { unique: true });
 
-/**
- * Virtual for age
- */
 studentSchema.virtual('age').get(function (this: IStudentDocument) {
   if (!this.dateOfBirth) return null;
   const today = new Date();
@@ -169,9 +142,6 @@ studentSchema.virtual('age').get(function (this: IStudentDocument) {
   return age;
 });
 
-/**
- * Student Model
- */
 export const Student = mongoose.model<IStudentDocument>('Student', studentSchema);
 
 export default Student;

@@ -1,9 +1,5 @@
 import { z } from 'zod';
 
-/**
- * Payment Validation Schemas
- */
-
 export const createPaymentSchema = z.object({
   studentId: z.string().min(1, 'Student ID is required'),
   amount: z.number().positive('Amount must be positive'),

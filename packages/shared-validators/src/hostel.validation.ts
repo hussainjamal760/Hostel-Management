@@ -1,9 +1,5 @@
 import { z } from 'zod';
 
-/**
- * Hostel Validation Schemas
- */
-
 export const addressSchema = z.object({
   street: z.string().min(1, 'Street is required').max(200),
   city: z.string().min(1, 'City is required').max(100),

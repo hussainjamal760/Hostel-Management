@@ -1,7 +1,3 @@
-/**
- * API & App Configuration Constants
- */
-
 export const API_VERSION = 'v1';
 
 export const API_ROUTES = {
@@ -12,7 +8,6 @@ export const API_ROUTES = {
   ROOMS: '/rooms',
   STUDENTS: '/students',
   PAYMENTS: '/payments',
-  REWARDS: '/rewards',
   COMPLAINTS: '/complaints',
   NOTIFICATIONS: '/notifications',
 } as const;

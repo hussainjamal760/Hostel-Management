@@ -1,8 +1,3 @@
-/**
- * User Types
- * Core user interface and related types
- */
-
 export type Role = 'ADMIN' | 'OWNER' | 'MANAGER' | 'STUDENT';
 
 export interface IUser {

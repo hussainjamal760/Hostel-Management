@@ -11,7 +11,6 @@ import { API_VERSION } from '@hostelite/shared-constants';
 
 const router = Router();
 
-
 router.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
@@ -20,7 +19,6 @@ router.get('/health', (_req, res) => {
   });
 });
 
-// Auth routes
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/hostels', hostelRoutes);
@@ -28,7 +26,6 @@ router.use('/rooms', roomRoutes);
 router.use('/students', studentRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/complaints', complaintRoutes);
-// router.use('/rewards', rewardRoutes);
 router.use('/notifications', notificationRoutes);
 
 export default router;

@@ -1,9 +1,5 @@
 import { z } from 'zod';
 
-/**
- * User Validation Schemas
- */
-
 export const createUserSchema = z.object({
   email: z.string().email('Invalid email address').optional(),
   phone: z

@@ -1,9 +1,5 @@
 import { z } from 'zod';
 
-/**
- * Student Validation Schemas
- */
-
 const emergencyContactSchema = z.object({
   name: z.string().min(1, 'Emergency contact name is required'),
   relation: z.string().min(1, 'Relation is required'),

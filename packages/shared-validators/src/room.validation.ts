@@ -1,9 +1,5 @@
 import { z } from 'zod';
 
-/**
- * Room Validation Schemas
- */
-
 export const createRoomSchema = z.object({
   roomNumber: z
     .string()

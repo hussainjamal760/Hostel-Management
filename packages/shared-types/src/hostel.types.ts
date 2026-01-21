@@ -1,8 +1,3 @@
-/**
- * Hostel Types
- * Hostel entity and related types
- */
-
 export interface IAddress {
   street: string;
   city: string;
@@ -29,23 +24,4 @@ export interface IHostel {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface IHostelCreate {
-  name: string;
-  code?: string;
-  address: IAddress;
-  amenities?: string[];
-  monthlyRent: number;
-  securityDeposit: number;
-}
-
-export interface IHostelUpdate {
-  name?: string;
-  address?: Partial<IAddress>;
-  amenities?: string[];
-  images?: string[];
-  monthlyRent?: number;
-  securityDeposit?: number;
-  isActive?: boolean;
 }

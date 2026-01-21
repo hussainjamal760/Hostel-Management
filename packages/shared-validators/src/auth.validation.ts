@@ -1,9 +1,5 @@
 import { z } from 'zod';
 
-/**
- * Authentication Validation Schemas
- */
-
 export const loginSchema = z.object({
   username: z
     .string()
