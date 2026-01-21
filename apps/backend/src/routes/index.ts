@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authRoutes } from '../modules/auth';
+import { userRoutes } from '../modules/users';
 import { API_VERSION } from '@hostelite/shared-constants';
 
 const router = Router();
@@ -20,9 +21,7 @@ router.get('/health', (_req, res) => {
 
 // Auth routes
 router.use('/auth', authRoutes);
-
-// TODO: Add other routes as modules are implemented
-// router.use('/users', userRoutes);
+router.use('/users', userRoutes);
 // router.use('/hostels', hostelRoutes);
 // router.use('/rooms', roomRoutes);
 // router.use('/students', studentRoutes);
