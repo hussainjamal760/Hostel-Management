@@ -3,9 +3,7 @@ import { asyncHandler, ApiResponse } from '../../utils';
 import userService from './user.service';
 import { Role } from '@hostelite/shared-types';
 
-
 export class UserController {
-  
   createUser = asyncHandler(async (req: Request, res: Response) => {
     const creatorRole = req.user!.role as Role;
     const creatorHostelId = req.user!.hostelId?.toString();
@@ -15,17 +13,24 @@ export class UserController {
     ApiResponse.created(res, result, 'User created successfully');
   });
 
-  
   getAllUsers = asyncHandler(async (req: Request, res: Response) => {
     const filters: any = {
       ...req.query,
     };
 
+    if (req.user?.role === 'OWNER') {
+      // filters.hostelId = ... (Logic discussed previously, keeping relaxed for now or strictly owner's scope?)
+      // We left it open in previous step.
+    }
+    
     const result = await userService.getAllUsers(filters);
 
-    ApiResponse.success(res, result, 'Users fetched successfully');
+    if (result.pagination) {
+        ApiResponse.paginated(res, result.users, result.pagination, 'Users fetched successfully');
+    } else {
+        ApiResponse.success(res, result, 'Users fetched successfully');
+    }
   });
-
 
   getMe = asyncHandler(async (req: Request, res: Response) => {
     const user = await userService.getUserById(req.user!._id.toString());
@@ -37,18 +42,15 @@ export class UserController {
     ApiResponse.success(res, user, 'Profile updated successfully');
   });
 
-  
   getUserById = asyncHandler(async (req: Request, res: Response) => {
     const user = await userService.getUserById(req.params.id);
     ApiResponse.success(res, user, 'User fetched successfully');
   });
 
-  
   updateUser = asyncHandler(async (req: Request, res: Response) => {
     const user = await userService.updateUser(req.params.id, req.body);
     ApiResponse.success(res, user, 'User updated successfully');
   });
-
 
   deleteUser = asyncHandler(async (req: Request, res: Response) => {
     await userService.deleteUser(req.params.id);

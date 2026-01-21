@@ -4,7 +4,6 @@ import hostelService from './hostel.service';
 import { Role } from '@hostelite/shared-types';
 
 export class HostelController {
-
   createHostel = asyncHandler(async (req: Request, res: Response) => {
     const ownerId = req.user!._id;
     const result = await hostelService.createHostel(req.body, ownerId);
@@ -23,9 +22,8 @@ export class HostelController {
     
     const result = await hostelService.getAllHostels(filters);
 
-    ApiResponse.success(res, result, 'Hostels fetched successfully');
+    ApiResponse.paginated(res, result.hostels, result.pagination, 'Hostels fetched successfully');
   });
-
 
   getHostelById = asyncHandler(async (req: Request, res: Response) => {
     const result = await hostelService.getHostelById(req.params.id);

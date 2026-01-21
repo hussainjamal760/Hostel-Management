@@ -1,9 +1,6 @@
 import { Response } from 'express';
 
-/**
- * Standardized API Response Helper
- * Ensures consistent response format across all endpoints
- */
+
 export interface ApiResponseData<T = unknown> {
   success: boolean;
   message: string;
@@ -16,15 +13,10 @@ export interface PaginationMeta {
   page: number;
   limit: number;
   total: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
+  pages: number;
 }
 
 export class ApiResponse {
-  /**
-   * Success response
-   */
   static success<T>(
     res: Response,
     data: T,
@@ -39,9 +31,6 @@ export class ApiResponse {
     });
   }
 
-  /**
-   * Success response with pagination
-   */
   static paginated<T>(
     res: Response,
     data: T[],
@@ -49,7 +38,7 @@ export class ApiResponse {
     message = 'Success'
   ): Response {
     res.setHeader('X-Total-Count', pagination.total.toString());
-    res.setHeader('X-Total-Pages', pagination.totalPages.toString());
+    res.setHeader('X-Total-Pages', pagination.pages.toString());
 
     return res.status(200).json({
       success: true,
@@ -60,9 +49,6 @@ export class ApiResponse {
     });
   }
 
-  /**
-   * Created response (201)
-   */
   static created<T>(res: Response, data: T, message = 'Created successfully'): Response {
     return res.status(201).json({
       success: true,
@@ -72,16 +58,10 @@ export class ApiResponse {
     });
   }
 
-  /**
-   * No content response (204)
-   */
   static noContent(res: Response): Response {
     return res.status(204).send();
   }
 
-  /**
-   * Error response
-   */
   static error(
     res: Response,
     message: string,

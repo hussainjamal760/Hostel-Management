@@ -1,5 +1,3 @@
-/**
- * Rooms Module Exports
- */
-
-export { Room, IRoomDocument } from './room.model';
+export { default as roomRoutes } from './room.routes';
+export { default as roomController } from './room.controller';
+export { default as roomService } from './room.service';
