@@ -1,5 +1,3 @@
-/**
- * Hostels Module Exports
- */
-
-export { Hostel, IHostelDocument } from './hostel.model';
+export { default as hostelRoutes } from './hostel.routes';
+export { default as hostelController } from './hostel.controller';
+export { default as hostelService } from './hostel.service';
