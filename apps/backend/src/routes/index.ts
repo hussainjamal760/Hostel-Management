@@ -6,6 +6,7 @@ import { roomRoutes } from '../modules/rooms';
 import { studentRoutes } from '../modules/students';
 import { paymentRoutes } from '../modules/payments';
 import { complaintRoutes } from '../modules/complaints';
+import { notificationRoutes } from '../modules/notifications';
 import { API_VERSION } from '@hostelite/shared-constants';
 
 const router = Router();
@@ -28,7 +29,6 @@ router.use('/students', studentRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/complaints', complaintRoutes);
 // router.use('/rewards', rewardRoutes);
-// router.use('/complaints', complaintRoutes);
-// router.use('/notifications', notificationRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;
