@@ -4,16 +4,12 @@ import { userRoutes } from '../modules/users';
 import { hostelRoutes } from '../modules/hostels';
 import { roomRoutes } from '../modules/rooms';
 import { studentRoutes } from '../modules/students';
+import { paymentRoutes } from '../modules/payments';
 import { API_VERSION } from '@hostelite/shared-constants';
 
 const router = Router();
 
-/**
- * API Routes
- * All routes are prefixed with /api/v1
- */
 
-// Health check
 router.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
@@ -28,7 +24,7 @@ router.use('/users', userRoutes);
 router.use('/hostels', hostelRoutes);
 router.use('/rooms', roomRoutes);
 router.use('/students', studentRoutes);
-// router.use('/payments', paymentRoutes);
+router.use('/payments', paymentRoutes);
 // router.use('/rewards', rewardRoutes);
 // router.use('/complaints', complaintRoutes);
 // router.use('/notifications', notificationRoutes);
