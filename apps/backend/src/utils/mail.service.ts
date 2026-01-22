@@ -46,6 +46,24 @@ class MailService {
       throw error;
     }
   }
+
+  async sendEmail(options: { to: string; subject: string; html: string; text?: string }) {
+    try {
+      const mailOptions = {
+        from: `"Hostel Management" <${env.FROM_EMAIL}>`,
+        to: options.to,
+        subject: options.subject,
+        text: options.text,
+        html: options.html,
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      logger.info(`Email sent to ${options.to} with subject: ${options.subject}`);
+    } catch (error) {
+      logger.error('Error sending email:', error);
+      // We don't throw here to prevent breaking the flow if email fails
+    }
+  }
 }
 
 export const mailService = new MailService();

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { logout } from '@/lib/features/authSlice';
+import { useGetPendingCountQuery } from '@/lib/services/ownerRequestApi';
 import { toast } from 'react-hot-toast';
 import {
   HiOutlineHome,
@@ -26,6 +27,7 @@ interface AdminLayoutProps {
 
 const menuItems = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: HiOutlineHome },
+  { name: 'Owner Requests', href: '/admin/owner-requests', icon: HiOutlineClipboardList },
   { name: 'Users', href: '/admin/users', icon: HiOutlineUsers },
   { name: 'Hostels', href: '/admin/hostels', icon: HiOutlineOfficeBuilding },
   { name: 'Payments', href: '/admin/payments', icon: HiOutlineCurrencyDollar },
@@ -41,6 +43,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  
+  const { data: pendingCountData } = useGetPendingCountQuery(undefined, {
+    pollingInterval: 30000,
+    skip: !user || user.role !== 'ADMIN',
+  });
+
+  const pendingCount = pendingCountData?.data?.count || 0;
 
   const handleLogout = () => {
     dispatch(logout());
@@ -102,14 +111,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   key={item.name}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
+                  className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all ${
                     isActive
                       ? 'bg-[#fcf2e9] text-[#2c1b13]'
                       : 'text-[#fcf2e9]/70 hover:bg-[#fcf2e9]/10 hover:text-[#fcf2e9]'
                   }`}
                 >
-                  <item.icon size={20} />
-                  <span>{item.name}</span>
+                  <div className="flex items-center gap-3">
+                    <item.icon size={20} />
+                    <span>{item.name}</span>
+                  </div>
+                  {item.name === 'Owner Requests' && pendingCount > 0 && (
+                    <span className="flex items-center justify-center w-5 h-5 text-xs font-bold text-[#2c1b13] bg-[#fcf2e9] rounded-full">
+                      {pendingCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
