@@ -46,12 +46,8 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
       toast.success(`Welcome back, ${result.user.name}!`);
       setOpen(false);
       
-      // Redirect based on role
-      if (result.user.role === 'ADMIN') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/dashboard');
-      }
+      // Redirect to profile for all users
+      router.push('/profile');
     } catch (error: any) {
       const message = error?.data?.message || error?.message || "Login failed";
       toast.error(message);

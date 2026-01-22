@@ -166,7 +166,61 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Request to List Hostel Section */}
+        {/* Admin Portal Link */}
+        {user?.role === 'ADMIN' && (
+          <div className="mt-6 bg-white dark:bg-dark-card/50 rounded-3xl shadow-lg border border-brand-card/30 dark:border-dark-card/30 p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <HiOutlineOfficeBuilding size={24} className="text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-brand-text dark:text-dark-text">
+                  Admin Portal
+                </h2>
+                <p className="text-brand-text/60 dark:text-dark-text/60">
+                  Manage users, hostels, payments, and system settings.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Link
+                href="/admin/dashboard"
+                className="inline-block px-6 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 hover:scale-105 transition-all shadow-lg shadow-blue-600/20"
+              >
+                Open Admin Portal
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Owner Dashboard Link */}
+        {user?.role === 'OWNER' && (
+          <div className="mt-6 bg-white dark:bg-dark-card/50 rounded-3xl shadow-lg border border-brand-card/30 dark:border-dark-card/30 p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <HiOutlineCheck size={24} className="text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-brand-text dark:text-dark-text">
+                  Owner Dashboard
+                </h2>
+                <p className="text-brand-text/60 dark:text-dark-text/60">
+                  Manage your properties, bookings, and view earnings.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-3">
+              <Link
+                href="/owner/dashboard"
+                className="inline-block px-6 py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 hover:scale-105 transition-all shadow-lg shadow-green-600/20"
+              >
+                Open Owner Dashboard
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Request to List Hostel Section (For Students) */}
         {user?.role === 'STUDENT' && (
           <div className="mt-6 bg-white dark:bg-dark-card/50 rounded-3xl shadow-lg border border-brand-card/30 dark:border-dark-card/30 p-6">
             <div className="flex items-start gap-4">
@@ -217,38 +271,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Owner Section */}
-        {user?.role === 'OWNER' && (
-          <div className="mt-6 bg-white dark:bg-dark-card/50 rounded-3xl shadow-lg border border-brand-card/30 dark:border-dark-card/30 p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <HiOutlineCheck size={24} className="text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-brand-text dark:text-dark-text">
-                  You&apos;re a Verified Hostel Owner!
-                </h2>
-                <p className="text-brand-text/60 dark:text-dark-text/60">
-                  You can now list and manage your hostels.
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 flex gap-3">
-              <Link
-                href="/owner/hostels"
-                className="px-4 py-2 rounded-xl bg-brand-primary dark:bg-dark-primary text-white dark:text-dark-bg font-medium hover:scale-105 transition-transform"
-              >
-                Manage Hostels
-              </Link>
-              <Link
-                href="/owner/add-hostel"
-                className="px-4 py-2 rounded-xl border border-brand-primary dark:border-dark-primary text-brand-primary dark:text-dark-primary font-medium hover:scale-105 transition-transform"
-              >
-                Add New Hostel
-              </Link>
-            </div>
-          </div>
-        )}
+
       </main>
 
       {/* Request Modal */}

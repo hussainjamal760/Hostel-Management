@@ -35,7 +35,7 @@ const env = cleanEnv(process.env, {
 
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: num({ default: 900000 }), // 15 minutes
-  RATE_LIMIT_MAX_REQUESTS: num({ default: 100 }),
+  RATE_LIMIT_MAX_REQUESTS: num({ default: 500 }),
 
   // CORS
   CORS_ORIGIN: str({ default: 'http://localhost:5173' }),
