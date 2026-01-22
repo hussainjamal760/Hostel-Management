@@ -6,6 +6,12 @@ import { ROLES } from '@hostelite/shared-constants';
  * User Document Interface
  */
 export interface IUserDocument extends Omit<IUser, '_id'>, Document {
+  name: string;
+  email: string;
+  phone: string;
+  isEmailVerified: boolean;
+  verificationCode?: string;
+  verificationCodeExpiresAt?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -13,7 +19,7 @@ export interface IUserDocument extends Omit<IUser, '_id'>, Document {
  * User Model Interface (for statics)
  */
 export interface IUserModel extends Model<IUserDocument> {
-  findByUsername(username: string): Promise<IUserDocument | null>;
+  findByEmail(email: string): Promise<IUserDocument | null>;
   countByRole(role: Role, hostelId?: string): Promise<number>;
 }
 
@@ -22,9 +28,13 @@ export interface IUserModel extends Model<IUserDocument> {
  */
 const userSchema = new Schema<IUserDocument>(
   {
+    name: {
+      type: String,
+      required: [true, 'Name is required'],
+      trim: true,
+    },
     username: {
       type: String,
-      required: [true, 'Username is required'],
       unique: true,
       lowercase: true,
       trim: true,
@@ -32,15 +42,17 @@ const userSchema = new Schema<IUserDocument>(
     },
     email: {
       type: String,
+      required: [true, 'Email is required'],
+      unique: true,
       lowercase: true,
       trim: true,
-      sparse: true, // Allows multiple null values
       index: true,
     },
     phone: {
       type: String,
+      required: [true, 'Phone number is required'],
       trim: true,
-      sparse: true,
+      index: true,
     },
     password: {
       type: String,
@@ -61,6 +73,18 @@ const userSchema = new Schema<IUserDocument>(
     createdBy: {
       type: Schema.Types.ObjectId as any,
       ref: 'User',
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationCode: {
+      type: String,
+      select: false,
+    },
+    verificationCodeExpiresAt: {
+      type: Date,
+      select: false,
     },
     isFirstLogin: {
       type: Boolean,
@@ -106,8 +130,8 @@ userSchema.index({ isActive: 1, role: 1 });
 /**
  * Static Methods
  */
-userSchema.statics.findByUsername = function (username: string) {
-  return this.findOne({ username: username.toLowerCase() });
+userSchema.statics.findByEmail = function (email: string) {
+  return this.findOne({ email: email.toLowerCase() });
 };
 
 userSchema.statics.countByRole = function (role: Role, hostelId?: string) {

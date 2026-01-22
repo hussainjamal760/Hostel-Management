@@ -17,3 +17,4 @@ export {
   generateTokens,
   type TokenPayload,
 } from './jwt';
+export { mailService } from './mail.service';

@@ -27,8 +27,11 @@ const env = cleanEnv(process.env, {
   CLOUDINARY_API_SECRET: str({ default: '' }),
 
   // Email
-  SENDGRID_API_KEY: str({ default: '' }),
   FROM_EMAIL: str({ default: 'noreply@hostelite.com' }),
+  SMTP_HOST: str({ default: 'smtp.gmail.com' }),
+  SMTP_PORT: port({ default: 587 }),
+  SMTP_USER: str(),
+  SMTP_PASS: str(),
 
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: num({ default: 900000 }), // 15 minutes
@@ -37,10 +40,6 @@ const env = cleanEnv(process.env, {
   // CORS
   CORS_ORIGIN: str({ default: 'http://localhost:5173' }),
 
-  // Admin Seed
-  ADMIN_USERNAME: str({ default: 'admin' }),
-  ADMIN_PASSWORD: str({ default: 'Admin@123' }),
-  ADMIN_EMAIL: str({ default: 'admin@hostelite.com' }),
 });
 
 export default env;

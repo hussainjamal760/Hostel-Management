@@ -1,14 +1,20 @@
 import { z } from 'zod';
 
 export const loginSchema = z.object({
-  username: z
-    .string()
-    .min(3, 'Username must be at least 3 characters')
-    .max(50, 'Username cannot exceed 50 characters'),
-  password: z
-    .string()
-    .min(6, 'Password must be at least 6 characters')
-    .max(50, 'Password cannot exceed 50 characters'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+export const signupSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(10, 'Phone number must be at least 10 characters'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+export const verifyEmailSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  code: z.string().length(6, 'Verification code must be 6 digits'),
 });
 
 export const changePasswordSchema = z
@@ -27,5 +33,7 @@ export const refreshTokenSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+export type SignupInput = z.infer<typeof signupSchema>;
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;

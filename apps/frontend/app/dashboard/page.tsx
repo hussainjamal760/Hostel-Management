@@ -1,14 +1,22 @@
 'use client';
 
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { logout } from '@/lib/features/authSlice';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function DashboardPage() {
   const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
+
+  useEffect(() => {
+    if (user?.role === 'ADMIN') {
+      router.push('/admin/dashboard');
+    }
+  }, [user, router]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -22,8 +30,11 @@ export default function DashboardPage() {
           <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
             <div className="flex items-center gap-4">
+              <Link href="/profile" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                My Profile
+              </Link>
               <span className="text-sm text-gray-600">
-                Welcome, <span className="font-semibold">{user?.username}</span> ({user?.role})
+                Welcome, <span className="font-semibold">{user?.name}</span> ({user?.role})
               </span>
               <button
                 onClick={handleLogout}
@@ -42,6 +53,11 @@ export default function DashboardPage() {
               You have successfully logged in as a <span className="font-bold">{user?.role}</span>. 
               We are currently preparing your specialized dashboard views.
             </p>
+            <div className="mt-6">
+              <Link href="/profile" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+                View My Profile
+              </Link>
+            </div>
           </div>
         </main>
       </div>

@@ -3,6 +3,16 @@ import { asyncHandler, ApiResponse } from '../../utils';
 import authService from './auth.service';
 
 export class AuthController {
+  signup = asyncHandler(async (req: Request, res: Response) => {
+    const result = await authService.signup(req.body);
+    ApiResponse.success(res, result, 'Verification code sent to email', 201);
+  });
+
+  verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+    const result = await authService.verifyEmail(req.body);
+    ApiResponse.success(res, result, 'Email verified successfully');
+  });
+
   login = asyncHandler(async (req: Request, res: Response) => {
     const result = await authService.login(req.body);
     ApiResponse.success(res, result, 'Login successful');

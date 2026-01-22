@@ -5,19 +5,79 @@ import {
   generateTokens,
   verifyRefreshToken,
   ApiError,
+  generatePin,
+  mailService,
 } from '../../utils';
-import { logger, env } from '../../config';
-import { LoginInput, ChangePasswordInput } from '@hostelite/shared-validators';
+import { logger } from '../../config';
+import {
+  LoginInput,
+  SignupInput,
+  VerifyEmailInput,
+  ChangePasswordInput,
+} from '@hostelite/shared-validators';
 
 export class AuthService {
+  async signup(data: SignupInput) {
+    const existingUser = await User.findOne({ email: data.email.toLowerCase() });
+    if (existingUser) {
+      throw ApiError.badRequest('Email already registered');
+    }
+
+    const verificationCode = generatePin(6);
+    const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+    const hashedPassword = await hashPassword(data.password);
+
+    const user = new User({
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      password: hashedPassword,
+      role: 'STUDENT', // Default role
+      isEmailVerified: false,
+      verificationCode,
+      verificationCodeExpiresAt,
+      isActive: true,
+      username: data.email, // Use email as username by default
+    });
+
+    await user.save();
+    await mailService.sendVerificationEmail(data.email, verificationCode);
+
+    return { message: 'Signup successful. Verification code sent to email.' };
+  }
+
+  async verifyEmail(data: VerifyEmailInput) {
+    const user = await User.findOne({ 
+      email: data.email.toLowerCase(),
+      verificationCode: data.code,
+      verificationCodeExpiresAt: { $gt: new Date() }
+    }).select('+verificationCode +verificationCodeExpiresAt');
+
+    if (!user) {
+      throw ApiError.badRequest('Invalid or expired verification code');
+    }
+
+    user.isEmailVerified = true;
+    user.verificationCode = undefined;
+    user.verificationCodeExpiresAt = undefined;
+    await user.save();
+
+    return { message: 'Email verified successfully. You can now login.' };
+  }
+
   async login(data: LoginInput) {
-    const user = await User.findOne({ username: data.username.toLowerCase() })
+    const user = await User.findOne({ email: data.email.toLowerCase() })
       .select('+password +refreshToken')
       .exec();
 
     if (!user) {
-      logger.warn(`Login failed: User not found [${data.username}]`);
+      logger.warn(`Login failed: User not found [${data.email}]`);
       throw ApiError.unauthorized('Invalid credentials');
+    }
+
+    if (!user.isEmailVerified) {
+      throw ApiError.forbidden('Email not verified. Please verify your email first.');
     }
 
     if (!user.isActive) {
@@ -27,7 +87,7 @@ export class AuthService {
     const isPasswordValid = await comparePassword(data.password, user.password);
 
     if (!isPasswordValid) {
-      logger.warn(`Login failed: Invalid password for [${data.username}]`);
+      logger.warn(`Login failed: Invalid password for [${data.email}]`);
       throw ApiError.unauthorized('Invalid credentials');
     }
 
@@ -44,7 +104,7 @@ export class AuthService {
     return {
       user: {
         _id: user._id,
-        username: user.username,
+        name: user.name,
         email: user.email,
         role: user.role,
         hostelId: user.hostelId,
@@ -111,40 +171,6 @@ export class AuthService {
     await user.save();
 
     return { message: 'Password changed successfully. Please login again.' };
-  }
-
-  async seedAdmin() {
-    try {
-      const username = env.ADMIN_USERNAME.toLowerCase().trim();
-      logger.info(`Checking for admin user: ${username}`);
-      
-      const existingAdmin = await User.findOne({ username });
-
-      if (existingAdmin) {
-        logger.info(`Admin user already exists with ID: ${existingAdmin._id}`);
-        return;
-      }
-
-      const hashedPassword = await hashPassword(env.ADMIN_PASSWORD);
-
-      const admin = new User({
-        username,
-        email: env.ADMIN_EMAIL,
-        password: hashedPassword,
-        role: 'ADMIN',
-        isFirstLogin: true,
-        isActive: true,
-      });
-
-      await admin.save();
-      logger.info(`✅ Admin user successfully seeded: ${username}`);
-    } catch (error) {
-      if ((error as any).code === 11000) {
-        logger.info('Admin user already exists (duplicate key caught in seed)');
-        return;
-      }
-      logger.error('Failed to seed admin user:', error);
-    }
   }
 }
 

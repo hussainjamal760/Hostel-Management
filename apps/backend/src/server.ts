@@ -1,6 +1,5 @@
 import { createApp } from './app';
 import { connectDB, disconnectDB, env, logger } from './config';
-import { authService } from './modules/auth';
 
 /**
  * Server Bootstrap
@@ -10,8 +9,6 @@ const startServer = async (): Promise<void> => {
     // Connect to database
     await connectDB();
 
-    // Seed admin user
-    await authService.seedAdmin();
 
     // Create Express app
     const app = createApp();
