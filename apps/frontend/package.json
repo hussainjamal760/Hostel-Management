@@ -9,13 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@hostelite/shared-types": "*",
+    "@hostelite/shared-validators": "*",
     "@reduxjs/toolkit": "^2.11.2",
     "next": "16.1.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-redux": "^9.2.0",
-    "@hostelite/shared-types": "*",
-    "@hostelite/shared-validators": "*"
+    "react-icons": "^5.5.0",
+    "react-redux": "^9.2.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
