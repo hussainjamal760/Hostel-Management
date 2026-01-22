@@ -1,99 +1,189 @@
 'use client';
 
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { useAppSelector, useAppDispatch } from '@/lib/hooks';
-import { logout } from '@/lib/features/authSlice';
+import { useAppSelector } from '@/lib/hooks';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import {
+  HiOutlineOfficeBuilding,
+  HiOutlineUsers,
+  HiOutlineCurrencyDollar,
+  HiOutlineExclamationCircle,
+  HiOutlineTrendingDown,
+  HiOutlineClock,
+  HiOutlineFlag,
+} from 'react-icons/hi';
+import { useGetDashboardStatsQuery } from '@/lib/services/adminApi';
+import StatsCard from '../components/StatsCard';
+import {
+  ChartCard,
+  RevenueChart,
+  OccupancyChart,
+  RoomDistributionChart,
+  PaymentStatusChart,
+} from '../components/Charts';
+import RecentActivity from '../components/RecentActivity';
+import QuickActions from '../components/QuickActions';
 
 export default function AdminDashboardPage() {
-  const { user } = useAppSelector((state) => state.auth);
-  const dispatch = useAppDispatch();
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const router = useRouter();
+  const { data: statsResponse, isLoading, error } = useGetDashboardStatsQuery();
 
-  const handleLogout = () => {
-    dispatch(logout());
-    router.push('/login');
-  };
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    } else if (user?.role !== 'ADMIN') {
+      router.push('/unauthorized');
+    }
+  }, [isAuthenticated, user, router]);
 
-  if (user?.role !== 'ADMIN') {
+  if (!isAuthenticated || user?.role !== 'ADMIN') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
-          <p className="mt-2 text-gray-600">You do not have permission to view this page.</p>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="mt-4 text-indigo-600 hover:text-indigo-500 font-medium"
-          >
-            Go to Student Dashboard
-          </button>
-        </div>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-pulse text-brand-text dark:text-dark-text">Loading...</div>
       </div>
     );
   }
 
+  const stats = statsResponse?.data;
+
+  const formatCurrency = (amount: number) => {
+    if (amount >= 1000000) {
+      return `₨ ${(amount / 1000000).toFixed(1)}M`;
+    }
+    if (amount >= 1000) {
+      return `₨ ${(amount / 1000).toFixed(0)}K`;
+    }
+    return `₨ ${amount}`;
+  };
+
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-indigo-900">Admin Dashboard</h1>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">
-                Logged in as <span className="font-semibold">{user?.name}</span>
-              </span>
-              <button
-                onClick={handleLogout}
-                className="text-sm font-medium text-red-600 hover:text-red-500 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1 max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Stats Cards */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-sm font-medium text-gray-500">Total Users</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">124</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-sm font-medium text-gray-500">Total Hostels</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">12</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-sm font-medium text-gray-500">Pending Requests</p>
-              <p className="mt-2 text-3xl font-bold text-red-600">5</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-sm font-medium text-gray-500">Active Bookings</p>
-              <p className="mt-2 text-3xl font-bold text-green-600">89</p>
-            </div>
-          </div>
-
-          <div className="mt-8 bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Admin Actions</h3>
-            </div>
-            <div className="p-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <button className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                Manage Hostels
-              </button>
-              <button className="flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
-                Approve Requests
-              </button>
-              <button className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                User Management
-              </button>
-              <button className="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                System Settings
-              </button>
-            </div>
-          </div>
-        </main>
+    <div className="space-y-6">
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-brand-primary to-brand-primary/80 dark:from-dark-primary/20 dark:to-dark-card rounded-2xl p-6 text-white dark:text-dark-text">
+        <h1 className="text-2xl font-bold">Welcome back, {user?.name}!</h1>
+        <p className="mt-1 text-white/80 dark:text-dark-text/70">
+          Here&apos;s your platform overview for today.
+        </p>
       </div>
-    </ProtectedRoute>
+
+      {/* Stats Grid - 7 cards for the 7 metrics */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(7)].map((_, i) => (
+            <div key={i} className="h-32 rounded-2xl bg-brand-card/20 dark:bg-dark-card/20 animate-pulse" />
+          ))}
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-xl">
+          Failed to load dashboard stats. Please try again.
+        </div>
+      ) : (
+        <>
+          {/* First Row - 4 cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatsCard
+              title="Total Hostels Onboarded"
+              value={stats?.totalHostelsOnboarded || 0}
+              change={`${stats?.totalActiveHostels || 0} currently active`}
+              changeType="neutral"
+              icon={HiOutlineOfficeBuilding}
+            />
+            <StatsCard
+              title="Total Active Hostels"
+              value={stats?.totalActiveHostels || 0}
+              change={stats?.recentTrends?.hostelsGrowth 
+                ? `${stats.recentTrends.hostelsGrowth > 0 ? '+' : ''}${stats.recentTrends.hostelsGrowth}% this month`
+                : 'Active on platform'}
+              changeType={stats?.recentTrends?.hostelsGrowth && stats.recentTrends.hostelsGrowth > 0 ? 'positive' : 'neutral'}
+              icon={HiOutlineOfficeBuilding}
+              iconBg="bg-green-500"
+            />
+            <StatsCard
+              title="Total Students"
+              value={stats?.totalStudents?.toLocaleString() || 0}
+              change={stats?.recentTrends?.studentsGrowth 
+                ? `${stats.recentTrends.studentsGrowth > 0 ? '+' : ''}${stats.recentTrends.studentsGrowth}% growth`
+                : 'Across all hostels'}
+              changeType={stats?.recentTrends?.studentsGrowth && stats.recentTrends.studentsGrowth > 0 ? 'positive' : 'neutral'}
+              icon={HiOutlineUsers}
+              iconBg="bg-blue-500"
+            />
+            <StatsCard
+              title="Monthly Recurring Revenue"
+              value={formatCurrency(stats?.monthlyRecurringRevenue || 0)}
+              change={stats?.recentTrends?.revenueGrowth 
+                ? `${stats.recentTrends.revenueGrowth > 0 ? '+' : ''}${stats.recentTrends.revenueGrowth}% vs last month`
+                : 'Current month MRR'}
+              changeType={stats?.recentTrends?.revenueGrowth && stats.recentTrends.revenueGrowth > 0 ? 'positive' : 'negative'}
+              icon={HiOutlineCurrencyDollar}
+              iconBg="bg-emerald-500"
+            />
+          </div>
+
+          {/* Second Row - 3 cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <StatsCard
+              title="Churned Hostels"
+              value={stats?.churnedHostels || 0}
+              change="Left the platform"
+              changeType="negative"
+              icon={HiOutlineTrendingDown}
+              iconBg="bg-red-500"
+            />
+            <StatsCard
+              title="Pending Payments"
+              value={stats?.pendingPayments || 0}
+              change={`${formatCurrency(stats?.pendingPaymentsAmount || 0)} outstanding`}
+              changeType="negative"
+              icon={HiOutlineClock}
+              iconBg="bg-amber-500"
+            />
+            <StatsCard
+              title="Flagged Hostels"
+              value={stats?.flaggedHostels || 0}
+              change="Have open complaints"
+              changeType={stats?.flaggedHostels && stats.flaggedHostels > 0 ? 'negative' : 'positive'}
+              icon={HiOutlineFlag}
+              iconBg="bg-orange-500"
+            />
+          </div>
+        </>
+      )}
+
+      {/* Charts Row 1 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ChartCard title="Revenue Overview">
+          <RevenueChart monthlyData={stats?.monthlyRevenue} />
+        </ChartCard>
+        <ChartCard title="Hostels by City">
+          <OccupancyChart cityData={stats?.hostelsByCity} />
+        </ChartCard>
+      </div>
+
+      {/* Charts Row 2 + Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <ChartCard title="Payment Status">
+            <PaymentStatusChart 
+              pendingPayments={stats?.pendingPayments || 0}
+              totalStudents={stats?.totalStudents || 0}
+            />
+          </ChartCard>
+          <ChartCard title="Hostel Status">
+            <RoomDistributionChart 
+              active={stats?.totalActiveHostels || 0}
+              churned={stats?.churnedHostels || 0}
+            />
+          </ChartCard>
+          <div className="sm:col-span-2">
+            <QuickActions />
+          </div>
+        </div>
+        <div>
+          <RecentActivity activities={stats?.recentActivity} isLoading={isLoading} />
+        </div>
+      </div>
+    </div>
   );
 }

@@ -7,6 +7,7 @@ import { studentRoutes } from '../modules/students';
 import { paymentRoutes } from '../modules/payments';
 import { complaintRoutes } from '../modules/complaints';
 import { notificationRoutes } from '../modules/notifications';
+import { adminRoutes } from '../modules/admin';
 import { API_VERSION } from '@hostelite/shared-constants';
 
 const router = Router();
@@ -27,5 +28,7 @@ router.use('/students', studentRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/complaints', complaintRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/admin', adminRoutes);
 
 export default router;
+

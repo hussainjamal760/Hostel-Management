@@ -51,7 +51,7 @@ export default function LoginPage() {
       
       toast.success(`Welcome back, ${result.user.name}!`);
 
-      if (result.user.role === 'ADMIN' || result.user.role === 'SUPER_ADMIN') {
+      if (result.user.role === 'ADMIN') {
         router.push('/admin/dashboard');
       } else {
         router.push('/dashboard');

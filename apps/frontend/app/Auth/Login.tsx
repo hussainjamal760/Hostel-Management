@@ -47,7 +47,7 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
       setOpen(false);
       
       // Redirect based on role
-      if (result.user.role === 'ADMIN' || result.user.role === 'SUPER_ADMIN') {
+      if (result.user.role === 'ADMIN') {
         router.push('/admin/dashboard');
       } else {
         router.push('/dashboard');
