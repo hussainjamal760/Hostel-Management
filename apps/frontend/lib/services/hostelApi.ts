@@ -37,6 +37,14 @@ export const hostelApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Hostel'],
     }),
+    updateHostel: builder.mutation<ApiResponse<IHostel>, { id: string; data: Partial<CreateHostelInput> }>({
+      query: ({ id, data }) => ({
+        url: `/hostels/${id}`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['Hostel'],
+    }),
   }),
 });
 
@@ -44,4 +52,5 @@ export const {
   useGetOwnerHostelsQuery,
   useGetHostelStatsQuery,
   useCreateHostelMutation,
+  useUpdateHostelMutation,
 } = hostelApi;
