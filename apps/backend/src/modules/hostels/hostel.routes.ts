@@ -4,6 +4,7 @@ import { authenticate, authorize, validate } from '../../middlewares';
 import { createHostelSchema, updateHostelSchema } from '@hostelite/shared-validators';
 
 const router = Router();
+// Force restart 2
 
 router.use(authenticate);
 
@@ -18,6 +19,12 @@ router.get(
   '/',
   authorize('ADMIN', 'OWNER'),
   hostelController.getAllHostels
+);
+
+router.get(
+  '/stats',
+  authorize('ADMIN', 'OWNER'),
+  hostelController.getStats
 );
 
 router.get(

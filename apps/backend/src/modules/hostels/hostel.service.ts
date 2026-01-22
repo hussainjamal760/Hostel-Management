@@ -1,11 +1,14 @@
-import { FilterQuery } from 'mongoose';
+import mongoose, { FilterQuery } from 'mongoose';
 import { Hostel, IHostelDocument } from './hostel.model';
+import { User } from '../users/user.model';
 import { CreateHostelInput, UpdateHostelInput } from '@hostelite/shared-validators';
 import { ApiError } from '../../utils';
 import { Role } from '@hostelite/shared-types';
 
 export class HostelService {
   async createHostel(data: CreateHostelInput, requesterId: string, requesterRole: Role) {
+    console.log('createHostel called with:', { requesterId, requesterRole });
+    
     if (data.code) {
       const existing = await Hostel.findOne({ code: data.code });
       if (existing) {
@@ -18,10 +21,17 @@ export class HostelService {
       ownerId = (data as any).ownerId;
     }
 
+    console.log('Creating hostel with ownerId:', ownerId);
+
     const hostel = await Hostel.create({
       ...data,
       ownerId,
     });
+
+    console.log('Hostel created:', hostel._id, 'ownerId:', hostel.ownerId);
+
+    await User.findByIdAndUpdate(ownerId, { hostelId: hostel._id });
+    console.log('Updated user hostelId');
 
     return hostel;
   }
@@ -36,11 +46,13 @@ export class HostelService {
       limit?: number;
     }
   ) {
+    console.log('getAllHostels called with query:', query);
+    
     const { ownerId, search, city, isActive, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
     const filter: FilterQuery<IHostelDocument> = {};
-    if (ownerId) filter.ownerId = ownerId;
+    if (ownerId) filter.ownerId = new mongoose.Types.ObjectId(ownerId);
     if (typeof isActive === 'boolean') filter.isActive = isActive;
     if (city) filter['address.city'] = { $regex: city, $options: 'i' };
     
@@ -52,11 +64,15 @@ export class HostelService {
       ];
     }
 
+    console.log('getAllHostels filter:', JSON.stringify(filter));
+
     const hostels = await Hostel.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .exec();
+
+    console.log('getAllHostels found:', hostels.length, 'hostels');
 
     const total = await Hostel.countDocuments(filter);
     const totalPages = Math.ceil(total / limit);
@@ -112,6 +128,28 @@ export class HostelService {
     await hostel.save();
 
     return hostel;
+  }
+
+
+  async getStats(ownerId: string) {
+    const hostels = await Hostel.find({ ownerId });
+    
+    // Aggregate data
+    const totalHostels = hostels.length;
+    const totalRooms = hostels.reduce((acc, hostel) => acc + hostel.totalRooms, 0);
+    const totalBeds = hostels.reduce((acc, hostel) => acc + hostel.totalBeds, 0);
+    
+    // In a real app, we would query other collections (Students, Complaints) here
+    // For now, we'll return the hostel data and some placeholders
+    return {
+      totalHostels,
+      totalRooms,
+      totalBeds,
+      totalStudents: 0, // Placeholder
+      occupancyRate: 0, // Placeholder
+      pendingComplaints: 0, // Placeholder
+      revenue: hostels.reduce((acc, hostel) => acc + (hostel.monthlyRent * (hostel.totalBeds || 0) * 0.8), 0), // Est. Revenue
+    };
   }
 }
 

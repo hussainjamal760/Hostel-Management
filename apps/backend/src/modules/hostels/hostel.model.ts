@@ -1,20 +1,14 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { IHostel } from '@hostelite/shared-types';
 
-/**
- * Hostel Document Interface
- */
 export interface IHostelDocument extends Omit<IHostel, '_id'>, Document {}
 
-/**
- * Address Sub-Schema
- */
 const addressSchema = new Schema(
   {
     street: { type: String, required: true },
     city: { type: String, required: true },
-    state: { type: String, required: true },
-    pincode: { type: String, required: true },
+
+
     coordinates: {
       lat: { type: Number },
       lng: { type: Number },
@@ -23,9 +17,6 @@ const addressSchema = new Schema(
   { _id: false }
 );
 
-/**
- * Hostel Schema
- */
 const hostelSchema = new Schema<IHostelDocument>(
   {
     name: {
@@ -34,9 +25,15 @@ const hostelSchema = new Schema<IHostelDocument>(
       trim: true,
       maxlength: [100, 'Name cannot exceed 100 characters'],
     },
+    phoneNumber: {
+      type: String,
+      required: [true, 'Phone number is required'],
+      trim: true,
+      minlength: [10, 'Phone number must be at least 10 characters'],
+      maxlength: [15, 'Phone number cannot exceed 15 characters'],
+    },
     code: {
       type: String,
-      required: [true, 'Hostel code is required'],
       unique: true,
       uppercase: true,
       trim: true,
@@ -47,7 +44,6 @@ const hostelSchema = new Schema<IHostelDocument>(
     ownerId: {
       type: Schema.Types.ObjectId as any,
       ref: 'User',
-      required: [true, 'Owner is required'],
       index: true,
     },
     address: {
@@ -77,11 +73,7 @@ const hostelSchema = new Schema<IHostelDocument>(
       required: [true, 'Monthly rent is required'],
       min: [0, 'Rent cannot be negative'],
     },
-    securityDeposit: {
-      type: Number,
-      default: 0,
-      min: [0, 'Security deposit cannot be negative'],
-    },
+
     isActive: {
       type: Boolean,
       default: true,
@@ -99,16 +91,11 @@ const hostelSchema = new Schema<IHostelDocument>(
   }
 );
 
-// Indexes
 hostelSchema.index({ ownerId: 1, isActive: 1 });
 hostelSchema.index({ 'address.city': 1 });
 
-/**
- * Generate unique hostel code
- */
 hostelSchema.pre('save', async function (this: IHostelDocument, next) {
   if (!this.code) {
-    // Generate a random 4-character code
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = '';
     for (let i = 0; i < 4; i++) {
@@ -119,9 +106,6 @@ hostelSchema.pre('save', async function (this: IHostelDocument, next) {
   next();
 });
 
-/**
- * Hostel Model
- */
 export const Hostel = mongoose.model<IHostelDocument>('Hostel', hostelSchema);
 
 export default Hostel;

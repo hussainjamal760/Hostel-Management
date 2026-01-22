@@ -65,7 +65,7 @@ html {
 
 ::-webkit-scrollbar-thumb {
   background: var(--brand-primary);
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 .dark ::-webkit-scrollbar-thumb {

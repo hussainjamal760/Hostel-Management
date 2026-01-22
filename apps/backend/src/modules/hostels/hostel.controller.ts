@@ -5,7 +5,7 @@ import { Role } from '@hostelite/shared-types';
 
 export class HostelController {
   createHostel = asyncHandler(async (req: Request, res: Response) => {
-    const requesterId = req.user!._id;
+    const requesterId = req.user!.id;
     const requesterRole = req.user!.role as Role;
     const result = await hostelService.createHostel(req.body, requesterId, requesterRole);
 
@@ -18,12 +18,16 @@ export class HostelController {
     };
 
     if (req.user?.role === 'OWNER') {
-      filters.ownerId = req.user._id;
+      filters.ownerId = req.user.id;
     }
-    
-    const result = await hostelService.getAllHostels(filters);
 
+    const result = await hostelService.getAllHostels(filters);
     ApiResponse.paginated(res, result.hostels, result.pagination, 'Hostels fetched successfully');
+  });
+
+  getStats = asyncHandler(async (req: Request, res: Response) => {
+    const result = await hostelService.getStats(req.user!.id);
+    ApiResponse.success(res, result, 'Stats fetched successfully');
   });
 
   getHostelById = asyncHandler(async (req: Request, res: Response) => {
@@ -35,7 +39,7 @@ export class HostelController {
     const result = await hostelService.updateHostel(
       req.params.id,
       req.body,
-      req.user!._id,
+      req.user!.id,
       req.user!.role as Role
     );
     ApiResponse.success(res, result, 'Hostel updated successfully');
@@ -44,7 +48,7 @@ export class HostelController {
   deleteHostel = asyncHandler(async (req: Request, res: Response) => {
     await hostelService.deleteHostel(
       req.params.id,
-      req.user!._id,
+      req.user!.id,
       req.user!.role as Role
     );
     ApiResponse.success(res, null, 'Hostel deleted successfully');
@@ -52,3 +56,4 @@ export class HostelController {
 }
 
 export default new HostelController();
+
