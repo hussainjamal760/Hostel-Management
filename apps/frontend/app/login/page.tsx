@@ -19,15 +19,6 @@ export default function LoginPage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      if (user.role === 'ADMIN') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/dashboard');
-      }
-    }
-  }, [isAuthenticated, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +30,6 @@ export default function LoginPage() {
 
     try {
       const response = await login({ email, password }).unwrap();
-      // API wraps response in 'data' property
       const result = response.data || response;
       
       dispatch(setCredentials({ 
@@ -51,7 +41,6 @@ export default function LoginPage() {
       
       toast.success(`Welcome back, ${result.user.name}!`);
 
-      // Redirect to profile for all users
       router.push('/profile');
     } catch (error: any) {
       const message = error?.data?.message || error?.message || 'Login failed';
@@ -72,7 +61,7 @@ export default function LoginPage() {
             Sign in to your account
           </h2>
           <p className="mt-2 text-sm text-brand-text/60 dark:text-dark-text/60">
-            Or{' '}
+            Or {' '}
             <Link href="/signup" className="font-semibold text-brand-primary dark:text-dark-primary hover:underline">
               create a new account
             </Link>

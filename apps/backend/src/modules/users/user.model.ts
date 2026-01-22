@@ -106,7 +106,8 @@ const userSchema = new Schema<IUserDocument>(
       type: String,
     },
     avatar: {
-      type: String,
+      url: String,
+      publicId: String,
     },
   },
   {

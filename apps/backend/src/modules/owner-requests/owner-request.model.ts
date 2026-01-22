@@ -41,13 +41,11 @@ const ownerRequestSchema = new Schema<IOwnerRequestDocument>(
     },
     businessAddress: {
       type: String,
-      required: [true, 'Business address is required'],
       trim: true,
       maxlength: [500, 'Address cannot exceed 500 characters'],
     },
     reason: {
       type: String,
-      required: [true, 'Reason is required'],
       trim: true,
       maxlength: [1000, 'Reason cannot exceed 1000 characters'],
     },

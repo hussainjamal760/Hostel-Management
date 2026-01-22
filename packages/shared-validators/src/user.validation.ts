@@ -8,15 +8,23 @@ export const createUserSchema = z.object({
     .optional(),
   role: z.enum(['ADMIN', 'OWNER', 'MANAGER', 'STUDENT']),
   hostelId: z.string().optional(),
+  name: z.string().min(1, 'Name is required').optional(),
 });
 
 export const updateUserSchema = z.object({
+  name: z.string().min(1, 'Name is required').optional(),
   email: z.string().email('Invalid email address').optional(),
   phone: z
     .string()
     .regex(/^(\+92|0)?[0-9]{10}$/, 'Invalid Pakistani phone number')
     .optional(),
-  avatar: z.string().url('Invalid avatar URL').optional(),
+  avatar: z.union([
+    z.string().url('Invalid avatar URL'),
+    z.object({
+      url: z.string().url('Invalid avatar URL'),
+      publicId: z.string(),
+    }),
+  ]).optional(),
   fcmToken: z.string().optional(),
 });
 

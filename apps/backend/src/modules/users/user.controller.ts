@@ -28,12 +28,12 @@ export class UserController {
   });
 
   getMe = asyncHandler(async (req: Request, res: Response) => {
-    const user = await userService.getUserById(req.user!._id.toString());
+    const user = await userService.getUserById(req.user!.id);
     ApiResponse.success(res, user, 'Profile fetched successfully');
   });
 
   updateMe = asyncHandler(async (req: Request, res: Response) => {
-    const user = await userService.updateUser(req.user!._id.toString(), req.body);
+    const user = await userService.updateUser(req.user!.id, req.body);
     ApiResponse.success(res, user, 'Profile updated successfully');
   });
 

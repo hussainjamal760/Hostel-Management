@@ -18,7 +18,10 @@ export interface IUser {
   lastLoginAt?: Date;
   refreshToken?: string;
   fcmToken?: string;
-  avatar?: string;
+  avatar?: {
+    publicId: string;
+    url: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,8 +39,12 @@ export interface IUserCreate {
 }
 
 export interface IUserUpdate {
+  name?: string;
   email?: string;
   phone?: string;
-  avatar?: string;
+  avatar?: {
+    publicId: string;
+    url: string;
+  };
   fcmToken?: string;
 }

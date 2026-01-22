@@ -22,10 +22,14 @@ export interface AuthData {
     _id: string;
     name: string;
     email: string;
+    phone: string;
     role: string;
     hostelId?: string;
     isFirstLogin?: boolean;
-    avatar?: { url: string };
+    avatar?: {
+      url: string;
+      publicId: string;
+    } | string; // Support both for backward compatibility if needed
   };
   tokens: {
     accessToken: string;

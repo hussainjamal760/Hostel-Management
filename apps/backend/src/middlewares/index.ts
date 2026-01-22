@@ -8,3 +8,4 @@ export { authorize, requireMinRole, requireHostelAccess } from './role.middlewar
 export { validate, validateRequest } from './validate.middleware';
 export { generalLimiter, authLimiter, createUserLimiter } from './rateLimiter.middleware';
 export { errorHandler, notFoundHandler } from './error.middleware';
+export { upload } from './upload.middleware';

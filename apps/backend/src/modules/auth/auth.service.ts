@@ -109,6 +109,7 @@ export class AuthService {
         role: user.role,
         hostelId: user.hostelId,
         isFirstLogin: user.isFirstLogin,
+        phone: user.phone,
         avatar: user.avatar,
       },
       tokens,

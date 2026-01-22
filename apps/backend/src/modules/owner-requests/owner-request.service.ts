@@ -6,8 +6,8 @@ import { mailService } from '../../utils';
 export interface CreateOwnerRequestInput {
   businessName: string;
   businessPhone: string;
-  businessAddress: string;
-  reason: string;
+  businessAddress?: string;
+  reason?: string;
 }
 
 export interface ReviewRequestInput {
