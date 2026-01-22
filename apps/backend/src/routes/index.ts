@@ -10,6 +10,7 @@ import { notificationRoutes } from '../modules/notifications';
 import { adminRoutes } from '../modules/admin';
 import { ownerRequestRoutes } from '../modules/owner-requests';
 import uploadRoutes from '../modules/upload/upload.routes';
+import { managerRoutes } from '../modules/managers/manager.routes';
 import { API_VERSION } from '@hostelite/shared-constants';
 
 const router = Router();
@@ -33,5 +34,6 @@ router.use('/notifications', notificationRoutes);
 router.use('/admin', adminRoutes);
 router.use('/owner-requests', ownerRequestRoutes);
 router.use('/upload', uploadRoutes);
+router.use('/managers', managerRoutes);
 
 export default router;

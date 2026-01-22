@@ -16,7 +16,8 @@ import {
   HiOutlineMenu,
   HiX,
   HiOutlineChartBar,
-  HiOutlineUserAdd
+  HiOutlineUserAdd,
+  HiOutlineUserGroup
 } from 'react-icons/hi';
 
 interface OwnerLayoutProps {
@@ -27,12 +28,11 @@ interface OwnerLayoutProps {
 const menuItems = [
   { name: 'Dashboard', href: '/owner/dashboard', icon: HiOutlineHome },
   { name: 'My Hostel', href: '/owner/hostel', icon: HiOutlineOfficeBuilding }, // Converted Create/Edit into one "My Hostel" view conceptually? Or keep as Create if none.
-  // Actually, user asked for "create manager", "manage manager", "all students", "complaints", "reports"
   { name: 'Create Manager', href: '/owner/create-manager', icon: HiOutlineUserAdd },
   { name: 'Manage Managers', href: '/owner/managers', icon: HiOutlineUsers },
   { name: 'All Students', href: '/owner/students', icon: HiOutlineUsers },
   { name: 'Complaints', href: '/owner/complaints', icon: HiOutlineClipboardList },
-  { name: 'Reports', href: '/owner/reports', icon: HiOutlineChartBar },
+  { name: 'Reports', href: '/owner/reports', icon: HiOutlineChartBar }
 ];
 
 export default function OwnerLayout({ children }: OwnerLayoutProps) {
