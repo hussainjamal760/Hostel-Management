@@ -82,7 +82,7 @@ const Header = () => {
 
         <div className="flex items-center gap-2">
           <ThemeSwitcher />
-
+          
           <div className="hidden md:block cursor-pointer">
             {user ? (
               <Link href={"/profile"}>

@@ -1,23 +1,24 @@
 @import "tailwindcss";
 
+/* Enable dark mode with class selector for Tailwind CSS v4 */
+@variant dark (&:is(.dark *));
+
 :root {
   /* Light Mode - Warm Beige/Cream Theme */
   --brand-bg: #fcf2e9;
   --brand-text: #2c1b13;
   --brand-primary: #2c1b13;
   --brand-card: #e8d5c4;
+  --dark-bg: #1a0f0a;
+  --dark-text: #fcf2e9;
+  --dark-primary: #e8d5c4;
+  --dark-card: #2c1b13;
   
   --background: #fcf2e9;
   --foreground: #2c1b13;
 }
 
 .dark {
-  /* Dark Mode - Rich Brown Theme */
-  --dark-bg: #1a0f0a;
-  --dark-text: #fcf2e9;
-  --dark-primary: #e8d5c4;
-  --dark-card: #2c1b13;
-  
   --background: #1a0f0a;
   --foreground: #fcf2e9;
 }
@@ -29,10 +30,10 @@
   --color-brand-text: var(--brand-text);
   --color-brand-primary: var(--brand-primary);
   --color-brand-card: var(--brand-card);
-  --color-dark-bg: var(--dark-bg, #1a0f0a);
-  --color-dark-text: var(--dark-text, #fcf2e9);
-  --color-dark-primary: var(--dark-primary, #e8d5c4);
-  --color-dark-card: var(--dark-card, #2c1b13);
+  --color-dark-bg: var(--dark-bg);
+  --color-dark-text: var(--dark-text);
+  --color-dark-primary: var(--dark-primary);
+  --color-dark-card: var(--dark-card);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

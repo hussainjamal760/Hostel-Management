@@ -1,20 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { HiSearch, HiLocationMarker } from "react-icons/hi";
+import React from "react";
+import Link from "next/link";
 
 const Hero = () => {
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      router.push(`/hostels?search=${encodeURIComponent(searchQuery)}`);
-    }
-  };
-
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-brand-bg dark:bg-dark-bg transition-colors duration-500">
       <div className="absolute top-[10%] left-[-10%] w-[400px] h-[400px] bg-brand-card/30 rounded-full blur-[120px] -z-10 animate-pulse" />
@@ -29,55 +18,34 @@ const Hero = () => {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-primary"></span>
             </span>
             <span className="text-xs font-bold uppercase tracking-widest text-brand-primary dark:text-dark-primary">
-              Discover Your Next Home
+              Complete Hostel Solution
             </span>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold text-brand-primary dark:text-dark-text leading-[1.1]">
-            Find a Stay <br />
-            <span className="italic font-light text-brand-text dark:text-dark-primary">Beyond </span> 
-            Ordinary.
+            Manage Your <br />
+            <span className="italic font-light text-brand-text dark:text-dark-primary">Hostel </span> 
+            Effortlessly.
           </h1>
 
           <p className="text-lg text-brand-text/80 tracking-widest text-brand-primary dark:text-dark-text/70 max-w-lg leading-relaxed">
-            Experience the finest hostels. Your perfect room is just a click away.
+            Streamline operations, automate billing, and enhance resident experience with our all-in-one hostel management platform.
           </p>
 
-       <div className="relative max-w-xl w-full group">
-  <div className="absolute -inset-1 bg-gradient-to-r from-brand-primary to-brand-card rounded-[2rem] blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-  
-  <div className="relative flex items-center rounded-[1.8rem] p-2 shadow-2xl transition-all duration-500 
-    bg-[#2c1b13] 
-    dark:bg-[#fcf2e9]">
-    
-    <div className="flex items-center gap-2 flex-1 px-4">
-      <HiLocationMarker className="size-6 transition-colors duration-500
-        text-[#fcf2e9] 
-        dark:text-[#2c1b13]" 
-      />
-      
-      <input 
-        type="text"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-        placeholder="Where do you want to stay?" 
-        className="w-full bg-transparent border-none outline-none transition-colors duration-500
-          text-[#fcf2e9] placeholder:text-[#fcf2e9]/50
-          dark:text-[#2c1b13] dark:placeholder:text-[#2c1b13]/50"
-      />
-    </div>
-
-    <button 
-      onClick={handleSearch}
-      className="px-8 py-4 rounded-[1.5rem] font-bold flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg
-      bg-[#fcf2e9] text-[#2c1b13]
-      dark:bg-[#2c1b13] dark:text-[#fcf2e9]">
-      <HiSearch size={20} />
-      <span className="hidden sm:inline">Search</span>
-    </button>
-  </div>
-</div>
+          <div className="flex flex-wrap gap-4 mt-4">
+            <Link 
+              href="/login"
+              className="px-8 py-4 rounded-[1.5rem] font-bold flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg bg-[#2c1b13] text-[#fcf2e9] dark:bg-[#fcf2e9] dark:text-[#2c1b13]"
+            >
+              Get Started
+            </Link>
+            <Link 
+              href="/about"
+              className="px-8 py-4 rounded-[1.5rem] font-bold flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all border-2 border-[#2c1b13] text-[#2c1b13] dark:border-[#fcf2e9] dark:text-[#fcf2e9]"
+            >
+              Learn More
+            </Link>
+          </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8 mt-10">
   <div className="flex items-center">
@@ -103,7 +71,7 @@ const Hero = () => {
         ))}
       </div>
       <p className="text-[12px] font-bold uppercase tracking-tight text-brand-primary dark:text-dark-primary">
-        Trusted by 2k+ Students
+        Trusted by 500+ Hostels
       </p>
     </div>
   </div>
@@ -113,12 +81,12 @@ const Hero = () => {
   <div className="flex flex-col">
     <div className="flex items-baseline gap-1">
       <span className="text-3xl font-bold text-brand-primary dark:text-dark-primary leading-none">
-        12k
+        50k
       </span>
       <span className="text-brand-primary dark:text-dark-primary font-bold text-xl">+</span>
     </div>
     <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-primary dark:text-dark-primary opacity-50">
-      Verified Stays
+      Residents Managed
     </span>
   </div>
 </div>
@@ -134,9 +102,9 @@ const Hero = () => {
     <div className="absolute inset-0 flex items-center justify-center">
       <div className="text-center">
         <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-brand-primary/20 flex items-center justify-center">
-          <span className="text-4xl">🏨</span>
+          <span className="text-4xl">🏢</span>
         </div>
-        <p className="text-brand-text/50 dark:text-dark-text/50">Luxury Hostel</p>
+        <p className="text-brand-text/50 dark:text-dark-text/50">Hostel Dashboard</p>
       </div>
     </div>
     
@@ -148,8 +116,8 @@ const Hero = () => {
           H
         </div>
         <div>
-          <h4 className="font-bold text-white text-lg">Find your perfect room</h4>
-          <p className="text-xs text-white/80 tracking-wide">Starting from PKR 10000/month</p>
+          <h4 className="font-bold text-white text-lg">Complete Control Center</h4>
+          <p className="text-xs text-white/80 tracking-wide">Manage rooms, residents & payments</p>
         </div>
       </div>
     </div>
