@@ -1,140 +1,203 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { HiOutlineMail, HiOutlineLockClosed, HiOutlineUser, HiOutlinePhone, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
+import { toast } from 'react-hot-toast';
+import { useSignupMutation } from '@/lib/services/authApi';
+import { useAppSelector } from '@/lib/hooks';
 
 export default function SignupPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   
+  const [signup, { isLoading }] = useSignupMutation();
   const router = useRouter();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
+  const validateForm = () => {
+    if (!name.trim()) {
+      toast.error('Please enter your full name');
+      return false;
+    }
+    if (!email.trim()) {
+      toast.error('Please enter your email');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Please enter a valid email address');
+      return false;
+    }
+    if (!phone.trim()) {
+      toast.error('Please enter your phone number');
+      return false;
+    }
+    if (!/^[\d+\-\s()]+$/.test(phone) || phone.replace(/\D/g, '').length < 10) {
+      toast.error('Please enter a valid phone number');
+      return false;
+    }
+    if (!password) {
+      toast.error('Please enter a password');
+      return false;
+    }
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
+
+    if (!validateForm()) return;
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-      const response = await fetch(`${apiUrl}/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Signup failed');
-      }
-
-      router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
-    } finally {
-      setIsLoading(false);
+      const result = await signup({ name, email, phone, password }).unwrap();
+      
+      toast.success(result.message || 'Signup successful! Please verify your email.');
+      
+      // Store email for verification
+      localStorage.setItem('pendingVerificationEmail', email);
+      
+      router.push('/verify-email');
+    } catch (error: any) {
+      const message = error?.data?.message || error?.message || 'Signup failed';
+      toast.error(message);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-brand-bg dark:bg-dark-bg px-4 py-12 sm:px-6 lg:px-8 transition-colors">
       <div className="w-full max-w-md space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-2xl">H</div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+        <div className="text-center">
+          <Link href="/" className="inline-flex items-center gap-2 group">
+            <div className="h-12 w-12 rounded-xl bg-brand-primary dark:bg-dark-primary flex items-center justify-center text-white dark:text-dark-bg font-bold text-2xl transition-transform group-hover:scale-105">
+              H
+            </div>
+          </Link>
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-brand-text dark:text-dark-text">
             Create your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-sm text-brand-text/60 dark:text-dark-text/60">
             Already have an account?{' '}
-            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/login" className="font-semibold text-brand-primary dark:text-dark-primary hover:underline">
               Sign in
             </Link>
           </p>
         </div>
         
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-          
-          <div className="space-y-4 rounded-md shadow-sm">
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-              />
+              <label htmlFor="name" className="block text-sm font-semibold text-brand-text dark:text-dark-text mb-2">
+                Full Name
+              </label>
+              <div className="relative">
+                <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50" size={20} />
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-brand-primary/5 dark:bg-dark-primary/5 border border-brand-primary/10 dark:border-dark-primary/10 text-brand-text dark:text-dark-text placeholder:text-brand-text/50 dark:placeholder:text-dark-text/50 focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-primary"
+                  placeholder="Enter your full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
             </div>
+
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={handleChange}
-              />
+              <label htmlFor="email" className="block text-sm font-semibold text-brand-text dark:text-dark-text mb-2">
+                Email Address
+              </label>
+              <div className="relative">
+                <HiOutlineMail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50" size={20} />
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-brand-primary/5 dark:bg-dark-primary/5 border border-brand-primary/10 dark:border-dark-primary/10 text-brand-text dark:text-dark-text placeholder:text-brand-text/50 dark:placeholder:text-dark-text/50 focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-primary"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
             </div>
+
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
-              <input
-                id="phone"
-                name="phone"
-                type="text"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={handleChange}
-              />
+              <label htmlFor="phone" className="block text-sm font-semibold text-brand-text dark:text-dark-text mb-2">
+                Phone Number
+              </label>
+              <div className="relative">
+                <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50" size={20} />
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  required
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-brand-primary/5 dark:bg-dark-primary/5 border border-brand-primary/10 dark:border-dark-primary/10 text-brand-text dark:text-dark-text placeholder:text-brand-text/50 dark:placeholder:text-dark-text/50 focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-primary"
+                  placeholder="Enter your phone number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
             </div>
+
             <div>
-              <label htmlFor="password" title="Password" className="block text-sm font-medium text-gray-700">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-              />
+              <label htmlFor="password" className="block text-sm font-semibold text-brand-text dark:text-dark-text mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50" size={20} />
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  minLength={6}
+                  className="w-full pl-12 pr-12 py-3 rounded-xl bg-brand-primary/5 dark:bg-dark-primary/5 border border-brand-primary/10 dark:border-dark-primary/10 text-brand-text dark:text-dark-text placeholder:text-brand-text/50 dark:placeholder:text-dark-text/50 focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-primary"
+                  placeholder="Create a password (min 6 characters)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50 hover:text-brand-text dark:hover:text-dark-text"
+                >
+                  {showPassword ? <HiOutlineEyeOff size={20} /> : <HiOutlineEye size={20} />}
+                </button>
+              </div>
             </div>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 transition-all shadow-md"
-            >
-              {isLoading ? 'Creating account...' : 'Sign up'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-3 rounded-xl bg-brand-primary dark:bg-dark-primary text-white dark:text-dark-bg font-bold hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          >
+            {isLoading ? 'Creating account...' : 'Create Account'}
+          </button>
         </form>
+
+        <div className="text-center">
+          <Link href="/" className="text-sm text-brand-text/60 dark:text-dark-text/60 hover:underline">
+            ← Back to home
+          </Link>
+        </div>
       </div>
     </div>
   );

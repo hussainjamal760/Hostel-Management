@@ -2,6 +2,11 @@
 
 import React, { useState } from "react";
 import { HiX, HiOutlineMail, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
+import { toast } from "react-hot-toast";
+import { useLoginMutation } from "@/lib/services/authApi";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/lib/features/authSlice";
+import { useRouter } from "next/navigation";
 
 interface LoginProps {
   open: boolean;
@@ -13,15 +18,44 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [login, { isLoading }] = useLoginMutation();
+  const dispatch = useDispatch();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    // TODO: Implement login logic
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const response = await login({ email, password }).unwrap();
+      // API wraps response in 'data' property
+      const result = response.data || response;
+      
+      dispatch(setCredentials({
+        token: result.tokens.accessToken,
+        user: result.user as any,
+      }));
+
+      // Store refresh token
+      localStorage.setItem('refreshToken', result.tokens.refreshToken);
+      
+      toast.success(`Welcome back, ${result.user.name}!`);
+      setOpen(false);
+      
+      // Redirect based on role
+      if (result.user.role === 'ADMIN' || result.user.role === 'SUPER_ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error: any) {
+      const message = error?.data?.message || error?.message || "Login failed";
+      toast.error(message);
+    }
   };
 
   if (!open) return null;
@@ -88,7 +122,7 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-xl bg-[#2c1b13] dark:bg-[#fcf2e9] text-[#fcf2e9] dark:text-[#2c1b13] font-bold hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50"
+              className="w-full py-3 rounded-xl bg-[#2c1b13] dark:bg-[#fcf2e9] text-[#fcf2e9] dark:text-[#2c1b13] font-bold hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
