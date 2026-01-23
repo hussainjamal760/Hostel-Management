@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useGetOwnerHostelsQuery } from '@/lib/services/hostelApi';
+import { useGetOwnerHostelsQuery, useDeleteHostelMutation } from '@/lib/services/hostelApi';
 import Link from 'next/link';
-import { HiOutlinePencil, HiOutlineLocationMarker, HiOutlinePhone, HiOutlineUserGroup, HiOutlineHome, HiPlus } from 'react-icons/hi';
+import { HiOutlinePencil, HiOutlineLocationMarker, HiOutlinePhone, HiOutlineUserGroup, HiOutlineHome, HiPlus, HiOutlineTrash } from 'react-icons/hi';
 import MapPicker from '@/components/ui/MapPicker';
 import HostelForm from '@/components/hostel/HostelForm';
 import { IHostel } from '@hostelite/shared-types';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
+import { toast } from 'react-hot-toast';
 
 export default function MyHostelPage() {
   const { data: hostelResponse, isLoading } = useGetOwnerHostelsQuery();
@@ -33,6 +35,25 @@ export default function MyHostelPage() {
   const handleFormCancel = () => {
     setIsFormOpen(false);
     setEditingHostel(undefined);
+  };
+
+  const [deleteHostel, { isLoading: isDeleting }] = useDeleteHostelMutation();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deleteHostel(deleteId).unwrap();
+      toast.success('Hostel removed successfully');
+      setDeleteId(null);
+    } catch (error) {
+      console.error('Failed to delete hostel', error);
+      toast.error('Failed to delete hostel');
+    }
   };
 
   if (isLoading) {
@@ -73,6 +94,16 @@ export default function MyHostelPage() {
   }
 
   return (
+    <>
+      <ConfirmationModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
+        title="Delete Hostel"
+        message="Are you sure you want to delete this hostel? All associated room data will be archived and hidden."
+        confirmText="Delete Hostel"
+        isLoading={isDeleting}
+      />
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
@@ -100,13 +131,22 @@ export default function MyHostelPage() {
                        {hostel.isActive ? 'Active' : 'Inactive'}
                    </span>
                 </div>
-                <button 
-                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 font-medium"
-                  onClick={() => handleEditClick(hostel)}
-                >
-                  <HiOutlinePencil size={18} />
-                  Edit Details
-                </button>
+                <div className="flex items-center gap-3">
+                   <button 
+                     className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 font-medium"
+                     onClick={() => handleEditClick(hostel)}
+                   >
+                     <HiOutlinePencil size={18} />
+                     Edit Details
+                   </button>
+                   <button
+                     className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-900/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium hover:border-red-300"
+                     onClick={() => handleDeleteClick(hostel._id)}
+                   >
+                     <HiOutlineTrash size={18} />
+                     Remove
+                   </button>
+                </div>
              </div>
 
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -185,5 +225,6 @@ export default function MyHostelPage() {
         ))}
       </div>
     </div>
+    </>
   );
 }

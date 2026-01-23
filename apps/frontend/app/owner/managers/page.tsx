@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useGetManagersQuery, IManager } from '@/lib/services/managerApi';
+import { useGetManagersQuery, useDeleteManagerMutation, IManager } from '@/lib/services/managerApi';
 import { HiPlus, HiOutlinePencil, HiOutlineTrash, HiOutlineUser, HiOutlineIdentification, HiOutlineCash, HiOutlineOfficeBuilding } from 'react-icons/hi';
 import ManagerForm from '@/components/manager/ManagerForm';
 import { useGetOwnerHostelsQuery } from '@/lib/services/hostelApi';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
+import { toast } from 'react-hot-toast';
 
 export default function ManagersPage() {
   const { data: managersResponse, isLoading } = useGetManagersQuery();
@@ -41,6 +43,25 @@ export default function ManagersPage() {
     setEditingManager(undefined);
   };
 
+  const [deleteManager, { isLoading: isDeleting }] = useDeleteManagerMutation();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await deleteManager(deleteId).unwrap();
+      toast.success('Manager removed successfully');
+      setDeleteId(null);
+    } catch (error) {
+      console.error('Failed to delete manager', error);
+      toast.error('Failed to delete manager');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -63,7 +84,17 @@ export default function ManagersPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <>
+      <ConfirmationModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
+        title="Remove Manager"
+        message="Are you sure you want to remove this manager? This action will deactivate their account and prevent login."
+        confirmText="Remove Manager"
+        isLoading={isDeleting}
+      />
+      <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Staff Management</h1>
@@ -111,12 +142,22 @@ export default function ManagersPage() {
                       </p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => handleEditClick(manager)}
-                    className="text-gray-400 hover:text-brand-primary transition-colors"
-                  >
-                    <HiOutlinePencil size={20} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => handleEditClick(manager)}
+                      className="text-gray-400 hover:text-brand-primary transition-colors p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                      title="Edit Manager"
+                    >
+                      <HiOutlinePencil size={20} />
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteClick(manager._id)}
+                      className="text-gray-400 hover:text-red-500 transition-colors p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                      title="Delete Manager"
+                    >
+                      <HiOutlineTrash size={20} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -150,6 +191,7 @@ export default function ManagersPage() {
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

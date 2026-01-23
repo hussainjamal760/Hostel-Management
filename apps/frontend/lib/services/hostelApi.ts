@@ -45,6 +45,13 @@ export const hostelApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Hostel'],
     }),
+    deleteHostel: builder.mutation<ApiResponse<void>, string>({
+      query: (id) => ({
+        url: `/hostels/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Hostel'],
+    }),
   }),
 });
 
@@ -53,4 +60,5 @@ export const {
   useGetHostelStatsQuery,
   useCreateHostelMutation,
   useUpdateHostelMutation,
+  useDeleteHostelMutation,
 } = hostelApi;

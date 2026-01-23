@@ -48,7 +48,10 @@ class ManagerService {
   }
 
   async getAllManagers(ownerId: string, hostelId?: string): Promise<IManager[]> {
-    const filter: any = { ownerId: new mongoose.Types.ObjectId(ownerId) };
+    const filter: any = { 
+      ownerId: new mongoose.Types.ObjectId(ownerId),
+      isActive: true 
+    };
     if (hostelId) {
       filter.hostelId = new mongoose.Types.ObjectId(hostelId);
     }
@@ -83,14 +86,18 @@ class ManagerService {
   }
 
   async deleteManager(id: string, ownerId: string): Promise<void> {
-    const manager = await Manager.findOneAndDelete({
-      _id: id,
-      ownerId: new mongoose.Types.ObjectId(ownerId),
-    });
+    const manager = await Manager.findOneAndUpdate(
+      { _id: id, ownerId: new mongoose.Types.ObjectId(ownerId) },
+      { isActive: false },
+      { new: true }
+    );
 
     if (!manager) {
       throw ApiError.notFound('Manager not found');
     }
+
+    // Also deactivate the user account
+    await User.findByIdAndUpdate(manager.userId, { isActive: false });
   }
 }
 

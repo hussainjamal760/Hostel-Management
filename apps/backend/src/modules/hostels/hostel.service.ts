@@ -48,7 +48,7 @@ export class HostelService {
   ) {
     console.log('getAllHostels called with query:', query);
     
-    const { ownerId, search, city, isActive, page = 1, limit = 10 } = query;
+    const { ownerId, search, city, isActive = true, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
     const filter: FilterQuery<IHostelDocument> = {};
@@ -132,7 +132,7 @@ export class HostelService {
 
 
   async getStats(ownerId: string) {
-    const hostels = await Hostel.find({ ownerId });
+    const hostels = await Hostel.find({ ownerId, isActive: true });
     
     // Aggregate data
     const totalHostels = hostels.length;
