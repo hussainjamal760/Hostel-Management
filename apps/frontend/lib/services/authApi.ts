@@ -34,6 +34,14 @@ export interface ApiResponse<T> {
   message: string;
   data: T;
   statusCode: number;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
 
 export type AuthResponse = ApiResponse<AuthData>;

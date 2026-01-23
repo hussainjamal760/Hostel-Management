@@ -61,13 +61,14 @@ export class RoomService {
     query: {
       floor?: number;
       roomType?: string;
-      search?: string;
+    search?: string;
       onlyEmpty?: boolean;
+      status?: 'FULL' | 'PARTIAL' | 'EMPTY';
       page?: number;
       limit?: number;
     }
   ) {
-    const { floor, roomType, search, onlyEmpty, page = 1, limit = 10 } = query;
+    const { floor, roomType, search, onlyEmpty, status, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
     const filter: FilterQuery<IRoomDocument> = { hostelId };
@@ -76,6 +77,19 @@ export class RoomService {
     if (roomType) filter.roomType = roomType;
     if (onlyEmpty) {
       filter.$expr = { $lt: ['$occupiedBeds', '$totalBeds'] };
+    }
+    
+    if (status) {
+        if (status === 'FULL') {
+            filter.$expr = { $gte: ['$occupiedBeds', '$totalBeds'] };
+        } else if (status === 'EMPTY') {
+            filter.occupiedBeds = 0;
+        } else if (status === 'PARTIAL') {
+            filter.$and = [
+                { occupiedBeds: { $gt: 0 } },
+                { $expr: { $lt: ['$occupiedBeds', '$totalBeds'] } }
+            ];
+        }
     }
     
     if (search) {

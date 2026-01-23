@@ -1,7 +1,7 @@
 import { FilterQuery } from 'mongoose';
 import { Student, IStudentDocument } from './student.model';
 import { CreateStudentInput, UpdateStudentInput } from '@hostelite/shared-validators';
-import { ApiError } from '../../utils';
+import { ApiError, generatePassword } from '../../utils';
 import userService from '../users/user.service';
 import { Room } from '../rooms/room.model';
 import { User } from '../users/user.model';
@@ -28,16 +28,29 @@ export class StudentService {
       throw ApiError.badRequest(`Bed ${data.bedNumber} is already occupied`);
     }
 
+    // Generate Custom Credentials
+    const firstName = data.fullName.trim().split(' ')[0].toLowerCase();
+    
+    // CNIC is 13 digits (per updated validation), take last 3
+    const cnicSuffix = data.cnic.slice(-3);
+    const username = `${firstName}${cnicSuffix}`;
+    
+
     const { user, password } = await userService.createUser(
       {
+        name: data.fullName,
+        email: data.email,
+        phone: data.phone,
         role: 'STUDENT',
         hostelId,
+        username,
+        password: generatePassword(6),
       },
       'MANAGER', 
       hostelId
     );
 
-    try {
+    try { 
       const student = await Student.create({
         ...data,
         userId: user._id,
@@ -61,20 +74,31 @@ export class StudentService {
     query: {
       roomId?: string;
       search?: string;
+      feeStatus?: string;
       page?: number;
       limit?: number;
     }
   ) {
-    const { roomId, search, page = 1, limit = 10 } = query;
+    const { roomId, search, feeStatus, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
     const filter: FilterQuery<IStudentDocument> = { hostelId, isActive: true };
     if (roomId) filter.roomId = roomId;
+    if (feeStatus && feeStatus !== 'ALL') filter.feeStatus = feeStatus;
 
     if (search) {
+      // Find rooms matching the search term
+      const matchingRooms = await Room.find({ 
+        hostelId, 
+        roomNumber: { $regex: search, $options: 'i' } 
+      }).select('_id');
+      
+      const matchingRoomIds = matchingRooms.map(r => r._id);
+
       filter.$or = [
         { fullName: { $regex: search, $options: 'i' } },
         { fatherName: { $regex: search, $options: 'i' } },
+        { roomId: { $in: matchingRoomIds } } // Search by room number
       ];
     }
 
@@ -145,6 +169,13 @@ export class StudentService {
 
       await Room.findByIdAndUpdate(student.roomId, { $inc: { occupiedBeds: -1 } });
       await Room.findByIdAndUpdate(data.roomId, { $inc: { occupiedBeds: 1 } });
+    }
+
+    if (data.email || data.phone) {
+        await User.findByIdAndUpdate(student.userId, {
+            ...(data.email && { email: data.email }),
+            ...(data.phone && { phone: data.phone })
+        });
     }
 
     Object.assign(student, data);

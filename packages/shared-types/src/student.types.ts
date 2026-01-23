@@ -22,6 +22,13 @@ export interface IStudent {
   permanentAddress: string;
   institution?: string;
   course?: string;
+  // Extended Profile
+  cnic: string;
+  fatherPhone: string;
+  fatherCnic: string;
+  monthlyFee: number;
+  securityDeposit: number;
+  agreementDate: Date;
   joinDate: Date;
   expectedLeaveDate?: Date;
   feeStatus: FeeStatus;

@@ -21,8 +21,22 @@ export const createStudentSchema = z.object({
   permanentAddress: z.string().min(10, 'Address must be at least 10 characters'),
   institution: z.string().max(200).optional(),
   course: z.string().max(100).optional(),
+  // Identity & Contact
+  cnic: z.string().regex(/^[0-9]{13}$/, 'Invalid CNIC format (e.g., 12345-1234567-1)'),
+  fatherPhone: z.string().regex(/^(\+92|0)?[0-9]{10}$/, 'Invalid phone number'),
+  fatherCnic: z.string().regex(/^[0-9]{13}$/, 'Invalid CNIC format'),
+  
+  // Financials
+  monthlyFee: z.number().min(0, 'Fee cannot be negative'),
+  securityDeposit: z.number().min(0, 'Security deposit cannot be negative'),
+  
+  // Dates
+  agreementDate: z.coerce.date(),
   joinDate: z.coerce.date().optional(),
-  expectedLeaveDate: z.coerce.date().optional(),
+  
+  // User Account (Consumed by UserService)
+  email: z.string().email('Invalid email address'),
+  phone: z.string().regex(/^(\+92|0)?[0-9]{10}$/, 'Invalid phone number'),
 });
 
 export const updateStudentSchema = z.object({
@@ -43,6 +57,9 @@ export const updateStudentSchema = z.object({
   expectedLeaveDate: z.coerce.date().optional(),
   idProof: z.string().url().optional(),
   photo: z.string().url().optional(),
+  email: z.string().email().optional(),
+  phone: z.string().regex(/^(\+92|0)?[0-9]{10}$/).optional(),
+  feeStatus: z.enum(['PAID', 'PARTIAL', 'DUE', 'OVERDUE']).optional(),
 });
 
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;

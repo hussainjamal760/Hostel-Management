@@ -4,7 +4,7 @@ import { ApiResponse } from './authApi';
 
 export const roomApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getRooms: builder.query<ApiResponse<IRoom[]>, { hostelId?: string; floor?: number; roomType?: string; page?: number; limit?: number }>({
+    getRooms: builder.query<ApiResponse<IRoom[]>, { hostelId?: string; floor?: number; roomType?: string; search?: string; status?: 'FULL' | 'PARTIAL' | 'EMPTY'; page?: number; limit?: number }>({
       query: (params) => ({
         url: '/rooms',
         method: 'GET',

@@ -5,7 +5,11 @@ import { CreateUserInput, UpdateUserInput } from '@hostelite/shared-validators';
 import { Role } from '@hostelite/shared-types';
 
 export class UserService {
-  async createUser(data: CreateUserInput, creatorRole: Role, creatorHostelId?: string) {
+  async createUser(
+    data: CreateUserInput & { username?: string; password?: string }, 
+    creatorRole: Role, 
+    creatorHostelId?: string
+  ) {
     if (data.role === 'ADMIN' && creatorRole !== 'ADMIN') {
       throw ApiError.forbidden('Only Admins can create other Admins');
     }
@@ -24,7 +28,15 @@ export class UserService {
     }
 
     let username: string;
-    if (data.role === 'ADMIN') {
+    
+    if (data.username) {
+        // Custom username provided (e.g. for Students)
+        username = data.username;
+        const exists = await User.findOne({ username });
+        if (exists) {
+            throw ApiError.badRequest(`Username ${username} is already taken`);
+        }
+    } else if (data.role === 'ADMIN') {
       const count = await User.countDocuments({ role: 'ADMIN' });
       username = generateAdminUsername(count + 1);
     } else {
@@ -40,7 +52,7 @@ export class UserService {
       }
     }
 
-    const rawPassword = generatePassword(10); 
+    const rawPassword = data.password || generatePassword(10); 
     const hashedPassword = await hashPassword(rawPassword);
 
     if (data.hostelId) {

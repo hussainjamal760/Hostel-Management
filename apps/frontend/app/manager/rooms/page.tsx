@@ -4,29 +4,69 @@ import { useAppSelector } from '@/lib/hooks';
 import { useGetRoomsQuery } from '@/lib/services/roomApi';
 import { HiOutlineOfficeBuilding } from 'react-icons/hi';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+import { HiOutlineSearch } from 'react-icons/hi';
 
 export default function ManageRoomsPage() {
   const { user } = useAppSelector((state) => state.auth);
   const router = useRouter();
   
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'FULL' | 'PARTIAL' | 'EMPTY' | undefined>(undefined);
+ 
+  
   const { data: roomsData, isLoading } = useGetRoomsQuery({
      hostelId: user?.hostelId,
+     search: search || undefined,
+     status: statusFilter,
      limit: 100
   }, { skip: !user?.hostelId });
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-brand-text dark:text-dark-text">Manage Rooms</h1>
           <p className="text-sm text-brand-text/60 dark:text-dark-text/60">View and manage existing rooms</p>
         </div>
-        <button 
-            onClick={() => router.push('/manager/create-room')}
-            className="px-4 py-2 bg-brand-primary text-white rounded-xl font-medium shadow-lg shadow-brand-primary/20"
-        >
-            Create New Room
-        </button>
+        <div className="flex gap-3 w-full md:w-auto">
+             <div className="relative w-full md:w-64">
+                <HiOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input 
+                    type="text"
+                    placeholder="Search Room Number..." 
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-brand-primary/10 focus:ring-2 focus:ring-brand-primary outline-none transition-all"
+                />
+            </div>
+            <button 
+                onClick={() => router.push('/manager/create-room')}
+                className="px-4 py-2.5 bg-brand-primary text-white rounded-xl font-medium shadow-lg shadow-brand-primary/20 whitespace-nowrap"
+            >
+                + Create Room
+            </button>
+        </div>
+      </div>
+      
+      {/* Filters */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+         {['ALL', 'FULL', 'PARTIAL', 'EMPTY'].map((status) => (
+             <button
+                key={status}
+                onClick={() => setStatusFilter(status === 'ALL' ? undefined : status as any)}
+                className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                    ( status === 'ALL' && !statusFilter ) || statusFilter === status
+                    ? 'bg-brand-primary text-white shadow-brand-primary/20 shadow-lg'
+                    : 'bg-white dark:bg-dark-card text-brand-text/70 hover:bg-brand-primary/5'
+                }`}
+             >
+                {status === 'ALL' ? 'All Rooms' : 
+                 status === 'FULL' ? 'Fully Occupied' :
+                 status === 'PARTIAL' ? 'Remaining Seats' : 'Empty'}
+             </button>
+         ))}
       </div>
 
       <div className="bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-brand-primary/5 p-6">

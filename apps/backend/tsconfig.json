@@ -9,7 +9,10 @@
       "@config/*": ["./config/*"],
       "@modules/*": ["./modules/*"],
       "@middlewares/*": ["./middlewares/*"],
-      "@utils/*": ["./utils/*"]
+      "@utils/*": ["./utils/*"],
+      "@hostelite/shared-types": ["../../../packages/shared-types/src"],
+      "@hostelite/shared-validators": ["../../../packages/shared-validators/src"],
+      "@hostelite/shared-constants": ["../../../packages/shared-constants/src"]
     }
   },
   "include": ["src/**/*"],

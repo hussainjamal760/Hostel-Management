@@ -45,11 +45,27 @@ const studentSchema = new Schema<IStudentDocument>(
       trim: true,
       maxlength: [100, 'Name cannot exceed 100 characters'],
     },
+    cnic: {
+      type: String,
+      required: [true, 'CNIC is required'],
+      trim: true,
+      unique: true, 
+    },
     fatherName: {
       type: String,
       required: [true, "Father's name is required"],
       trim: true,
       maxlength: [100, 'Name cannot exceed 100 characters'],
+    },
+    fatherPhone: {
+      type: String,
+      required: [true, "Father's phone is required"],
+      trim: true,
+    },
+    fatherCnic: {
+      type: String,
+      required: [true, "Father's CNIC is required"],
+      trim: true,
     },
     dateOfBirth: {
       type: Date,
@@ -97,10 +113,24 @@ const studentSchema = new Schema<IStudentDocument>(
       default: FEE_STATUS.DUE,
       index: true,
     },
+    monthlyFee: {
+      type: Number,
+      required: [true, 'Monthly fee is required'],
+      min: 0,
+    },
+    securityDeposit: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     totalDue: {
       type: Number,
       default: 0,
       min: 0,
+    },
+    agreementDate: {
+      type: Date,
+      required: [true, 'Agreement date is required'],
     },
     idProof: {
       type: String,

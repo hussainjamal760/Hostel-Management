@@ -2,19 +2,46 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useGetRoomQuery } from '@/lib/services/roomApi';
+import { useGetStudentsQuery } from '@/lib/services/studentApi';
+import { useAppSelector } from '@/lib/hooks';
 import { HiArrowLeft, HiOutlineUserAdd, HiUser } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
+import { useState } from 'react';
+import AddStudentModal from './AddStudentModal';
+import StudentDetailsModal from './StudentDetailsModal';
 
 export default function RoomDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
   
-  const { data: roomData, isLoading, error } = useGetRoomQuery(id as string);
+  const { user } = useAppSelector((state) => state.auth);
+  
+  const { data: roomData, isLoading, error, refetch: refetchRoom } = useGetRoomQuery(id as string);
   const room = roomData?.data;
 
+  // Fetch students for this room
+  const { data: studentsData, refetch: refetchStudents } = useGetStudentsQuery({
+    hostelId: user?.hostelId,
+    roomId: id as string,
+    limit: 100 // Fetch all in room
+  }, { skip: !user?.hostelId || !id });
+  
+  const students = studentsData?.data || [];
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedBed, setSelectedBed] = useState<string>('');
+
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+
   const handleCreateStudent = (bedIndex: number) => {
-    // Placeholder for next task
-    toast('Student creation flow coming soon!', { icon: '🚧' });
+    setSelectedBed((bedIndex + 1).toString());
+    setModalOpen(true);
+  };
+  
+  const handleViewDetails = (studentId: string) => {
+      setSelectedStudentId(studentId);
+      setDetailsModalOpen(true);
   };
 
   if (isLoading) {
@@ -126,9 +153,22 @@ export default function RoomDetailsPage() {
                                             <HiUser size={20} />
                                         </div>
                                         <div>
-                                            {/* Placeholder for student data since we don't have it in room object yet */}
-                                            <p className="font-medium text-brand-text dark:text-dark-text">Student Name</p>
-                                            <p className="text-xs text-brand-text/60">View Details</p>
+                                            {(() => {
+                                                const student = students.find(s => s.bedNumber === (index + 1).toString());
+                                                return (
+                                                    <>
+                                                        <p className="font-medium text-brand-text dark:text-dark-text">
+                                                            {student ? student.fullName : 'Occupied'}
+                                                        </p>
+                                                        <button 
+                                                            onClick={() => student && handleViewDetails(student._id)}
+                                                            className="text-xs text-brand-primary hover:underline bg-transparent border-none p-0 cursor-pointer"
+                                                        >
+                                                            {student ? 'View Details' : 'Unknown Student'}
+                                                        </button>
+                                                    </>
+                                                );
+                                            })()}
                                         </div>
                                     </div>
                                 ) : (
@@ -147,6 +187,32 @@ export default function RoomDetailsPage() {
             </div>
         </div>
       </div>
+
+      {room && (
+        <AddStudentModal 
+            open={modalOpen} 
+            setOpen={setModalOpen}
+            roomId={room._id}
+            bedNumber={selectedBed}
+            onSuccess={() => {
+                // Keep modal open to show credentials (handled inside modal), 
+                // but refresh room data to show occupied status
+                refetchRoom();
+                refetchStudents();
+            }}
+        />
+      )}
+      
+      {detailsModalOpen && (
+          <StudentDetailsModal
+            open={detailsModalOpen}
+            setOpen={setDetailsModalOpen}
+            studentId={selectedStudentId}
+            onSuccess={() => {
+                refetchStudents();
+            }}
+          />
+      )}
     </div>
   );
 }
