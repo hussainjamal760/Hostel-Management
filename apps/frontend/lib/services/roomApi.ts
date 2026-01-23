@@ -12,6 +12,13 @@ export const roomApi = baseApi.injectEndpoints({
       }),
       providesTags: ['Room'],
     }),
+    getRoom: builder.query<ApiResponse<IRoom>, string>({
+      query: (id) => ({
+        url: `/rooms/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, id) => [{ type: 'Room', id }],
+    }),
     bulkCreateRooms: builder.mutation<ApiResponse<IRoom[]>, { hostelId?: string; rooms: any[] }>({
        query: ({ hostelId, rooms }) => ({
         url: '/rooms/bulk',
@@ -32,6 +39,7 @@ export const roomApi = baseApi.injectEndpoints({
 
 export const {
   useGetRoomsQuery,
+  useGetRoomQuery,
   useBulkCreateRoomsMutation,
   useDeleteRoomMutation,
 } = roomApi;

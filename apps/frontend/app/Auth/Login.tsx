@@ -31,7 +31,7 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
     }
 
     try {
-      const response = await login({ email, password }).unwrap();
+      const response = await login({ identifier: email, password }).unwrap();
       // API wraps response in 'data' property
       const result = response.data || response;
       

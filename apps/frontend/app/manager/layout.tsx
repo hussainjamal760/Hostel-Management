@@ -16,6 +16,7 @@ import {
   HiOutlineLogout,
   HiOutlineMenu,
   HiX,
+  HiOutlinePlus,
 } from 'react-icons/hi';
 
 interface ManagerLayoutProps {
@@ -26,6 +27,7 @@ interface ManagerLayoutProps {
 const menuItems = [
   { name: 'Dashboard', href: '/manager/dashboard', icon: HiOutlineHome },
   { name: 'My Hostel', href: '/manager/hostel', icon: HiOutlineOfficeBuilding },
+  { name: 'Create Room', href: '/manager/create-room', icon: HiOutlinePlus },
   { name: 'Manage Rooms', href: '/manager/rooms', icon: HiOutlineCollection },
   { name: 'Students', href: '/manager/students', icon: HiOutlineUsers },
   { name: 'Complaints', href: '/manager/complaints', icon: HiOutlineClipboardList },
