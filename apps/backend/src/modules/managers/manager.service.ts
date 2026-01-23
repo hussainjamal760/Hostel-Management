@@ -28,6 +28,7 @@ class ManagerService {
       password: hashedPassword,
       role: 'MANAGER',
       isEmailVerified: true, // Verified since created by owner
+      isFirstLogin: true, // Force password change on first login
       isActive: true,
       hostelId: new mongoose.Types.ObjectId(data.hostelId), // Link to hostel
       createdBy: new mongoose.Types.ObjectId(ownerId)

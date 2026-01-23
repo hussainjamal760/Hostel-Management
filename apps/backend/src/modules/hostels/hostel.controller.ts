@@ -19,6 +19,18 @@ export class HostelController {
 
     if (req.user?.role === 'OWNER') {
       filters.ownerId = req.user.id;
+    } else if (req.user?.role === 'MANAGER') {
+      // Find the manager record to get ownerId
+      // We need to import Manager model. Since we can't easily add top-level imports in this tool, 
+      // we'll assume manager service or model availability, or better, we ask service to handle it.
+      // But for quick controller logic:
+      const manager = await import('../managers/manager.model.js').then(m => m.Manager.findOne({ userId: req.user!.id }));
+      if (manager) {
+        filters.ownerId = manager.ownerId;
+      } else {
+         // Should not happen for valid manager
+         filters.ownerId = null; 
+      }
     }
 
     const result = await hostelService.getAllHostels(filters);

@@ -39,9 +39,16 @@ export default function LoginPage() {
 
       localStorage.setItem('refreshToken', result.tokens.refreshToken);
       
-      toast.success(`Welcome back, ${result.user.name}!`);
-
-      router.push('/profile');
+      if (result.user.isFirstLogin && result.user.role === 'MANAGER') {
+        toast('Please change your password first');
+        router.push('/change-password');
+      } else if (result.user.role === 'MANAGER') {
+        toast.success(`Welcome back, ${result.user.name}!`);
+        router.push('/manager/dashboard');
+      } else {
+        toast.success(`Welcome back, ${result.user.name}!`);
+        router.push('/profile');
+      }
     } catch (error: any) {
       const message = error?.data?.message || error?.message || 'Login failed';
       toast.error(message);

@@ -17,7 +17,7 @@ router.post(
 
 router.get(
   '/',
-  authorize('ADMIN', 'OWNER'),
+  authorize('ADMIN', 'OWNER', 'MANAGER'),
   hostelController.getAllHostels
 );
 
