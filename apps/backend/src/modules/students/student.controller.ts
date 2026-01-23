@@ -67,6 +67,17 @@ export class StudentController {
     );
     ApiResponse.success(res, null, 'Student deleted successfully');
   });
+
+  getStats = asyncHandler(async (req: Request, res: Response) => {
+    let hostelId = req.query.hostelId as string;
+    if (req.user?.role === 'MANAGER') {
+       hostelId = req.user.hostelId!;
+    }
+    if (!hostelId) throw ApiError.badRequest('Hostel ID is required');
+
+    const stats = await studentService.getStudentStats(hostelId);
+    ApiResponse.success(res, stats, 'Stats fetched successfully');
+  });
 }
 
 export default new StudentController();

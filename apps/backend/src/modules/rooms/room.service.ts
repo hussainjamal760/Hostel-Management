@@ -4,6 +4,8 @@ import { CreateRoomInput, UpdateRoomInput } from '@hostelite/shared-validators';
 import { ApiError } from '../../utils';
 import { Role } from '@hostelite/shared-types';
 import { Hostel } from '../hostels/hostel.model';
+import studentService from '../students/student.service';
+import { Student } from '../students/student.model';
 
 export class RoomService {
   async createRoom(data: CreateRoomInput, hostelId: string) {
@@ -71,7 +73,7 @@ export class RoomService {
     const { floor, roomType, search, onlyEmpty, status, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
-    const filter: FilterQuery<IRoomDocument> = { hostelId };
+    const filter: FilterQuery<IRoomDocument> = { hostelId, isActive: true };
     
     if (floor !== undefined) filter.floor = floor;
     if (roomType) filter.roomType = roomType;
@@ -135,6 +137,10 @@ export class RoomService {
     const hostel = await Hostel.findById(room.hostelId);
     if (!hostel) throw ApiError.notFound('Hostel not found');
 
+    if (role === 'MANAGER' && room.hostelId.toString() !== requesterHostelId) {
+        throw ApiError.forbidden('Permission denied');
+    }
+
     if (role !== 'ADMIN') {
       if (role === 'OWNER' && hostel.ownerId.toString() !== requesterId) {
         throw ApiError.forbidden('Permission denied');
@@ -164,29 +170,25 @@ export class RoomService {
     return room;
   }
 
-  async deleteRoom(id: string, requesterId: string, role: Role, requesterHostelId?: string) {
+  async deleteRoom(id: string, role: Role, requesterHostelId?: string) {
     const room = await Room.findById(id);
     if (!room) {
       throw ApiError.notFound('Room not found');
     }
     
-    if (room.occupiedBeds > 0) {
-      throw ApiError.badRequest('Cannot delete room with occupied beds');
-    }
-
-    const hostel = await Hostel.findById(room.hostelId);
-    if (!hostel) throw ApiError.notFound('Hostel not found');
-
-    if (role !== 'ADMIN') {
-      if (role === 'OWNER' && hostel.ownerId.toString() !== requesterId) {
-        throw ApiError.forbidden('Permission denied');
-      }
-      if (role === 'MANAGER' && room.hostelId.toString() !== requesterHostelId) {
-        throw ApiError.forbidden('Permission denied');
-      }
+    // Cascading Soft Delete: Delete all students in this room
+    const students = await Student.find({ roomId: id, isActive: true });
+    
+    for (const student of students) {
+        await studentService.deleteStudent(student._id.toString(), requesterHostelId, role);
     }
 
     room.isActive = false;
+    room.occupiedBeds = 0; // Reset occupancy as students are gone
+    
+    // Rename room to allow reuse of room number
+    room.roomNumber = `${room.roomNumber}-deleted-${Date.now()}`;
+    
     await room.save();
     
     await Hostel.findByIdAndUpdate(room.hostelId, {

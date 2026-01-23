@@ -41,7 +41,7 @@ router.patch(
 
 router.delete(
   '/:id',
-  authorize('ADMIN', 'OWNER'),
+  authorize('ADMIN', 'OWNER', 'MANAGER'),
   roomController.deleteRoom
 );
 

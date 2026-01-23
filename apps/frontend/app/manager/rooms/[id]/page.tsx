@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useGetRoomQuery } from '@/lib/services/roomApi';
+import { useGetRoomQuery, useDeleteRoomMutation } from '@/lib/services/roomApi';
 import { useGetStudentsQuery } from '@/lib/services/studentApi';
 import { useAppSelector } from '@/lib/hooks';
 import { HiArrowLeft, HiOutlineUserAdd, HiUser } from 'react-icons/hi';
@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast';
 import { useState } from 'react';
 import AddStudentModal from './AddStudentModal';
 import StudentDetailsModal from './StudentDetailsModal';
+import DeleteConfirmationModal from '@/components/modals/DeleteConfirmationModal';
 
 export default function RoomDetailsPage() {
   const { id } = useParams();
@@ -33,6 +34,8 @@ export default function RoomDetailsPage() {
 
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+  
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const handleCreateStudent = (bedIndex: number) => {
     setSelectedBed((bedIndex + 1).toString());
@@ -42,6 +45,23 @@ export default function RoomDetailsPage() {
   const handleViewDetails = (studentId: string) => {
       setSelectedStudentId(studentId);
       setDetailsModalOpen(true);
+  };
+
+  const [deleteRoom, { isLoading: isDeletingRoom }] = useDeleteRoomMutation();
+
+  const handleDeleteRoomClick = () => {
+      setDeleteModalOpen(true);
+  };
+
+  const onConfirmDeleteRoom = async () => {
+      try {
+          await deleteRoom(room?._id!).unwrap();
+          toast.success('Room deleted successfully');
+          router.push('/manager/rooms');
+      } catch (err: any) {
+          toast.error(err?.data?.message || 'Failed to delete room');
+          setDeleteModalOpen(false);
+      }
   };
 
   if (isLoading) {
@@ -76,7 +96,7 @@ export default function RoomDetailsPage() {
         >
             <HiArrowLeft size={24} className="text-brand-text dark:text-dark-text" />
         </button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-brand-text dark:text-dark-text">
             Room {room.roomNumber}
           </h1>
@@ -84,6 +104,12 @@ export default function RoomDetailsPage() {
             {room.floor === 0 ? 'Ground Floor' : `Floor ${room.floor}`} • {room.roomType}
           </p>
         </div>
+        <button 
+            onClick={handleDeleteRoomClick}
+            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-bold transition-colors"
+        >
+            Delete Room
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -213,6 +239,15 @@ export default function RoomDetailsPage() {
             }}
           />
       )}
+      
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={onConfirmDeleteRoom}
+        title="Delete Room"
+        message="Are you sure you want to delete this room? All students assigned to this room will also be removed. This action cannot be undone."
+        isDeleting={isDeletingRoom}
+      />
     </div>
   );
 }

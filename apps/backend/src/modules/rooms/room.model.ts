@@ -22,7 +22,7 @@ const roomSchema = new Schema<IRoomDocument>(
       type: String,
       required: [true, 'Room number is required'],
       trim: true,
-      maxlength: [20, 'Room number cannot exceed 20 characters'],
+      maxlength: [100, 'Room number cannot exceed 100 characters'],
     },
     floor: {
       type: Number,

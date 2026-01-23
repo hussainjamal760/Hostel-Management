@@ -1,4 +1,4 @@
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { Student, IStudentDocument } from './student.model';
 import { CreateStudentInput, UpdateStudentInput } from '@hostelite/shared-validators';
 import { ApiError, generatePassword } from '../../utils';
@@ -33,7 +33,8 @@ export class StudentService {
     
     // CNIC is 13 digits (per updated validation), take last 3
     const cnicSuffix = data.cnic.slice(-3);
-    const username = `${firstName}${cnicSuffix}`;
+    const phoneSuffix = data.phone.slice(-3);
+    const username = `${firstName}-${cnicSuffix}-${phoneSuffix}`;
     
 
     const { user, password } = await userService.createUser(
@@ -203,6 +204,64 @@ export class StudentService {
     await User.findByIdAndUpdate(student.userId, { isActive: false });
 
     return student;
+  }
+
+  async getStudentStats(hostelId: string) {
+    const activeFilter = { hostelId, isActive: true };
+
+    const totalStudents = await Student.countDocuments(activeFilter);
+    const paidStudents = await Student.countDocuments({ ...activeFilter, feeStatus: 'PAID' });
+    const dueStudents = await Student.countDocuments({ ...activeFilter, feeStatus: { $in: ['DUE', 'OVERDUE', 'PARTIAL'] } });
+
+    const financials = await Student.aggregate([
+      { 
+        $match: { 
+          hostelId: new Types.ObjectId(hostelId), 
+          isActive: true 
+        } 
+      },
+      {
+        $group: {
+          _id: null,
+          totalCollected: {
+            $sum: {
+              $cond: [{ $eq: ['$feeStatus', 'PAID'] }, '$monthlyFee', 0]
+            }
+          },
+          totalRemaining: {
+            $sum: {
+              $cond: [{ $ne: ['$feeStatus', 'PAID'] }, '$monthlyFee', 0]
+            }
+          }
+        }
+      }
+    ]);
+
+    const roomStats = await Room.aggregate([
+      { 
+        $match: { 
+          hostelId: new Types.ObjectId(hostelId), 
+          isActive: true 
+        } 
+      },
+      {
+        $group: {
+          _id: null,
+          totalCapacity: { $sum: '$totalBeds' },
+          currentOccupancy: { $sum: '$occupiedBeds' }
+        }
+      }
+    ]);
+
+    return {
+      totalStudents,
+      paidStudents,
+      dueStudents,
+      totalCollected: financials[0]?.totalCollected || 0,
+      totalRemaining: financials[0]?.totalRemaining || 0,
+      totalCapacity: roomStats[0]?.totalCapacity || 0,
+      currentOccupancy: roomStats[0]?.currentOccupancy || 0
+    };
   }
 }
 

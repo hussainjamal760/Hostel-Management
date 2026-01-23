@@ -14,6 +14,14 @@ export const studentApi = baseApi.injectEndpoints({
       }),
       providesTags: ['Student'],
     }),
+    getStudentStats: builder.query<ApiResponse<any>, string>({
+      query: (hostelId) => ({
+        url: '/students/stats',
+        method: 'GET',
+        params: { hostelId },
+      }),
+      providesTags: ['Student'],
+    }),
     getStudent: builder.query<ApiResponse<IStudent>, string>({
       query: (id) => ({
         url: `/students/${id}`,
@@ -49,6 +57,7 @@ export const studentApi = baseApi.injectEndpoints({
 
 export const {
   useGetStudentsQuery,
+  useGetStudentStatsQuery,
   useGetStudentQuery,
   useCreateStudentMutation,
   useUpdateStudentMutation,

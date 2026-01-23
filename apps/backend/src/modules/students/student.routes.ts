@@ -27,6 +27,12 @@ router.get(
 );
 
 router.get(
+  '/stats',
+  authorize('ADMIN', 'OWNER', 'MANAGER'),
+  studentController.getStats
+);
+
+router.get(
   '/:id',
   authorize('ADMIN', 'OWNER', 'MANAGER'),
   studentController.getStudentById

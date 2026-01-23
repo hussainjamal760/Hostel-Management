@@ -83,7 +83,6 @@ export class RoomController {
   deleteRoom = asyncHandler(async (req: Request, res: Response) => {
     await roomService.deleteRoom(
       req.params.id,
-      req.user!._id,
       req.user!.role as Role,
       req.user!.hostelId
     );

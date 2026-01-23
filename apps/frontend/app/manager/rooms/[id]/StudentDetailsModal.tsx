@@ -5,8 +5,9 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
-import { HiX, HiOutlineUsers, HiOutlinePencilAlt } from 'react-icons/hi';
-import { useGetStudentQuery, useUpdateStudentMutation } from '@/lib/services/studentApi';
+import { HiX, HiOutlineUsers, HiOutlinePencilAlt, HiTrash } from 'react-icons/hi';
+import { useGetStudentQuery, useUpdateStudentMutation, useDeleteStudentMutation } from '@/lib/services/studentApi';
+import DeleteConfirmationModal from '@/components/modals/DeleteConfirmationModal';
 
 const formSchema = z.object({
   fullName: z.string().min(2, 'Name is required'),
@@ -94,6 +95,25 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to update student');
     }
+  };
+
+  const [deleteStudent, { isLoading: isDeleting }] = useDeleteStudentMutation();
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
+
+  const handleDeleteClick = () => {
+      setDeleteModalOpen(true);
+  };
+
+  const onConfirmDelete = async () => {
+      try {
+          await deleteStudent(studentId).unwrap();
+          toast.success('Student deleted successfully');
+          onSuccess(); 
+          setOpen(false);
+      } catch (err: any) {
+          toast.error(err?.data?.message || 'Failed to delete student');
+          setDeleteModalOpen(false);
+      }
   };
 
   if (!open) return null;
@@ -208,28 +228,49 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
                         </div>
                     </section>
 
-                    <div className="flex justify-end gap-3 pt-6">
-                        <button 
-                            type="button" 
-                            onClick={() => setOpen(false)}
-                            className="px-6 py-3 rounded-xl font-bold bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    <div className="flex justify-between items-center pt-6 border-t border-gray-100 dark:border-gray-800">
+                        <button
+                            type="button"
+                            onClick={handleDeleteClick}
+                            disabled={isDeleting}
+                            className="px-6 py-3 rounded-xl font-bold bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex items-center gap-2"
                         >
-                            Cancel
+                            <HiTrash size={20} />
+                            {isDeleting ? 'Deleting...' : 'Delete Student'}
                         </button>
-                        <button 
-                            type="submit"
-                            disabled={isUpdating}
-                            className="px-8 py-3 rounded-xl font-bold bg-brand-primary text-white hover:brightness-110 transition-all shadow-lg shadow-brand-primary/20 disabled:opacity-50 flex items-center gap-2"
-                        >
-                            <HiOutlinePencilAlt size={20} />
-                            {isUpdating ? 'Updating...' : 'Update Details'}
-                        </button>
+
+                        <div className="flex gap-3">
+                            <button 
+                                type="button" 
+                                onClick={() => setOpen(false)}
+                                className="px-6 py-3 rounded-xl font-bold bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit"
+                                disabled={isUpdating}
+                                className="px-8 py-3 rounded-xl font-bold bg-brand-primary text-white hover:brightness-110 transition-all shadow-lg shadow-brand-primary/20 disabled:opacity-50 flex items-center gap-2"
+                            >
+                                <HiOutlinePencilAlt size={20} />
+                                {isUpdating ? 'Updating...' : 'Update Details'}
+                            </button>
+                        </div>
                     </div>
                 </form>
                 </>
            )}
         </div>
       </div>
+      
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={onConfirmDelete}
+        title="Delete Student"
+        message="Are you sure you want to delete this student? This will remove them from the room and deactivate their account. This action cannot be undone."
+        isDeleting={isDeleting}
+      />
     </>
   );
 }
