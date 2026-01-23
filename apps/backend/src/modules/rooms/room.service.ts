@@ -29,6 +29,33 @@ export class RoomService {
     return room;
   }
 
+  async bulkCreateRooms(data: CreateRoomInput[], hostelId: string) {
+    const hostel = await Hostel.findById(hostelId);
+    if (!hostel) {
+      throw ApiError.notFound('Hostel not found');
+    }
+
+    // Check for existing room numbers within the batch and DB
+    const roomNumbers = data.map(r => r.roomNumber);
+    const existing = await Room.find({ 
+      hostelId, 
+      roomNumber: { $in: roomNumbers }
+    });
+
+    if (existing.length > 0) {
+      throw ApiError.badRequest(`Rooms already exist: ${existing.map(r => r.roomNumber).join(', ')}`);
+    }
+
+    const rooms = await Room.insertMany(data.map(r => ({ ...r, hostelId })));
+
+    const totalBedsAdded = data.reduce((sum, r) => sum + r.totalBeds, 0);
+    await Hostel.findByIdAndUpdate(hostelId, {
+      $inc: { totalRooms: rooms.length, totalBeds: totalBedsAdded }
+    });
+
+    return rooms;
+  }
+
   async getAllRooms(
     hostelId: string,
     query: {

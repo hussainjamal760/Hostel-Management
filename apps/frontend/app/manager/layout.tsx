@@ -11,6 +11,7 @@ import {
   HiOutlineUsers,
   HiOutlineOfficeBuilding,
   HiOutlineClipboardList,
+  HiOutlineCollection,
   HiOutlineBell,
   HiOutlineLogout,
   HiOutlineMenu,
@@ -24,7 +25,8 @@ interface ManagerLayoutProps {
 // Manager specific menu items (Subset of owner items)
 const menuItems = [
   { name: 'Dashboard', href: '/manager/dashboard', icon: HiOutlineHome },
-  { name: 'My Hostel', href: '/manager/hostel', icon: HiOutlineOfficeBuilding }, // Future: Filter to assigned
+  { name: 'My Hostel', href: '/manager/hostel', icon: HiOutlineOfficeBuilding },
+  { name: 'Manage Rooms', href: '/manager/rooms', icon: HiOutlineCollection },
   { name: 'Students', href: '/manager/students', icon: HiOutlineUsers },
   { name: 'Complaints', href: '/manager/complaints', icon: HiOutlineClipboardList },
 ];

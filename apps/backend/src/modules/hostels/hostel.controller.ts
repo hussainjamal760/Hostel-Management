@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { asyncHandler, ApiResponse } from '../../utils';
 import hostelService from './hostel.service';
 import { Role } from '@hostelite/shared-types';
+import { Manager } from '../managers/manager.model';
 
 export class HostelController {
   createHostel = asyncHandler(async (req: Request, res: Response) => {
@@ -21,15 +22,11 @@ export class HostelController {
       filters.ownerId = req.user.id;
     } else if (req.user?.role === 'MANAGER') {
       // Find the manager record to get ownerId
-      // We need to import Manager model. Since we can't easily add top-level imports in this tool, 
-      // we'll assume manager service or model availability, or better, we ask service to handle it.
-      // But for quick controller logic:
-      const manager = await import('../managers/manager.model.js').then(m => m.Manager.findOne({ userId: req.user!.id }));
+      const manager = await Manager.findOne({ userId: req.user!.id });
       if (manager) {
         filters.ownerId = manager.ownerId;
       } else {
-         // Should not happen for valid manager
-         filters.ownerId = null; 
+        filters.ownerId = null;
       }
     }
 

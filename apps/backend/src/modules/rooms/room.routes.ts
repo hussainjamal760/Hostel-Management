@@ -14,6 +14,12 @@ router.post(
   roomController.createRoom
 );
 
+router.post(
+  '/bulk',
+  authorize('ADMIN', 'OWNER', 'MANAGER'),
+  roomController.bulkCreateRooms
+);
+
 router.get(
   '/',
   authorize('ADMIN', 'OWNER', 'MANAGER', 'STUDENT'),
