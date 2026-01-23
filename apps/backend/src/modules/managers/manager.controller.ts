@@ -9,11 +9,6 @@ class ManagerController {
     const ownerId = req.user!.id;
     const input: CreateManagerInput = req.body;
     
-    // If hostelId is not provided in body, but exists on owner's profile, we could infer it?
-    // But for now we expect it in body or we might fail if schema requires it but it's optional in schema.
-    // Actually schema has it as optional string, but Model requires it.
-    // Frontend should send it.
-    
     const manager = await managerService.createManager(input, ownerId);
     return ApiResponse.created(res, manager, 'Manager created successfully');
   });

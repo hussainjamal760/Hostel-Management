@@ -28,6 +28,7 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(createManagerSchema),
@@ -39,6 +40,9 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
       hostelId: initialValues?.hostelId || (hostels.length === 1 ? hostels[0]._id : ''),
     },
   });
+
+  const watchedName = watch('name');
+  const watchedCnic = watch('cnic');
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -124,7 +128,7 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
             <select
               {...register('hostelId')}
               className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-              disabled={isEditMode} // Usually moving managers between hostels isn't frequent, but can be enabled
+              disabled={isEditMode}
             >
               <option value="">Select a Hostel</option>
               {hostels.map((hostel) => (
@@ -134,6 +138,54 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
               ))}
             </select>
             {errors.hostelId && <p className="text-red-500 text-sm mt-1">Hostel selection is required</p>}
+          </div>
+
+          {/* Credentials Preview */}
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+            <div className="md:col-span-2">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">Login Credentials</h3>
+            </div>
+            
+            <div>
+              <label className="block text-xs font-medium mb-1 text-gray-500 dark:text-gray-400 uppercase">
+                {isEditMode ? 'Login ID (Username)' : 'Auto-Generated Username'}
+              </label>
+              <div className="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-600 border border-gray-200 dark:border-gray-500 text-gray-700 dark:text-gray-300 font-mono font-bold">
+                  {isEditMode ? (
+                    initialValues?.userId?.username || 'N/A'
+                  ) : (
+                    // Live Calculation for New Mode
+                    (() => {
+                      const name = watchedName || '';
+                      const cnic = watchedCnic || '';
+                      const firstName = name.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                      const cnicSuffix = cnic.length >= 3 ? cnic.slice(-3) : '...';
+                      return name && cnic.length >= 3 ? `${firstName}-${cnicSuffix}` : 'Enter Name & CNIC';
+                    })()
+                  )}
+              </div>
+              <p className="text-xs text-gray-400 mt-1">This will be the manager's Login ID.</p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium mb-1 text-gray-500 dark:text-gray-400 uppercase">
+                Password
+              </label>
+              {isEditMode ? (
+                 <div className="w-full p-3 rounded-lg bg-gray-100 dark:bg-gray-600 border border-gray-200 dark:border-gray-500 text-gray-500 dark:text-gray-400 font-mono">
+                   ******** (Hidden)
+                 </div>
+              ) : (
+                <input
+                  type="text" 
+                  {...register('password')}
+                  className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 font-mono"
+                  placeholder="Set password"
+                />
+              )}
+              {!isEditMode && errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+              <p className="text-xs text-brand-primary mt-1 font-medium">{isEditMode ? 'Cannot view password' : 'Visible as requested'}</p>
+            </div>
           </div>
         </div>
 

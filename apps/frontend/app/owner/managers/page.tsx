@@ -138,6 +138,12 @@ export default function ManagersPage() {
                     </span>
                     <span>{manager.phoneNumber}</span>
                   </div>
+                  <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm">
+                    <span className="text-gray-500 dark:text-gray-400 font-medium">Login ID</span>
+                    <span className="font-mono bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-xs font-bold text-gray-700 dark:text-gray-300">
+                      {manager.userId?.username || 'N/A'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

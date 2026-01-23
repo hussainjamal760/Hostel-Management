@@ -27,8 +27,7 @@ interface OwnerLayoutProps {
 // Owner specific menu items
 const menuItems = [
   { name: 'Dashboard', href: '/owner/dashboard', icon: HiOutlineHome },
-  { name: 'My Hostel', href: '/owner/hostel', icon: HiOutlineOfficeBuilding }, // Converted Create/Edit into one "My Hostel" view conceptually? Or keep as Create if none.
-  { name: 'Create Manager', href: '/owner/create-manager', icon: HiOutlineUserAdd },
+  { name: 'My Hostel', href: '/owner/hostel', icon: HiOutlineOfficeBuilding },
   { name: 'Manage Managers', href: '/owner/managers', icon: HiOutlineUsers },
   { name: 'All Students', href: '/owner/students', icon: HiOutlineUsers },
   { name: 'Complaints', href: '/owner/complaints', icon: HiOutlineClipboardList },

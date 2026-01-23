@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setCredentials } from '@/lib/features/authSlice';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
@@ -23,13 +23,13 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    if (!identifier || !password) {
       toast.error('Please fill in all fields');
       return;
     }
 
     try {
-      const response = await login({ email, password }).unwrap();
+      const response = await login({ identifier, password }).unwrap();
       const result = response.data || response;
       
       dispatch(setCredentials({ 
@@ -71,20 +71,20 @@ export default function LoginPage() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-brand-text dark:text-dark-text mb-2">
-                Email Address
+              <label htmlFor="identifier" className="block text-sm font-semibold text-brand-text dark:text-dark-text mb-2">
+                Email or Username
               </label>
               <div className="relative">
                 <HiOutlineMail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50" size={20} />
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
+                  id="identifier"
+                  name="identifier"
+                  type="text"
                   required
                   className="w-full pl-12 pr-4 py-3 rounded-xl bg-brand-primary/5 dark:bg-dark-primary/5 border border-brand-primary/10 dark:border-dark-primary/10 text-brand-text dark:text-dark-text placeholder:text-brand-text/50 dark:placeholder:text-dark-text/50 focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-primary"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter email or username"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                 />
               </div>
             </div>

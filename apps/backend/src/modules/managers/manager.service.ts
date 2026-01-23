@@ -1,15 +1,50 @@
 import Manager, { IManager } from './manager.model';
 import { CreateManagerInput, UpdateManagerInput } from '@hostelite/shared-validators';
-import { ApiError } from '../../utils';
+import { ApiError, hashPassword } from '../../utils';
+import { User } from '../users/user.model';
 import mongoose from 'mongoose';
 
 class ManagerService {
   async createManager(data: CreateManagerInput, ownerId: string): Promise<IManager> {
+    // Generate username: firstname + last 3 digits of cnic
+    const firstName = data.name.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+    const cnicSuffix = data.cnic.slice(-3);
+    let username = `${firstName}-${cnicSuffix}`;
+    
+    // Ensure uniqueness (simple check, append random if needed)
+    let existingUser = await User.findOne({ username });
+    if (existingUser) {
+      username = `${username}-${Math.floor(Math.random() * 1000)}`;
+    }
+
+    const hashedPassword = await hashPassword(data.password);
+    
+    // Create User account
+    const user = await User.create({
+      name: data.name,
+      email: `${username}@hostelite.local`, // Dummy email
+      username: username,
+      phone: data.phoneNumber,
+      password: hashedPassword,
+      role: 'MANAGER',
+      isEmailVerified: true, // Verified since created by owner
+      isActive: true,
+      hostelId: new mongoose.Types.ObjectId(data.hostelId), // Link to hostel
+      createdBy: new mongoose.Types.ObjectId(ownerId)
+    });
+
+    // Create Manager profile
     const manager = await Manager.create({
       ...data,
+      userId: user._id,
       ownerId: new mongoose.Types.ObjectId(ownerId),
     });
-    return manager;
+
+    // Return manager with username explicitly attached (for frontend display)
+    const result = manager.toObject();
+    (result as any).username = username;
+    
+    return result as any;
   }
 
   async getAllManagers(ownerId: string, hostelId?: string): Promise<IManager[]> {
@@ -17,14 +52,16 @@ class ManagerService {
     if (hostelId) {
       filter.hostelId = new mongoose.Types.ObjectId(hostelId);
     }
-    return Manager.find(filter).sort({ createdAt: -1 });
+    return Manager.find(filter)
+      .sort({ createdAt: -1 })
+      .populate('userId', 'username email');
   }
 
   async getManagerById(id: string, ownerId: string): Promise<IManager> {
     const manager = await Manager.findOne({
       _id: id,
       ownerId: new mongoose.Types.ObjectId(ownerId),
-    });
+    }).populate('userId', 'username email');
 
     if (!manager) {
       throw ApiError.notFound('Manager not found');
@@ -37,7 +74,7 @@ class ManagerService {
       { _id: id, ownerId: new mongoose.Types.ObjectId(ownerId) },
       data,
       { new: true, runValidators: true }
-    );
+    ).populate('userId', 'username email');
 
     if (!manager) {
       throw ApiError.notFound('Manager not found');

@@ -5,7 +5,8 @@ export const createManagerSchema = z.object({
   phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits').max(15),
   cnic: z.string().min(13, 'CNIC must be at least 13 digits').max(15, 'CNIC cannot exceed 15 characters'),
   salary: z.number().nonnegative('Salary cannot be negative'),
-  
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+    
   // Optional fields
   avatar: z.string().url().optional(),
   cnicImage: z.string().url().optional(),

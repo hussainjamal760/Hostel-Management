@@ -67,15 +67,20 @@ export class AuthService {
   }
 
   async login(data: LoginInput) {
-    const user = await User.findOne({ email: data.email.toLowerCase() })
+    const identifier = data.identifier.toLowerCase();
+    const user = await User.findOne({ 
+      $or: [{ email: identifier }, { username: identifier }] 
+    })
       .select('+password +refreshToken')
       .exec();
 
     if (!user) {
-      logger.warn(`Login failed: User not found [${data.email}]`);
+      logger.warn(`Login failed: User not found [${identifier}]`);
       throw ApiError.unauthorized('Invalid credentials');
     }
 
+    // Passwords for manual user creation (like managers) might imply verification or auto-verify
+    // For managers, we likely set isEmailVerified=true on creation
     if (!user.isEmailVerified) {
       throw ApiError.forbidden('Email not verified. Please verify your email first.');
     }
@@ -87,7 +92,7 @@ export class AuthService {
     const isPasswordValid = await comparePassword(data.password, user.password);
 
     if (!isPasswordValid) {
-      logger.warn(`Login failed: Invalid password for [${data.email}]`);
+      logger.warn(`Login failed: Invalid password for [${identifier}]`);
       throw ApiError.unauthorized('Invalid credentials');
     }
 

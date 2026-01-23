@@ -9,6 +9,7 @@ export interface IManager extends Document {
   cnicImage?: string;
   hostelId: mongoose.Types.ObjectId;
   ownerId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -60,6 +61,12 @@ const managerSchema = new Schema<IManager>(
       ref: 'User',
       required: [true, 'Owner ID is required'],
       index: true,
+    },
+    userId: {
+      type: Schema.Types.ObjectId as any,
+      ref: 'User',
+      required: [true, 'User Account ID is required'],
+      unique: true,
     },
     isActive: {
       type: Boolean,

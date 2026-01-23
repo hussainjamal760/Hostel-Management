@@ -14,6 +14,11 @@ export interface IManager {
   cnicImage?: string;
   hostelId: string;
   ownerId: string;
+  userId: {
+    _id: string;
+    username: string;
+    email: string;
+  };
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

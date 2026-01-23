@@ -1,21 +1,12 @@
 import { baseApi } from './api';
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+import { LoginInput, SignupInput, VerifyEmailInput } from '@hostelite/shared-validators';
 
-export interface SignupRequest {
-  name: string;
-  email: string;
-  phone: string;
-  password: string;
-}
+export type LoginRequest = LoginInput;
 
-export interface VerifyEmailRequest {
-  email: string;
-  code: string;
-}
+export type SignupRequest = SignupInput;
+
+export type VerifyEmailRequest = VerifyEmailInput;
 
 export interface AuthData {
   user: {
