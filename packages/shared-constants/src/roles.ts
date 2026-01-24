@@ -8,6 +8,7 @@ export const ROLES = {
   OWNER: 'OWNER',
   MANAGER: 'MANAGER',
   STUDENT: 'STUDENT',
+  CLIENT: 'CLIENT',
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
@@ -17,10 +18,11 @@ export type Role = (typeof ROLES)[keyof typeof ROLES];
  * Higher index = higher privilege
  */
 export const ROLE_HIERARCHY: Record<Role, number> = {
-  STUDENT: 0,
-  MANAGER: 1,
-  OWNER: 2,
-  ADMIN: 3,
+  CLIENT: 0,
+  STUDENT: 1,
+  MANAGER: 2,
+  OWNER: 3,
+  ADMIN: 4,
 };
 
 /**

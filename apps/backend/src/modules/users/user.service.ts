@@ -6,7 +6,7 @@ import { Role } from '@hostelite/shared-types';
 
 export class UserService {
   async createUser(
-    data: CreateUserInput & { username?: string; password?: string }, 
+    data: CreateUserInput & { username?: string; password?: string; isEmailVerified?: boolean }, 
     creatorRole: Role, 
     creatorHostelId?: string
   ) {
@@ -66,6 +66,7 @@ export class UserService {
       ...data,
       username,
       password: hashedPassword,
+      isEmailVerified: data.isEmailVerified !== undefined ? data.isEmailVerified : false
     });
     
     return { user, password: rawPassword }; 
@@ -132,7 +133,7 @@ export class UserService {
   }
 
   async deleteUser(id: string) {
-    const user = await User.findByIdAndUpdate(id, { isActive: false }, { new: true }).exec();
+    const user = await User.findByIdAndDelete(id).exec();
     if (!user) {
       throw ApiError.notFound('User not found');
     }

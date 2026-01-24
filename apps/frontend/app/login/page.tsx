@@ -39,15 +39,38 @@ export default function LoginPage() {
 
       localStorage.setItem('refreshToken', result.tokens.refreshToken);
       
-      if (result.user.isFirstLogin && result.user.role === 'MANAGER') {
+      // 1. Check for First Login -> Force Password Change
+      if (result.user.isFirstLogin) {
         toast('Please change your password first');
-        router.push('/change-password');
-      } else if (result.user.role === 'MANAGER') {
-        toast.success(`Welcome back, ${result.user.name}!`);
-        router.push('/manager/dashboard');
-      } else {
-        toast.success(`Welcome back, ${result.user.name}!`);
-        router.push('/profile');
+        // Force navigation to ensure clean state
+        window.location.href = '/change-password';
+        return;
+      }
+
+      // 2. Role-based Redirection
+      const role = result.user.role ? result.user.role.toUpperCase() : '';
+      
+      switch (role) {
+        case 'MANAGER':
+        case 'OWNER':
+          toast.success(`Welcome back, ${result.user.name}!`);
+          router.push('/manager/dashboard');
+          break;
+        case 'STUDENT':
+          toast.success(`Welcome back, ${result.user.name}!`);
+          router.push('/student/dashboard');
+          break;
+        case 'CLIENT':
+          toast.success(`Welcome back, ${result.user.name}!`);
+          router.push('/profile');
+          break;
+        case 'ADMIN':
+          router.push('/admin/dashboard');
+          break;
+        default:
+          console.warn('Unknown role:', role);
+          toast.success(`Welcome back, ${result.user.name}!`);
+          router.push('/profile');
       }
     } catch (error: any) {
       const message = error?.data?.message || error?.message || 'Login failed';

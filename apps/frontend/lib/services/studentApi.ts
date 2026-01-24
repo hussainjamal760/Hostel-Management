@@ -22,6 +22,13 @@ export const studentApi = baseApi.injectEndpoints({
       }),
       providesTags: ['Student'],
     }),
+    getStudentMe: builder.query<ApiResponse<IStudent>, void>({
+      query: () => ({
+        url: '/students/me',
+        method: 'GET',
+      }),
+      providesTags: ['Student'],
+    }),
     getStudent: builder.query<ApiResponse<IStudent>, string>({
       query: (id) => ({
         url: `/students/${id}`,
@@ -62,4 +69,5 @@ export const {
   useCreateStudentMutation,
   useUpdateStudentMutation,
   useDeleteStudentMutation,
+  useGetStudentMeQuery,
 } = studentApi;

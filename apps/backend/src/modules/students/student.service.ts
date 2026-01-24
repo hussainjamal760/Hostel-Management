@@ -14,6 +14,15 @@ export class StudentService {
       throw ApiError.notFound('Room not found in this hostel');
     }
 
+    // Verify actual occupancy to prevent sync issues
+    const realOccupiedCount = await Student.countDocuments({ roomId: data.roomId, isActive: true });
+    
+    // Auto-correct if out of sync
+    if (room.occupiedBeds !== realOccupiedCount) {
+        await Room.findByIdAndUpdate(data.roomId, { occupiedBeds: realOccupiedCount });
+        room.occupiedBeds = realOccupiedCount;
+    }
+
     if (room.occupiedBeds >= room.totalBeds) {
       throw ApiError.badRequest('Room is fully occupied');
     }
@@ -46,6 +55,7 @@ export class StudentService {
         hostelId,
         username,
         password: generatePassword(6),
+        isEmailVerified: true,
       },
       'MANAGER', 
       hostelId
@@ -194,16 +204,13 @@ export class StudentService {
         throw ApiError.forbidden('Access denied');
     }
 
-    if (student.isActive) {
-      await Room.findByIdAndUpdate(student.roomId, { $inc: { occupiedBeds: -1 } });
-    }
+    // Hard Delete: Remove student, user, and decrement room occupancy
+    await Room.findByIdAndUpdate(student.roomId, { $inc: { occupiedBeds: -1 } });
+    
+    await Student.findByIdAndDelete(id);
+    await userService.deleteUser(student.userId.toString()); // Ensure userService.deleteUser also performs hard delete or handle it here
 
-    student.isActive = false;
-    await student.save();
-
-    await User.findByIdAndUpdate(student.userId, { isActive: false });
-
-    return student;
+    return null;
   }
 
   async getStudentStats(hostelId: string) {

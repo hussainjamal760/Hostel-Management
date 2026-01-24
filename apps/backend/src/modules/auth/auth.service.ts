@@ -33,7 +33,7 @@ export class AuthService {
       email: data.email,
       phone: data.phone,
       password: hashedPassword,
-      role: 'STUDENT', // Default role
+      role: 'CLIENT', // Default role for self-signup
       isEmailVerified: false,
       verificationCode,
       verificationCodeExpiresAt,

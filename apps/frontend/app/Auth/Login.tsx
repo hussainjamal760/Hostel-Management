@@ -44,10 +44,43 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
       localStorage.setItem('refreshToken', result.tokens.refreshToken);
       
       toast.success(`Welcome back, ${result.user.name}!`);
-      setOpen(false);
       
-      // Redirect to profile for all users
-      router.push('/profile');
+      // Log for debugging
+      console.log('Login Result:', result);
+      console.log('Is First Login:', result.user.isFirstLogin);
+      console.log('User Role:', result.user.role);
+
+      // 1. Check for First Login -> Force Password Change
+      // Using loose check to catch true, "true", 1, etc.
+      if (result.user.isFirstLogin) {
+          // Hard navigation to ensure it happens
+          window.location.href = '/change-password';
+          return;
+      }
+
+      // 2. Role-based Redirection
+      const role = result.user.role ? result.user.role.toUpperCase() : '';
+      
+      setOpen(false); // Close modal only for normal flows where we stay in SPA
+
+      switch (role) {
+          case 'MANAGER':
+          case 'OWNER':
+              router.push('/manager/dashboard');
+              break;
+          case 'STUDENT':
+              router.push('/student/dashboard');
+              break;
+          case 'CLIENT':
+              router.push('/profile');
+              break;
+          case 'ADMIN': // Future proofing
+              router.push('/admin/dashboard');
+              break;
+          default:
+              console.warn('Unknown role, redirecting to profile:', role);
+              router.push('/profile'); // Fallback
+      }
     } catch (error: any) {
       const message = error?.data?.message || error?.message || "Login failed";
       toast.error(message);

@@ -70,6 +70,10 @@ export default function AddStudentModal({ open, setOpen, roomId, bedNumber, onSu
     try {
       const payload = {
         ...data,
+        cnic: data.cnic.replace(/[^0-9]/g, ''),
+        fatherCnic: data.fatherCnic.replace(/[^0-9]/g, ''),
+        phone: data.phone.replace(/[^0-9]/g, ''),
+        fatherPhone: data.fatherPhone.replace(/[^0-9]/g, ''),
         roomId,
         bedNumber,
         dateOfBirth: new Date(data.dateOfBirth),

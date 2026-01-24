@@ -147,7 +147,9 @@ export default function RoomDetailsPage() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {Array.from({ length: room.totalBeds }).map((_, index) => {
-                        const isOccupied = index < room.occupiedBeds;
+                        const bedNumber = (index + 1).toString();
+                        const student = students.find(s => s.bedNumber === bedNumber);
+                        const isOccupied = !!student;
                         
                         return (
                             <div 
@@ -160,7 +162,7 @@ export default function RoomDetailsPage() {
                             >
                                 <div className="flex items-center justify-between mb-3">
                                     <span className="font-bold text-brand-text/70 dark:text-dark-text/70">
-                                        Bed {index + 1}
+                                        Bed {bedNumber}
                                     </span>
                                     {isOccupied ? (
                                         <span className="px-2 py-1 bg-brand-primary text-white text-xs font-bold rounded-lg">
@@ -179,22 +181,15 @@ export default function RoomDetailsPage() {
                                             <HiUser size={20} />
                                         </div>
                                         <div>
-                                            {(() => {
-                                                const student = students.find(s => s.bedNumber === (index + 1).toString());
-                                                return (
-                                                    <>
-                                                        <p className="font-medium text-brand-text dark:text-dark-text">
-                                                            {student ? student.fullName : 'Occupied'}
-                                                        </p>
-                                                        <button 
-                                                            onClick={() => student && handleViewDetails(student._id)}
-                                                            className="text-xs text-brand-primary hover:underline bg-transparent border-none p-0 cursor-pointer"
-                                                        >
-                                                            {student ? 'View Details' : 'Unknown Student'}
-                                                        </button>
-                                                    </>
-                                                );
-                                            })()}
+                                            <p className="font-medium text-brand-text dark:text-dark-text">
+                                                {student.fullName}
+                                            </p>
+                                            <button 
+                                                onClick={() => handleViewDetails(student._id)}
+                                                className="text-xs text-brand-primary hover:underline bg-transparent border-none p-0 cursor-pointer"
+                                            >
+                                                View Details
+                                            </button>
                                         </div>
                                     </div>
                                 ) : (
