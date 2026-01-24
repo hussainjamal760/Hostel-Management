@@ -23,6 +23,12 @@ export interface IHostel {
   monthlyRent: number;
 
   isActive: boolean;
+  paymentDetails?: {
+    bankName: string;
+    accountTitle: string;
+    accountNumber: string;
+    instructions: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }

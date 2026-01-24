@@ -62,9 +62,12 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
 
         switch (role) {
           case 'MANAGER':
-          case 'OWNER':
               toast.success(`Welcome back, ${result.user.name}!`);
               router.push('/manager/dashboard');
+              break;
+          case 'OWNER':
+              toast.success(`Welcome back, ${result.user.name}!`);
+              router.push('/owner/dashboard');
               break;
           case 'STUDENT':
               toast.success(`Welcome back, ${result.user.name}!`);

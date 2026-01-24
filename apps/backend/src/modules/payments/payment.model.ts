@@ -44,6 +44,20 @@ const paymentSchema = new Schema<IPaymentDocument>(
       sparse: true,
       index: true,
     },
+    paymentProof: {
+      type: String,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verifiedBy: {
+      type: Schema.Types.ObjectId as any,
+      ref: 'User',
+    },
+    verifiedAt: {
+      type: Date,
+    },
     gatewayResponse: {
       type: Schema.Types.Mixed,
     },
@@ -70,7 +84,7 @@ const paymentSchema = new Schema<IPaymentDocument>(
     collectedBy: {
       type: Schema.Types.ObjectId as any,
       ref: 'User',
-      required: [true, 'Collector is required'],
+      // required: [true, 'Collector is required'], // Relaxed for manual flow
     },
     receiptNumber: {
       type: String,
@@ -102,7 +116,7 @@ paymentSchema.index({ hostelId: 1, createdAt: -1 });
 /**
  * Generate receipt number before save
  */
-paymentSchema.pre('save', async function (next) {
+paymentSchema.pre('save', async function (this: IPaymentDocument, next) {
   if (!this.receiptNumber) {
     const date = new Date();
     const prefix = `RCP-${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}`;

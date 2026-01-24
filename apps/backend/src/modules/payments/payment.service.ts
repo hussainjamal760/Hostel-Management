@@ -20,13 +20,18 @@ export class PaymentService {
     const random = Math.floor(1000 + Math.random() * 9000);
     const receiptNumber = `PAY-${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}-${random}`;
 
+    const status = (requesterRole === 'STUDENT') ? 'PENDING' : 'COMPLETED';
+    const isVerified = status === 'COMPLETED';
+    
     const payment = await Payment.create({
       ...data,
       hostelId: student.hostelId,
-      collectedBy,
+      collectedBy: (requesterRole === 'STUDENT') ? null : collectedBy, // Students don't "collect"
       receiptNumber,
-      status: 'COMPLETED', 
-      paidAt: new Date()
+      status,
+      isVerified,
+      paymentProof: (data as any).paymentProof, // Ensure this is saved if passed
+      paidAt: status === 'COMPLETED' ? new Date() : undefined
     });
 
     return payment;
@@ -94,6 +99,58 @@ export class PaymentService {
     if (!payment) {
       throw ApiError.notFound('Payment not found');
     }
+    return payment;
+  }
+  async submitPaymentProof(paymentId: string, proofUrl: string) {
+    const payment = await Payment.findById(paymentId);
+    if (!payment) {
+      throw ApiError.notFound('Payment not found');
+    }
+
+    if (payment.status === 'COMPLETED') {
+        // Allow re-upload or just return
+      throw ApiError.badRequest('Payment is already completed');
+    }
+
+    payment.paymentProof = proofUrl;
+    // Optionally change status, or keep as PENDING but with proof
+    // payment.status = 'VERIFICATION_PENDING'; 
+    await payment.save();
+    return payment;
+  }
+
+  async verifyPayment(paymentId: string, verifierId: string) {
+    const payment = await Payment.findById(paymentId);
+    if (!payment) {
+      throw ApiError.notFound('Payment not found');
+    }
+
+    if (payment.status === 'COMPLETED') {
+      throw ApiError.badRequest('Payment is already verified');
+    }
+
+    payment.status = 'COMPLETED';
+    payment.isVerified = true;
+    payment.verifiedBy = verifierId;
+    payment.verifiedAt = new Date();
+    payment.paidAt = new Date();
+    payment.collectedBy = verifierId; 
+    
+    await payment.save();
+
+    // Auto-update Student Status
+    try {
+        await Student.findByIdAndUpdate(payment.studentId, {
+            feeStatus: 'PAID',
+            totalDue: 0, // Or subtract amount? For now resetting to 0 as per request "change status from due to paid"
+            lastPaymentDate: new Date()
+        });
+    } catch (error) {
+        console.error('Failed to update student status:', error);
+        // Don't rollback payment verification? Or should we? 
+        // Proceeding for now.
+    }
+
     return payment;
   }
 }

@@ -31,7 +31,8 @@ const menuItems = [
   { name: 'Manage Managers', href: '/owner/managers', icon: HiOutlineUsers },
   { name: 'All Students', href: '/owner/students', icon: HiOutlineUsers },
   { name: 'Complaints', href: '/owner/complaints', icon: HiOutlineClipboardList },
-  { name: 'Reports', href: '/owner/reports', icon: HiOutlineChartBar }
+  { name: 'Reports', href: '/owner/reports', icon: HiOutlineChartBar },
+  { name: 'Settings', href: '/owner/settings', icon: HiOutlineOfficeBuilding } // Reusing icon or new one
 ];
 
 export default function OwnerLayout({ children }: OwnerLayoutProps) {
@@ -57,7 +58,7 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg dark:bg-dark-bg">
+    <div className="flex h-screen bg-brand-bg dark:bg-dark-bg overflow-hidden">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -68,7 +69,7 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-72 bg-[#2c1b13] dark:bg-[#1a0f0a] transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#2c1b13] dark:bg-[#1a0f0a] transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -139,7 +140,7 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
       </aside>
 
       {/* Main content */}
-      <div className="lg:ml-72">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
         <header className="sticky top-0 z-30 bg-brand-bg/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-brand-card/30 dark:border-dark-card/30">
           <div className="flex items-center justify-between px-6 py-4">
@@ -175,7 +176,7 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
         </header>
 
         {/* Page content */}
-        <main className="p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-brand-bg dark:bg-dark-bg p-6">
           {children}
         </main>
       </div>

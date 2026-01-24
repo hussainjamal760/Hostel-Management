@@ -109,6 +109,11 @@ export class HostelService {
     }
 
     Object.assign(hostel, data);
+
+    // Self-healing: Fix invalid data if present (likely from legacy or bug)
+    if (hostel.totalRooms < 0) hostel.totalRooms = 0;
+    if (hostel.totalBeds < 0) hostel.totalBeds = 0;
+
     await hostel.save();
 
     return hostel;

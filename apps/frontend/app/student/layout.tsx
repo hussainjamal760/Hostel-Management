@@ -25,7 +25,7 @@ const menuItems = [
   { name: 'Dashboard', href: '/student/dashboard', icon: HiOutlineHome },
   { name: 'My Profile', href: '/student/profile', icon: HiOutlineUser },
   { name: 'Room Details', href: '/student/room', icon: HiOutlineInformationCircle },
-  // { name: 'Fee History', href: '/student/fees', icon: HiOutlineCurrencyDollar },
+  { name: 'Invoices', href: '/student/invoices', icon: HiOutlineCurrencyDollar },
   { name: 'Complaints', href: '/student/complaints', icon: HiOutlineClipboardList },
 ];
 

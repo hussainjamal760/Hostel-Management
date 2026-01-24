@@ -22,6 +22,13 @@ export const hostelApi = baseApi.injectEndpoints({
       }),
       providesTags: ['Hostel'],
     }),
+    getHostelById: builder.query<ApiResponse<IHostel>, string>({
+      query: (id) => ({
+        url: `/hostels/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, id) => [{ type: 'Hostel', id }],
+    }),
     getHostelStats: builder.query<ApiResponse<HostelStats>, void>({
       query: () => ({
         url: '/hostels/stats',
@@ -58,6 +65,7 @@ export const hostelApi = baseApi.injectEndpoints({
 export const {
   useGetOwnerHostelsQuery,
   useGetHostelStatsQuery,
+  useGetHostelByIdQuery,
   useCreateHostelMutation,
   useUpdateHostelMutation,
   useDeleteHostelMutation,

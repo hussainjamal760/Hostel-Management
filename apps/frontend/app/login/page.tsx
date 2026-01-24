@@ -53,9 +53,12 @@ export default function LoginPage() {
       // 2. Role-based Redirection
       switch (role) {
         case 'MANAGER':
-        case 'OWNER':
           toast.success(`Welcome back, ${result.user.name}!`);
           router.push('/manager/dashboard');
+          break;
+        case 'OWNER':
+          toast.success(`Welcome back, ${result.user.name}!`);
+          router.push('/owner/dashboard');
           break;
         case 'STUDENT':
           toast.success(`Welcome back, ${result.user.name}!`);

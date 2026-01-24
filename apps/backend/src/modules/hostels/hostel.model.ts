@@ -79,6 +79,12 @@ const hostelSchema = new Schema<IHostelDocument>(
       default: true,
       index: true,
     },
+    paymentDetails: {
+      bankName: { type: String },
+      accountTitle: { type: String },
+      accountNumber: { type: String },
+      instructions: { type: String },
+    },
   },
   {
     timestamps: true,

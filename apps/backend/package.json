@@ -17,6 +17,7 @@
     "@hostelite/shared-types": "*",
     "@hostelite/shared-validators": "*",
     "@types/nodemailer": "^7.0.5",
+    "axios": "^1.13.2",
     "bcrypt": "^5.1.1",
     "cloudinary": "^1.41.0",
     "cors": "^2.8.5",
@@ -29,6 +30,7 @@
     "mongoose": "^8.0.3",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
+    "node-cron": "^4.2.1",
     "nodemailer": "^7.0.12",
     "winston": "^3.11.0",
     "zod": "^3.22.0"
@@ -41,6 +43,7 @@
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.10.0",
+    "@types/node-cron": "^3.0.11",
     "nodemon": "^3.0.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.0",

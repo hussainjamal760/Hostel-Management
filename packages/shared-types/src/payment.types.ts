@@ -23,6 +23,10 @@ export interface IPayment {
   collectedBy: string;
   receiptNumber: string;
   notes?: string;
+  paymentProof?: string;
+  isVerified?: boolean;
+  verifiedBy?: string;
+  verifiedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

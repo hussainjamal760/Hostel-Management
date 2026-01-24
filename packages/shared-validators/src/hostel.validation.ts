@@ -42,6 +42,12 @@ export const updateHostelSchema = z.object({
   monthlyRent: z.number().positive().optional(),
 
   isActive: z.boolean().optional(),
+  paymentDetails: z.object({
+    bankName: z.string().optional(),
+    accountTitle: z.string().optional(),
+    accountNumber: z.string().optional(),
+    instructions: z.string().optional(),
+  }).optional(),
 });
 
 export type CreateHostelInput = z.infer<typeof createHostelSchema>;
