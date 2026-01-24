@@ -40,7 +40,10 @@ export default function LoginPage() {
       localStorage.setItem('refreshToken', result.tokens.refreshToken);
       
       // 1. Check for First Login -> Force Password Change
-      if (result.user.isFirstLogin) {
+      // Only for STUDENTS (Manager creates them with temp password)
+      const role = result.user.role ? result.user.role.toUpperCase() : '';
+
+      if (result.user.isFirstLogin && role === 'STUDENT') {
         toast('Please change your password first');
         // Force navigation to ensure clean state
         window.location.href = '/change-password';
@@ -48,8 +51,6 @@ export default function LoginPage() {
       }
 
       // 2. Role-based Redirection
-      const role = result.user.role ? result.user.role.toUpperCase() : '';
-      
       switch (role) {
         case 'MANAGER':
         case 'OWNER':
@@ -69,7 +70,6 @@ export default function LoginPage() {
           break;
         default:
           console.warn('Unknown role:', role);
-          toast.success(`Welcome back, ${result.user.name}!`);
           router.push('/profile');
       }
     } catch (error: any) {

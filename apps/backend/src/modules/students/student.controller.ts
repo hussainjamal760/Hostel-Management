@@ -45,7 +45,8 @@ export class StudentController {
   });
 
   getMe = asyncHandler(async (req: Request, res: Response) => {
-    const result = await studentService.getStudentByUserId(req.user!._id);
+    // Token payload uses 'id', not '_id'
+    const result = await studentService.getStudentByUserId(req.user!.id);
     ApiResponse.success(res, result, 'Profile fetched successfully');
   });
 

@@ -51,27 +51,27 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
       console.log('User Role:', result.user.role);
 
       // 1. Check for First Login -> Force Password Change
-      // Using loose check to catch true, "true", 1, etc.
-      if (result.user.isFirstLogin) {
+      // Only for STUDENTS (Manager creates them with temp password)
+      const role = result.user.role ? result.user.role.toUpperCase() : '';
+      
+      if (result.user.isFirstLogin && role === 'STUDENT') {
           // Hard navigation to ensure it happens
           window.location.href = '/change-password';
           return;
       }
 
-      // 2. Role-based Redirection
-      const role = result.user.role ? result.user.role.toUpperCase() : '';
-      
-      setOpen(false); // Close modal only for normal flows where we stay in SPA
-
-      switch (role) {
+        switch (role) {
           case 'MANAGER':
           case 'OWNER':
+              toast.success(`Welcome back, ${result.user.name}!`);
               router.push('/manager/dashboard');
               break;
           case 'STUDENT':
+              toast.success(`Welcome back, ${result.user.name}!`);
               router.push('/student/dashboard');
               break;
           case 'CLIENT':
+              toast.success(`Welcome back, ${result.user.name}!`);
               router.push('/profile');
               break;
           case 'ADMIN': // Future proofing
@@ -79,6 +79,7 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
               break;
           default:
               console.warn('Unknown role, redirecting to profile:', role);
+              toast('Redirecting to Profile (Unknown Role)');
               router.push('/profile'); // Fallback
       }
     } catch (error: any) {

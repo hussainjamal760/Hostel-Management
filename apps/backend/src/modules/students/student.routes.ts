@@ -16,7 +16,7 @@ router.post(
 
 router.get(
   '/',
-  authorize('ADMIN', 'OWNER', 'MANAGER'),
+  authorize('ADMIN', 'OWNER', 'MANAGER', 'STUDENT'),
   studentController.getAllStudents
 );
 

@@ -7,6 +7,8 @@ export type ComplaintCategory =
   | 'CLEANLINESS'
   | 'OTHER';
 
+export type ComplaintRecipient = 'MANAGER' | 'OWNER' | 'BOTH' | 'ADMIN';
+
 export interface IComplaint {
   _id: string;
   studentId: string;
@@ -15,6 +17,7 @@ export interface IComplaint {
   description: string;
   category: ComplaintCategory;
   priority: ComplaintPriority;
+  recipient: ComplaintRecipient;
   status: ComplaintStatus;
   attachments?: string[];
   assignedTo?: string;

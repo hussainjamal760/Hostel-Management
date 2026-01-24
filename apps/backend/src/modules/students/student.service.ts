@@ -150,13 +150,23 @@ export class StudentService {
   }
 
   async getStudentByUserId(userId: string) {
-    const student = await Student.findOne({ userId })
+    console.log(`[Debug] Looking for student profile for UserID: ${userId} (Type: ${typeof userId})`);
+    
+    // Explicitly cast to ObjectId to ensure query matches
+    const student = await Student.findOne({ userId: new Types.ObjectId(userId) })
+      .populate('userId', 'username email phone avatar') // Populate user details like phone
       .populate('roomId', 'roomNumber roomType')
       .exec();
       
     if (!student) {
+      console.warn(`[Debug] Student profile NOT found for UserID: ${userId}`);
+      // Fallback: Check if ANY student exists to verify DB connection
+      const count = await Student.countDocuments();
+      console.warn(`[Debug] Total students in DB: ${count}`);
+      
       throw ApiError.notFound('Student profile not found');
     }
+    console.log(`[Debug] Found Student Profile: ${student._id}`);
     return student;
   }
 

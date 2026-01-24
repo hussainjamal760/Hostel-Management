@@ -1,4 +1,4 @@
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { Complaint, IComplaintDocument } from './complaint.model';
 import { CreateComplaintInput, UpdateComplaintInput } from '@hostelite/shared-validators';
 import { ApiError } from '../../utils';
@@ -7,7 +7,7 @@ import { Role } from '@hostelite/shared-types';
 
 export class ComplaintService {
   async createComplaint(data: CreateComplaintInput, userId: string) {
-    const student = await Student.findOne({ userId });
+    const student = await Student.findOne({ userId: new Types.ObjectId(userId) });
     
     if (!student) {
       throw ApiError.notFound('Student profile not found');
@@ -45,9 +45,17 @@ export class ComplaintService {
     if (hostelId) filter.hostelId = hostelId;
 
     if (role === 'STUDENT') {
-      const student = await Student.findOne({ userId });
+      const student = await Student.findOne({ userId: new Types.ObjectId(userId) });
       if (!student) throw ApiError.notFound('Student profile not found');
       filter.studentId = student._id;
+    } else if (role === 'MANAGER') {
+      filter.$or = [{ recipient: 'MANAGER' }, { recipient: 'BOTH' }];
+    } else if (role === 'OWNER') {
+      filter.$or = [{ recipient: 'OWNER' }, { recipient: 'BOTH' }];
+    } else if (role === 'ADMIN') {
+      // Hostelite Admin sees admin directed complaints (or maybe all?)
+      // User said "HOSTELITE ADMIN", assuming recipient='ADMIN'
+      filter.recipient = 'ADMIN';
     }
 
     const complaints = await Complaint.find(filter)

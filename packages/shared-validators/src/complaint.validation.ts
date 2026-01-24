@@ -4,6 +4,7 @@ export const createComplaintSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(100),
   description: z.string().min(20, 'Description must be at least 20 characters').max(2000),
   category: z.enum(['MAINTENANCE', 'FOOD', 'SECURITY', 'CLEANLINESS', 'OTHER']),
+  recipient: z.enum(['MANAGER', 'OWNER', 'BOTH', 'ADMIN']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional().default('MEDIUM'),
   attachments: z.array(z.string().url()).max(5, 'Maximum 5 attachments allowed').optional(),
 });

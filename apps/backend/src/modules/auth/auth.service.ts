@@ -34,6 +34,7 @@ export class AuthService {
       phone: data.phone,
       password: hashedPassword,
       role: 'CLIENT', // Default role for self-signup
+      isFirstLogin: false, // Self-signup sets their own password
       isEmailVerified: false,
       verificationCode,
       verificationCodeExpiresAt,

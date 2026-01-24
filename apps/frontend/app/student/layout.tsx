@@ -26,7 +26,7 @@ const menuItems = [
   { name: 'My Profile', href: '/student/profile', icon: HiOutlineUser },
   { name: 'Room Details', href: '/student/room', icon: HiOutlineInformationCircle },
   // { name: 'Fee History', href: '/student/fees', icon: HiOutlineCurrencyDollar },
-  // { name: 'Complaints', href: '/student/complaints', icon: HiOutlineClipboardList },
+  { name: 'Complaints', href: '/student/complaints', icon: HiOutlineClipboardList },
 ];
 
 export default function StudentLayout({ children }: StudentLayoutProps) {

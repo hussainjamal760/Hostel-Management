@@ -59,6 +59,11 @@ const complaintSchema = new Schema<IComplaintDocument>(
       default: COMPLAINT_PRIORITIES.MEDIUM,
       index: true,
     },
+    recipient: {
+      type: String,
+      enum: ['MANAGER', 'OWNER', 'BOTH', 'ADMIN'],
+      required: [true, 'Recipient is required'],
+    },
     status: {
       type: String,
       enum: Object.values(COMPLAINT_STATUS),

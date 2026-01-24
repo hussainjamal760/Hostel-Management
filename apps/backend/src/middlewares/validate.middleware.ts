@@ -23,6 +23,8 @@ export const validate = (schema: ZodSchema, source: 'body' | 'query' | 'params' 
           const path = err.path.join('.');
           errors[path] = err.message;
         });
+        
+        console.error('[Validation Warning] Zod Error:', JSON.stringify(errors, null, 2));
 
         next(ApiError.badRequest('Validation failed', errors));
       } else {
