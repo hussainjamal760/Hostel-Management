@@ -33,10 +33,6 @@ export default function OwnerSettingsPage() {
       await updateHostel({
         id: hostel._id,
         data: {
-            // We need to cast or update the type in frontend if strict
-            // The UpdateHostelInput might strictly validate, so we might need 'paymentDetails' in the validator too.
-            // Assuming the backend allows Partial updates and Mongoose handles the structure.
-            // TypeScript here might complain if CreateHostelInput doesn't have paymentDetails.
             paymentDetails: {
                 bankName,
                 accountTitle,

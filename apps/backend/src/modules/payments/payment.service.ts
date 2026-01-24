@@ -59,7 +59,14 @@ export class PaymentService {
     if (year) filter.year = year;
 
     const payments = await Payment.find(filter)
-      .populate('studentId', 'fullName roomId bedNumber')
+      .populate({
+        path: 'studentId',
+        select: 'fullName roomId bedNumber',
+        populate: {
+          path: 'roomId',
+          select: 'roomNumber',
+        },
+      })
       .populate('collectedBy', 'username role')
       .sort({ createdAt: -1 })
       .skip(skip)

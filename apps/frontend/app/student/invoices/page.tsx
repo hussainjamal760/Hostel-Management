@@ -18,7 +18,7 @@ export default function StudentInvoicesPage() {
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [localPreviews, setLocalPreviews] = useState<Record<string, string>>({});
 
-  const invoices = invoicesData?.data?.payments || [];
+  const invoices = (invoicesData?.data || []).filter((inv: any) => inv.status !== 'COMPLETED');
   const isLoading = isStudentLoading || isInvoicesLoading;
   
   const student = studentData?.data;
@@ -56,19 +56,28 @@ export default function StudentInvoicesPage() {
         }).unwrap();
         
         const paymentId = (paymentRes.data || paymentRes as any)._id;
+        if (!paymentId) throw new Error("Payment ID not received");
+
+        // Set preview for the new ID *immediately* before submitting proof/refetching
+        // This ensures if auto-refetch happens, the UI already has the preview ready
+        setLocalPreviews(prev => ({
+            ...prev,
+            [paymentId]: previewUrl
+        }));
+
         await submitProof({ id: paymentId, file }).unwrap();
         
         toast.success('Payment proof uploaded successfully!');
         
-        // Transfer preview to the new ID so it stays visible after virtual card disappears
+        // Remove 'new' preview now that we're established
+        // Remove 'new' preview now that we're established
         setLocalPreviews(prev => {
             const next = { ...prev };
-            next[paymentId] = previewUrl;
             delete next.new;
             return next;
         });
 
-        await refetch();
+        refetch(); // Don't await refetch to keep UI responsive, data will flow in naturally
         // We keep the local preview for the specific ID until next full refresh or slightly delayed
         // to ensure the server URL has time to propagate to the UI components.
     } catch (error: any) {
@@ -189,8 +198,8 @@ function ChallanForm({ type, invoice, student, amount, month, year, uploading, l
             )}
             {status === 'UNDER_REVIEW' && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] opacity-10 pointer-events-none">
-                    <div className="border-8 border-amber-600 rounded-xl px-12 py-6 text-6xl font-black text-amber-600 uppercase tracking-tighter">
-                        PENDING
+                    <div className="border-8 border-amber-600 rounded-xl px-12 py-6 text-4xl font-black text-amber-600 uppercase tracking-tighter text-center">
+                        REQUEST SENT<br/>FOR VERIFICATION
                     </div>
                 </div>
             )}
@@ -246,7 +255,22 @@ function ChallanForm({ type, invoice, student, amount, month, year, uploading, l
                     </div>
                     
                     {/* Visual Signal of payment */}
-                    {status !== 'UNPAID' && (
+                    {/* Visual Signal of payment */}
+                    {status === 'UNDER_REVIEW' && (
+                        <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-lg flex items-center gap-4">
+                            <div className="h-10 w-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 className="font-black text-amber-800 uppercase text-xs tracking-widest">Verification Pending</h4>
+                                <p className="text-[10px] text-amber-700 font-bold uppercase opacity-70 italic">Proof submitted. Waiting for manager approval.</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {status === 'PAID' && (
                         <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg flex items-center gap-4">
                             <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
@@ -254,8 +278,8 @@ function ChallanForm({ type, invoice, student, amount, month, year, uploading, l
                                 </svg>
                             </div>
                             <div>
-                                <h4 className="font-black text-green-800 uppercase text-xs tracking-widest">Payment Submitted</h4>
-                                <p className="text-[10px] text-green-700 font-bold uppercase opacity-70 italic">Proof of payment has been recorded.</p>
+                                <h4 className="font-black text-green-800 uppercase text-xs tracking-widest">Payment Accepted</h4>
+                                <p className="text-[10px] text-green-700 font-bold uppercase opacity-70 italic">Your payment has been verified.</p>
                             </div>
                         </div>
                     )}

@@ -30,6 +30,7 @@ const menuItems = [
   { name: 'Create Room', href: '/manager/create-room', icon: HiOutlinePlus },
   { name: 'Manage Rooms', href: '/manager/rooms', icon: HiOutlineCollection },
   { name: 'Students', href: '/manager/students', icon: HiOutlineUsers },
+  { name: 'Payments', href: '/manager/payments', icon: HiOutlineCollection },
   { name: 'Complaints', href: '/manager/complaints', icon: HiOutlineClipboardList },
 ];
 

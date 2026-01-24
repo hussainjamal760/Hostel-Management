@@ -4,7 +4,7 @@ import { IPayment } from '@hostelite/shared-types';
 
 export const paymentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllPayments: builder.query<ApiResponse<{ payments: IPayment[], pagination: any }>, { studentId?: string; hostelId?: string; status?: string }>({
+    getAllPayments: builder.query<ApiResponse<IPayment[]>, { studentId?: string; hostelId?: string; status?: string }>({
       query: (params) => ({
         url: '/payments',
         method: 'GET',
@@ -50,6 +50,13 @@ export const paymentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Payment'],
     }),
+    triggerMonthlyDues: builder.mutation<ApiResponse<any>, void>({
+      query: () => ({
+        url: '/payments/actions/generate-monthly-dues',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Payment'],
+    }),
   }),
 });
 
@@ -59,4 +66,5 @@ export const {
   useCreatePaymentMutation,
   useSubmitProofMutation,
   useVerifyPaymentMutation,
+  useTriggerMonthlyDuesMutation,
 } = paymentApi;

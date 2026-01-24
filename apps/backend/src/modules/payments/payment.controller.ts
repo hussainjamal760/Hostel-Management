@@ -28,21 +28,13 @@ export class PaymentController {
     let hostelId = req.query.hostelId as string;
     const { role, hostelId: userHostelId, id: userId } = req.user!;
 
+    console.log('GetAllPayments - User:', { role, userHostelId, userId });
+    console.log('GetAllPayments - Initial Query HostelId:', hostelId);
+
     if (role === 'MANAGER') {
       hostelId = userHostelId!;
+      console.log('GetAllPayments - Enforced Manager HostelId:', hostelId);
     } else if (role === 'STUDENT') {
-       // Students can only see their own payments
-       // We force the query to filter by their student ID (which we need to fetch or assuming userId links to student)
-       // Wait, req.user.id is the User ID. The Payment model uses studentId (Student Profile ID).
-       // We need to look up the student profile for this user first? 
-       // OR if the frontend sends `studentId` in query, we verify it belongs to this user.
-       
-       // Ideally, the service should handle this look up, or we trust the query param IF we verify ownership.
-       // But simpler: checking if req.query.studentId is present.
-       // However, `getAllPayments` in service takes `studentId`.
-       // Let's assume for now the frontend sends the correct studentId (which it does).
-       // We should verify that the requested studentId matches the logged-in user's student profile.
-       // Importing studentService to check?
        const studentService = require('../students/student.service').default;
        const student = await studentService.getStudentByUserId(userId);
        if (!student) throw ApiError.notFound('Student profile not found');
@@ -56,6 +48,7 @@ export class PaymentController {
     }
 
     const result = await paymentService.getAllPayments(hostelId, req.query);
+    console.log(`GetAllPayments - Found ${result.payments.length} payments for hostel ${hostelId}`);
     ApiResponse.paginated(res, result.payments, result.pagination, 'Payments fetched successfully');
   });
 
@@ -75,15 +68,23 @@ export class PaymentController {
   });
 
   submitPaymentProof = asyncHandler(async (req: Request, res: Response) => {
- 
+    console.log('Submit Proof Request Body:', req.body);
+    console.log('Submit Proof File:', req.file);
+
     let proofUrl = req.body.proofUrl;
     
     // If file is attached directly to this request (middleware handled)
     if (req.file) {
         // We'd need to import the cloudinary uploader here or use the service
         const { uploadToCloudinary } = require('../../utils/cloudinary');
-        const result = await uploadToCloudinary(req.file);
-        proofUrl = result.url;
+        try {
+            const result = await uploadToCloudinary(req.file, 'hostelite/payments'); // Use better folder
+            console.log('Cloudinary Result:', result);
+            proofUrl = result.url;
+        } catch (err) {
+            console.error('Cloudinary Upload Failed:', err);
+            throw new ApiError(500, 'Failed to upload image to cloud storage');
+        }
     }
 
     if (!proofUrl) {
@@ -91,12 +92,20 @@ export class PaymentController {
     }
 
     const result = await paymentService.submitPaymentProof(req.params.id, proofUrl);
+    console.log('Payment updated with proof:', result);
     ApiResponse.success(res, result, 'Payment proof submitted successfully');
   });
 
   verifyPayment = asyncHandler(async (req: Request, res: Response) => {
      const result = await paymentService.verifyPayment(req.params.id, req.user!.id);
      ApiResponse.success(res, result, 'Payment verified successfully');
+  });
+
+  triggerMonthlyDues = asyncHandler(async (_req: Request, res: Response) => {
+     // Admin/Owner only ideally
+     const { paymentScheduler } = require('./cron.service');
+     const result = await paymentScheduler.generateMonthlyDues();
+     ApiResponse.success(res, result, 'Monthly dues generation triggered');
   });
 
 }

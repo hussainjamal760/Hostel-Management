@@ -29,6 +29,12 @@ class ManagerController {
     return ApiResponse.success(res, manager, 'Manager details retrieved successfully');
   });
 
+  getMe = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const manager = await managerService.getManagerByUserId(userId);
+    return ApiResponse.success(res, manager, 'Manager profile retrieved successfully');
+  });
+
   updateManager = asyncHandler(async (req: Request, res: Response) => {
     const ownerId = req.user!.id;
     const { id } = req.params;

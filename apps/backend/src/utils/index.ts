@@ -18,3 +18,4 @@ export {
   type TokenPayload,
 } from './jwt';
 export { mailService } from './mail.service';
+export { logger } from './logger';

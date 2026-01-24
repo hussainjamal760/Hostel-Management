@@ -22,6 +22,12 @@ router.get(
 );
 
 router.get(
+  '/me/profile',
+  authorize('MANAGER'),
+  managerController.getMe
+);
+
+router.get(
   '/:id',
   authorize('OWNER', 'MANAGER'),
   managerController.getManager

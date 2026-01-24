@@ -73,6 +73,14 @@ class ManagerService {
     return manager;
   }
 
+  async getManagerByUserId(userId: string): Promise<IManager> {
+    const manager = await Manager.findOne({ userId }).populate('userId', 'username email');
+    if (!manager) {
+      throw ApiError.notFound('Manager profile not found');
+    }
+    return manager;
+  }
+
   async updateManager(id: string, data: UpdateManagerInput, ownerId: string): Promise<IManager> {
     const manager = await Manager.findOneAndUpdate(
       { _id: id, ownerId: new mongoose.Types.ObjectId(ownerId) },

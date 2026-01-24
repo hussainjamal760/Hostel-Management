@@ -41,6 +41,13 @@ export const managerApi = baseApi.injectEndpoints({
       }),
       providesTags: ['Manager'],
     }),
+    getManagerMe: builder.query<ApiResponse<IManager>, void>({
+      query: () => ({
+        url: '/managers/me/profile', // Assume backend has this or similar, checking backend routes next
+        method: 'GET',
+      }),
+      providesTags: ['Manager'],
+    }),
     createManager: builder.mutation<ApiResponse<IManager>, CreateManagerInput>({
       query: (data) => ({
         url: '/managers',
@@ -70,6 +77,7 @@ export const managerApi = baseApi.injectEndpoints({
 export const {
   useGetManagersQuery,
   useGetManagerQuery,
+  useGetManagerMeQuery,
   useCreateManagerMutation,
   useUpdateManagerMutation,
   useDeleteManagerMutation,

@@ -49,4 +49,10 @@ router.post(
     paymentController.verifyPayment
 );
 
+router.post(
+    '/actions/generate-monthly-dues',
+    authorize('ADMIN', 'OWNER', 'MANAGER'), // Allow Manager too for testing
+    paymentController.triggerMonthlyDues
+);
+
 export default router;
