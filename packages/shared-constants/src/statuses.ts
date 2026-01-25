@@ -10,10 +10,12 @@ export const FEE_STATUS = {
 } as const;
 
 export const PAYMENT_STATUS = {
-  PENDING: 'PENDING',
-  COMPLETED: 'COMPLETED',
+  UNPAID: 'UNPAID', // Initial state when invoice is generated
+  PENDING: 'PENDING', // Proof uploaded, waiting for verification (was PENDING/UNDER_REVIEW)
+  COMPLETED: 'COMPLETED', // Verified and Paid
   FAILED: 'FAILED',
   REFUNDED: 'REFUNDED',
+  OVERDUE: 'OVERDUE', // Explicit overdue status
 } as const;
 
 export const COMPLAINT_STATUS = {

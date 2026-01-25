@@ -101,11 +101,21 @@ export class PaymentController {
      ApiResponse.success(res, result, 'Payment verified successfully');
   });
 
-  triggerMonthlyDues = asyncHandler(async (_req: Request, res: Response) => {
+  triggerMonthlyDues = asyncHandler(async (req: Request, res: Response) => {
      // Admin/Owner only ideally
+     console.log('Trigger Monthly Dues Body:', req.body);
+     const { month, year } = req.body;
      const { paymentScheduler } = require('./cron.service');
-     const result = await paymentScheduler.generateMonthlyDues();
-     ApiResponse.success(res, result, 'Monthly dues generation triggered');
+     try {
+         const result = await paymentScheduler.generateMonthlyDues(month, year);
+         ApiResponse.success(res, result, 'Monthly dues generation triggered');
+     } catch (error: any) {
+         if (error.message && error.message.includes('already been generated')) {
+             // Return conflict but allow frontend to handle it as a "success" lock state
+             throw new ApiError(409, error.message);
+         }
+         throw error;
+     }
   });
 
 }

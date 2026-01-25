@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useGetAllPaymentsQuery, useSubmitProofMutation, useCreatePaymentMutation } from '@/lib/services/paymentApi';
+import { useGetAllPaymentsQuery, useSubmitProofMutation } from '@/lib/services/paymentApi';
 import { useGetStudentMeQuery } from '@/lib/services/studentApi';
 import { useGetHostelByIdQuery } from '@/lib/services/hostelApi';
 import { toast } from 'react-hot-toast';
@@ -13,84 +13,25 @@ export default function StudentInvoicesPage() {
     { skip: !studentData?.data?._id }
   );
 
-  const [createPayment] = useCreatePaymentMutation();
   const [submitProof] = useSubmitProofMutation();
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [localPreviews, setLocalPreviews] = useState<Record<string, string>>({});
 
-  const invoices = (invoicesData?.data || []).filter((inv: any) => inv.status !== 'COMPLETED');
+  const invoices = [...(invoicesData?.data || [])].sort((a: any, b: any) => {
+      // Sort priority: OVERDUE > UNPAID > PENDING > COMPLETED > Newest Date
+      const score = (status: string) => {
+          if (status === 'OVERDUE') return 4;
+          if (status === 'UNPAID') return 3;
+          if (status === 'PENDING') return 2;
+          return 1;
+      };
+      const diff = score(b.status) - score(a.status);
+      if (diff !== 0) return diff;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   const isLoading = isStudentLoading || isInvoicesLoading;
-  
   const student = studentData?.data;
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-  
-  const hasCurrentMonthInvoice = invoices.some(inv => inv.month === currentMonth && inv.year === currentYear);
-  const showDueCard = student?.feeStatus === 'DUE' && !hasCurrentMonthInvoice;
-
-  const handleCreateAndUpload = async (file: File) => {
-    if (!file || !student) return;
-    if (!file.type.startsWith('image/')) {
-        toast.error('Please upload an image file');
-        return;
-    }
-
-    const previewUrl = URL.createObjectURL(file);
-    setLocalPreviews(prev => ({ ...prev, new: previewUrl }));
-
-    try {
-        setUploadingId('new');
-        const date = new Date();
-        const random = Math.floor(1000 + Math.random() * 9000);
-        const receiptNumber = `PAY-${currentYear}${currentMonth}-${date.getDate()}-${random}`;
-        
-        const paymentRes = await createPayment({
-            studentId: student._id,
-            hostelId: student.hostelId,
-            amount: student.totalDue > 0 ? student.totalDue : student.monthlyFee,
-            paymentType: 'RENT',
-            paymentMethod: 'BANK_TRANSFER',
-            month: currentMonth,
-            year: currentYear,
-            receiptNumber
-        }).unwrap();
-        
-        const paymentId = (paymentRes.data || paymentRes as any)._id;
-        if (!paymentId) throw new Error("Payment ID not received");
-
-        // Set preview for the new ID *immediately* before submitting proof/refetching
-        // This ensures if auto-refetch happens, the UI already has the preview ready
-        setLocalPreviews(prev => ({
-            ...prev,
-            [paymentId]: previewUrl
-        }));
-
-        await submitProof({ id: paymentId, file }).unwrap();
-        
-        toast.success('Payment proof uploaded successfully!');
-        
-        // Remove 'new' preview now that we're established
-        // Remove 'new' preview now that we're established
-        setLocalPreviews(prev => {
-            const next = { ...prev };
-            delete next.new;
-            return next;
-        });
-
-        refetch(); // Don't await refetch to keep UI responsive, data will flow in naturally
-        // We keep the local preview for the specific ID until next full refresh or slightly delayed
-        // to ensure the server URL has time to propagate to the UI components.
-    } catch (error: any) {
-        toast.error(error?.data?.message || 'Failed to submit payment');
-        setLocalPreviews(prev => {
-            const next = { ...prev };
-            delete next.new;
-            return next;
-        });
-    } finally {
-        setUploadingId(null);
-    }
-  };
 
   const handleFileUpload = async (paymentId: string, file: File) => {
     if (!file) return;
@@ -126,29 +67,15 @@ export default function StudentInvoicesPage() {
       </div>
       
       <div className="grid gap-12">
-          {showDueCard && (
-            <ChallanForm 
-               type="DUE"
-               student={student}
-               amount={student.totalDue || student.monthlyFee}
-               month={currentMonth}
-               year={currentYear}
-               uploading={uploadingId === 'new'}
-               localPreview={localPreviews.new}
-               onUpload={handleCreateAndUpload}
-            />
-          )}
-
-          {invoices.length === 0 && !showDueCard && (
+          {invoices.length === 0 && (
             <div className="p-12 text-center border-2 border-dashed border-gray-200 rounded-3xl bg-gray-50">
                 <p className="text-gray-500 text-xl font-medium">No fee challans found.</p>
             </div>
           )}
 
-          {invoices.map((invoice) => (
+          {invoices.map((invoice: any) => (
             <ChallanForm 
                key={invoice._id}
-               type="EXISTING"
                invoice={invoice}
                student={student}
                uploading={uploadingId === invoice._id}
@@ -162,64 +89,85 @@ export default function StudentInvoicesPage() {
 }
 
 interface ChallanFormProps {
-    type: 'DUE' | 'EXISTING';
-    invoice?: any;
+    invoice: any;
     student: any;
-    amount?: number;
-    month?: number;
-    year?: number;
     uploading: boolean;
     localPreview?: string;
     onUpload: (file: File) => void;
 }
 
-function ChallanForm({ type, invoice, student, amount, month, year, uploading, localPreview, onUpload }: ChallanFormProps) {
+function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: ChallanFormProps) {
     const hostelId = student?.hostelId;
     const { data: hostelData } = useGetHostelByIdQuery(hostelId, { skip: !hostelId });
     const paymentDetails = hostelData?.data?.paymentDetails;
 
-    const displayAmount = type === 'DUE' ? amount : invoice.amount;
-    const displayMonth = type === 'DUE' ? month : invoice.month;
-    const displayYear = type === 'DUE' ? year : invoice.year;
+    // Use invoice data directly
+    const displayAmount = invoice.amount;
+    const displayMonth = invoice.month;
+    const displayYear = invoice.year;
+    // Handle month name safely
     const monthName = new Date(displayYear, displayMonth - 1).toLocaleString('default', { month: 'long' });
-    const status = type === 'DUE' ? 'UNPAID' : (invoice.isVerified ? 'PAID' : (invoice.paymentProof ? 'UNDER_REVIEW' : 'UNPAID'));
+    
+    // Status Logic
+    // If we have 'UNPAID' but it is from a previous month, show as OVERDUE?
+    // Or rely on backend status? The backend generates as UNPAID. 
+    // Let's rely on stored status, but alias PENDING -> UNDER_REVIEW for UI if desired.
+    // Actually, backend uses 'PENDING' for "Verification Pending".
+    
+    let statusDisplay = invoice.status;
+    if (statusDisplay === 'PENDING') statusDisplay = 'UNDER_REVIEW'; // UI Alias
 
-    const effectiveProof = localPreview || (type === 'EXISTING' ? invoice.paymentProof : null);
+    const effectiveProof = localPreview || invoice.paymentProof;
 
     return (
-        <div className="relative bg-white border-2 border-gray-900 rounded-lg overflow-hidden shadow-2xl font-serif">
+        <div className={`relative bg-white border-2 rounded-lg overflow-hidden shadow-2xl font-serif ${
+            statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'
+        }`}>
             {/* Stamp/Status Backdrop */}
-            {status === 'PAID' && (
+            {statusDisplay === 'COMPLETED' && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-30deg] opacity-20 pointer-events-none">
                     <div className="border-8 border-green-600 rounded-full px-12 py-6 text-7xl font-black text-green-600 tracking-tighter uppercase">
                         RECEIVED
                     </div>
                 </div>
             )}
-            {status === 'UNDER_REVIEW' && (
+            {statusDisplay === 'UNDER_REVIEW' && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] opacity-10 pointer-events-none">
                     <div className="border-8 border-amber-600 rounded-xl px-12 py-6 text-4xl font-black text-amber-600 uppercase tracking-tighter text-center">
                         REQUEST SENT<br/>FOR VERIFICATION
                     </div>
                 </div>
             )}
+             {statusDisplay === 'OVERDUE' && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] opacity-10 pointer-events-none">
+                    <div className="border-8 border-red-600 rounded-xl px-12 py-6 text-6xl font-black text-red-600 uppercase tracking-tighter text-center">
+                        OVERDUE
+                    </div>
+                </div>
+            )}
 
             {/* Header */}
-            <div className="p-6 border-b-2 border-gray-900 flex justify-between items-start bg-gray-50">
+            <div className={`p-6 border-b-2 flex justify-between items-start ${
+                statusDisplay === 'OVERDUE' ? 'bg-red-50 border-red-600' : 'bg-gray-50 border-gray-900'
+            }`}>
                 <div>
-                   <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900 leading-none mb-1">Fee Challan Form</h2>
+                   <h2 className={`text-2xl font-black uppercase tracking-tight leading-none mb-1 ${
+                       statusDisplay === 'OVERDUE' ? 'text-red-900' : 'text-gray-900'
+                   }`}>Fee Challan Form</h2>
                    <p className="text-sm font-bold text-gray-600 uppercase tracking-widest">{hostelData?.data?.name || "Hostelite Management System"}</p>
                 </div>
                 <div className="text-right">
                     <div className="text-xs font-bold text-gray-500 uppercase mb-1">Receipt No.</div>
                     <div className="text-lg font-black font-mono tracking-tighter">
-                        {type === 'EXISTING' ? invoice.receiptNumber : `DRAFT-${Date.now().toString().slice(-6)}`}
+                        {invoice.receiptNumber}
                     </div>
                 </div>
             </div>
 
             {/* Body */}
-            <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x-2 divide-gray-900">
+            <div className={`flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x-2 ${
+                 statusDisplay === 'OVERDUE' ? 'divide-red-600' : 'divide-gray-900'
+            }`}>
                 {/* Left Side: Student & Charge Details */}
                 <div className="flex-1 p-6 space-y-6">
                     <div className="grid grid-cols-2 gap-x-12 gap-y-4">
@@ -237,8 +185,10 @@ function ChallanForm({ type, invoice, student, amount, month, year, uploading, l
                         </div>
                     </div>
 
-                    <div className="border-2 border-gray-900">
-                         <div className="bg-gray-100 p-2 border-b-2 border-gray-900 font-black text-xs uppercase tracking-widest flex justify-between">
+                    <div className={`border-2 ${statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'}`}>
+                         <div className={`p-2 border-b-2 font-black text-xs uppercase tracking-widest flex justify-between ${
+                             statusDisplay === 'OVERDUE' ? 'bg-red-50 border-red-600 text-red-900' : 'bg-gray-100 border-gray-900'
+                         }`}>
                             <span>Description</span>
                             <span>Amount</span>
                          </div>
@@ -255,8 +205,7 @@ function ChallanForm({ type, invoice, student, amount, month, year, uploading, l
                     </div>
                     
                     {/* Visual Signal of payment */}
-                    {/* Visual Signal of payment */}
-                    {status === 'UNDER_REVIEW' && (
+                    {statusDisplay === 'UNDER_REVIEW' && (
                         <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-lg flex items-center gap-4">
                             <div className="h-10 w-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
@@ -270,7 +219,7 @@ function ChallanForm({ type, invoice, student, amount, month, year, uploading, l
                         </div>
                     )}
 
-                    {status === 'PAID' && (
+                    {statusDisplay === 'COMPLETED' && (
                         <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg flex items-center gap-4">
                             <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
@@ -316,7 +265,9 @@ function ChallanForm({ type, invoice, student, amount, month, year, uploading, l
                     <div className="mt-8 flex flex-col gap-4">
                         {/* Preview of proof if exists */}
                         {effectiveProof && (
-                             <div className="relative aspect-square bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-900 group shadow-md">
+                             <div className={`relative aspect-square bg-gray-200 rounded-lg overflow-hidden border-2 group shadow-md ${
+                                 statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'
+                             }`}>
                                 <img src={effectiveProof} alt="Thumbnail" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                      <span className="text-[10px] font-black text-white uppercase tracking-widest">Preview</span>
@@ -324,7 +275,7 @@ function ChallanForm({ type, invoice, student, amount, month, year, uploading, l
                              </div>
                         )}
 
-                        {(status === 'UNPAID' || (status === 'UNDER_REVIEW' && !uploading)) ? (
+                        {(statusDisplay === 'UNPAID' || statusDisplay === 'OVERDUE' || (statusDisplay === 'UNDER_REVIEW' && !uploading)) ? (
                             <label className="group flex flex-col items-center justify-center p-4 border-2 border-dashed border-blue-400 hover:border-blue-600 bg-white cursor-pointer rounded-xl transition-all shadow-sm">
                                 <span className="text-xs font-black text-blue-600 uppercase tracking-widest mb-1 group-hover:scale-110 transition-transform text-center">
                                     {uploading ? (
@@ -343,7 +294,7 @@ function ChallanForm({ type, invoice, student, amount, month, year, uploading, l
                                     disabled={uploading}
                                 />
                             </label>
-                        ) : status === 'PAID' ? (
+                        ) : statusDisplay === 'COMPLETED' ? (
                             <div className="p-3 bg-green-50 border-2 border-green-600 rounded text-center">
                                 <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Payment Accepted</span>
                             </div>
@@ -354,7 +305,9 @@ function ChallanForm({ type, invoice, student, amount, month, year, uploading, l
 
             {/* Proof View Section (Full Width Footer) */}
             {effectiveProof && (
-                <div className="p-8 bg-gray-100 border-t-2 border-gray-900">
+                <div className={`p-8 bg-gray-100 border-t-2 ${
+                    statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'
+                }`}>
                     <div className="flex items-center justify-between mb-4">
                         <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Original Full-Size Receipt Attached</div>
                         <a href={effectiveProof} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 text-[10px] font-black uppercase tracking-widest underline decoration-2 underline-offset-2">Open in New Tab</a>

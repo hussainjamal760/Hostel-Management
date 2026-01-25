@@ -1,7 +1,7 @@
-import cron from 'node-cron';
 import { Student } from '../students/student.model';
 import { Payment } from './payment.model';
 import { logger } from '../../utils';
+import { PAYMENT_STATUS, PAYMENT_TYPES, PAYMENT_METHODS } from '@hostelite/shared-constants';
 
 class PaymentCronService {
   constructor() {
@@ -9,57 +9,71 @@ class PaymentCronService {
   }
 
   private initCronJobs() {
-    // Run at 00:00 on the 1st day of every month
-    cron.schedule('0 0 1 * *', async () => {
-      logger.info('Running Monthly Due Generator Cron Job');
-      await this.generateMonthlyDues();
-    });
+    // CRON DISABLED: Manual trigger only as per user request.
+    // cron.schedule('0 0 1 * *', async () => { ... });
   }
 
   /**
-   * Resets all active students' fee status to 'DUE' for the new month.
+   * Generates Invoice (UNPAID Payment) for all active students for the new month.
+   * Throws if invoices already exist for the target month (Manual Lock).
    */
-  async generateMonthlyDues() {
+  async generateMonthlyDues(targetMonth?: number, targetYear?: number) {
     try {
       const today = new Date();
-      
-      // We should check if a payment already exists for THIS month + year.
-      const currentMonth = today.getMonth() + 1;
-      const currentYear = today.getFullYear();
+      const currentMonth = targetMonth || (today.getMonth() + 1);
+      const currentYear = targetYear || today.getFullYear();
+
+      // LOCK CHECK: Do ANY rent invoices exist for this month/year?
+      const existingCount = await Payment.countDocuments({
+          month: currentMonth,
+          year: currentYear,
+          paymentType: PAYMENT_TYPES.RENT
+      });
+
+      if (existingCount > 0) {
+          logger.warn(`Manual Trigger Blocked: Invoices for ${currentMonth}/${currentYear} already exist.`);
+          throw new Error(`Invoices for ${currentMonth}/${currentYear} have already been generated.`);
+      }
 
       // Find all active students
       const students = await Student.find({ isActive: true });
       
-      let updatedCount = 0;
+      let createdCount = 0;
 
       for (const student of students) {
-         // Check if they already have a COMPLETED or PENDING payment for this month
-         // (e.g. they paid early manually)
-         const existingPayment = await Payment.findOne({
+         // Double-safety check per student (though global check should catch it)
+         const existingInvoice = await Payment.exists({
              studentId: student._id,
              month: currentMonth,
              year: currentYear,
-             status: { $in: ['COMPLETED', 'PENDING'] } // If pending, they engaged flow already
+             paymentType: PAYMENT_TYPES.RENT
          });
 
-         if (!existingPayment) {
-             // Reset to DUE
-             student.feeStatus = 'DUE';
-             // Ideally we should track arrears, but user request simplified: "new invoice generated"
-             // which implies "feeStatus becomes DUE".
-             
-             // Optionally add to totalDue?
-             // student.totalDue += student.monthlyFee; 
-             // Logic: If previous month wasn't paid, they stay DUE. totalDue might need manual calc or simple increment.
-             // For MVP: Just ensuring they are DUE opens the portal for them to pay.
-             
-             await student.save();
-             updatedCount++;
-         }
+         if (existingInvoice) continue;
+
+         // Create new UNPAID invoice
+         await Payment.create({
+             studentId: student._id,
+             hostelId: student.hostelId,
+             amount: student.monthlyFee,
+             month: currentMonth,
+             year: currentYear,
+             status: PAYMENT_STATUS.UNPAID,
+             paymentType: PAYMENT_TYPES.RENT,
+             paymentMethod: PAYMENT_METHODS.CASH, 
+             // Formatted receipt number: INV-YYYYMM-ADMISSION
+             receiptNumber: `INV-${currentYear}${currentMonth.toString().padStart(2, '0')}-${student._id.toString().slice(-4).toUpperCase()}` 
+         });
+         
+         // Update student status visualization
+         student.feeStatus = 'DUE'; 
+         await student.save();
+
+         createdCount++;
       }
       
-      logger.info(`Generated monthly dues for ${updatedCount} students.`);
-      return { message: `Generated monthly dues for ${updatedCount} students.` };
+      logger.info(`Generated monthly invoices for ${createdCount} students.`);
+      return { message: `Successfully generated ${createdCount} invoices for ${currentMonth}/${currentYear}.` };
 
     } catch (error) {
       logger.error('Failed to generate monthly dues:', error);

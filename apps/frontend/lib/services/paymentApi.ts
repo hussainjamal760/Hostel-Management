@@ -50,10 +50,14 @@ export const paymentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Payment'],
     }),
-    triggerMonthlyDues: builder.mutation<ApiResponse<any>, void>({
-      query: () => ({
+    triggerMonthlyDues: builder.mutation<ApiResponse<any>, { month: number; year: number }>({
+      query: (data) => ({
         url: '/payments/actions/generate-monthly-dues',
         method: 'POST',
+        body: data,
+        headers: {
+            'Content-Type': 'application/json',
+        },
       }),
       invalidatesTags: ['Payment'],
     }),

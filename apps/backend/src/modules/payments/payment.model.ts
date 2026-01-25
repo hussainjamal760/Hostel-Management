@@ -75,7 +75,7 @@ const paymentSchema = new Schema<IPaymentDocument>(
     status: {
       type: String,
       enum: Object.values(PAYMENT_STATUS),
-      default: PAYMENT_STATUS.PENDING,
+      default: PAYMENT_STATUS.UNPAID,
       index: true,
     },
     paidAt: {

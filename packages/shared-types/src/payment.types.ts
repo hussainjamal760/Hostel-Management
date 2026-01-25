@@ -1,4 +1,4 @@
-export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
+export type PaymentStatus = 'UNPAID' | 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'OVERDUE';
 export type PaymentMethod =
   | 'CASH'
   | 'JAZZCASH'
