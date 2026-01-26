@@ -60,8 +60,7 @@ export default function OwnerSettingsPage() {
         <p className="text-gray-500 dark:text-gray-400">Manage your hostel configuration</p>
       </div>
       
-      {/* Monthly Invoice Generation Section */}
-      <MonthlyInvoiceGenerator />
+
 
       {/* Payment Details Form */}
       <div className="bg-white dark:bg-[#1a0f0a] rounded-xl shadow-sm border border-gray-100 dark:border-[#fcf2e9]/10 p-6">

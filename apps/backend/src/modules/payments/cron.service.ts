@@ -1,5 +1,6 @@
 import { Student } from '../students/student.model';
 import { Payment } from './payment.model';
+import { Hostel } from '../hostels/hostel.model';
 import { logger } from '../../utils';
 import { PAYMENT_STATUS, PAYMENT_TYPES, PAYMENT_METHODS } from '@hostelite/shared-constants';
 
@@ -34,9 +35,19 @@ class PaymentCronService {
           logger.warn(`Manual Trigger Blocked: Invoices for ${currentMonth}/${currentYear} already exist.`);
           throw new Error(`Invoices for ${currentMonth}/${currentYear} have already been generated.`);
       }
+      const activeHostels = await Hostel.find({ isActive: true }).select('_id');
+      const activeHostelIds = activeHostels.map(h => h._id);
 
-      // Find all active students
-      const students = await Student.find({ isActive: true });
+      if (activeHostelIds.length === 0) {
+          logger.warn('No active hostels found. Skipping invoice generation.');
+          return { message: 'No active hostels found.' };
+      }
+
+      // Find all active students in active hostels
+      const students = await Student.find({ 
+          isActive: true,
+          hostelId: { $in: activeHostelIds }
+      });
       
       let createdCount = 0;
 
