@@ -57,11 +57,28 @@ export class HostelService {
     if (city) filter['address.city'] = { $regex: city, $options: 'i' };
     
     if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { code: { $regex: search, $options: 'i' } },
-        { 'address.city': { $regex: search, $options: 'i' } },
+      const regex = { $regex: search, $options: 'i' };
+      const searchConditions: any[] = [
+         { name: regex },
+         { code: regex },
+         { 'address.city': regex }
       ];
+
+      // Advanced Search: Find Owners or Managers matching the name, then filter Hostels
+      // 1. Find Owners
+      const owners = await User.find({ name: regex, role: 'OWNER' }).select('_id');
+      if (owners.length > 0) {
+          searchConditions.push({ ownerId: { $in: owners.map(o => o._id) } });
+      }
+
+      // 2. Find Managers -> Get their Hostel IDs
+      const Manager = require('../managers/manager.model').default;
+      const managers = await Manager.find({ name: regex }).select('hostelId');
+      if (managers.length > 0) {
+          searchConditions.push({ _id: { $in: managers.map((m: any) => m.hostelId) } });
+      }
+
+      filter.$or = searchConditions;
     }
 
     console.log('getAllHostels filter:', JSON.stringify(filter));
@@ -70,15 +87,46 @@ export class HostelService {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
+      .populate('ownerId', 'name phone email')
+      .lean()
       .exec();
 
     console.log('getAllHostels found:', hostels.length, 'hostels');
+
+    // Populate Manager and Real-time Stats manually
+    const Manager = require('../managers/manager.model').default;
+    const Room = require('../rooms/room.model').default;
+
+    const hostelsWithDetails = await Promise.all(hostels.map(async (hostel: any) => {
+        const manager = await Manager.findOne({ hostelId: hostel._id }).select('name phoneNumber cnic');
+        
+        // Real-time calculation for accuracy
+        const stats = await Room.aggregate([
+            { $match: { hostelId: hostel._id, isActive: true } },
+            { 
+                $group: { 
+                    _id: '$hostelId', 
+                    totalRooms: { $sum: 1 }, 
+                    totalBeds: { $sum: '$totalBeds' } 
+                } 
+            }
+        ]);
+        
+        const realStats = stats.length > 0 ? stats[0] : { totalRooms: 0, totalBeds: 0 };
+
+        return { 
+            ...hostel, 
+            manager,
+            totalRooms: realStats.totalRooms, // Override stored value
+            totalBeds: realStats.totalBeds    // Override stored value
+        };
+    }));
 
     const total = await Hostel.countDocuments(filter);
     const totalPages = Math.ceil(total / limit);
 
     return {
-      hostels,
+      hostels: hostelsWithDetails,
       pagination: {
         page,
         limit,

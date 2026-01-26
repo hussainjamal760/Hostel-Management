@@ -87,24 +87,70 @@ export class UserService {
     const filter: any = {};
     if (role) filter.role = role;
     if (hostelId) filter.hostelId = hostelId;
+    
     if (search) {
-      filter.$or = [
-        { username: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
+      const regex = { $regex: search, $options: 'i' };
+      const searchConditions: any[] = [
+        { username: regex },
+        { email: regex },
+        { name: regex },
+        { phone: regex }
       ];
+
+      // Advanced Search: Find Hostels providing context (Name, City)
+      // We search Hostels matching the string, then find Users linked to them (Students/Managers via hostelId, Owners via ownerId)
+      const Hostel = require('../hostels/hostel.model').default;
+      const matchingHostels = await Hostel.find({
+          $or: [
+              { name: regex },
+              { 'address.city': regex }
+          ]
+      }).select('_id ownerId');
+
+      if (matchingHostels.length > 0) {
+          const matchedHostelIds = matchingHostels.map((h: any) => h._id);
+          const matchedOwnerIds = matchingHostels.map((h: any) => h.ownerId).filter((id: any) => !!id);
+
+          searchConditions.push({ hostelId: { $in: matchedHostelIds } });
+          searchConditions.push({ _id: { $in: matchedOwnerIds } });
+      }
+
+      filter.$or = searchConditions;
     }
 
     const users = await User.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
+      .lean() // Return plain JS objects to allow property addition
       .exec();
 
     const total = await User.countDocuments(filter);
     const totalPages = Math.ceil(total / limit);
 
+    // Populate details based on role
+    const usersWithDetails = await Promise.all(users.map(async (user: any) => {
+        if (user.role === 'STUDENT') {
+            const Student = require('../students/student.model').default;
+            const studentProfile = await Student.findOne({ userId: user._id })
+                .populate('hostelId', 'name address')
+                .populate('roomId', 'roomNumber');
+            return { ...user, profile: studentProfile };
+        } else if (user.role === 'MANAGER') {
+            const Manager = require('../managers/manager.model').default;
+            const managerProfile = await Manager.findOne({ userId: user._id })
+                .populate('hostelId', 'name address');
+            return { ...user, profile: managerProfile };
+        } else if (user.role === 'OWNER') {
+            const Hostel = require('../hostels/hostel.model').default;
+            const totalHostels = await Hostel.countDocuments({ ownerId: user._id });
+            return { ...user, stats: { totalHostels } };
+        }
+        return user;
+    }));
+
     return {
-      users,
+      users: usersWithDetails,
       pagination: {
         page,
         limit,

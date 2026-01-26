@@ -22,6 +22,20 @@ interface ApiResponse<T> {
   data: T;
 }
 
+interface PaginatedApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getMe: builder.query<ApiResponse<User>, void>({
@@ -36,7 +50,15 @@ export const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+    getAllUsers: builder.query<PaginatedApiResponse<User>, { role?: string; search?: string; page?: number; limit?: number }>({
+      query: (params) => ({
+        url: '/users',
+        method: 'GET',
+        params,
+      }),
+      providesTags: ['User'],
+    }),
   }),
 });
 
-export const { useGetMeQuery, useUpdateMeMutation } = userApi;
+export const { useGetMeQuery, useUpdateMeMutation, useGetAllUsersQuery } = userApi;

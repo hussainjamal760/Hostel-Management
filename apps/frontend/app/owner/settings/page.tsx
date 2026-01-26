@@ -139,12 +139,6 @@ function MonthlyInvoiceGenerator() {
     const currentMonthName = date.toLocaleString('default', { month: 'long' });
     const currentYear = date.getFullYear();
 
-    // The backend now throws an error if invoices exist. 
-    // We can use that error state to "Lock" the UI after an attempt or we can try to "peek" via a separate query.
-    // However, given the requirement, a manual action that fails gracefully with a lock message is acceptable.
-    // If the user lands here, we assume it's actionable unless we have global state saying otherwise.
-    // For a cleaner UX, we'd query "HasGeneratedFor(Month)" on load. 
-    // But since that endpoint doesn't exist yet, we'll handle the "Already Exists" error as a "Success/Lock" state visually.
 
     const isLocked = isSuccess || (error && (error as any)?.data?.message?.includes('already exist'));
 
