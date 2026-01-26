@@ -72,6 +72,16 @@ export class StudentService {
         $inc: { occupiedBeds: 1 }
       });
 
+      // Generate Initial Invoice
+      try {
+          const paymentService = require('../payments/payment.service').default;
+          await paymentService.generateInitialInvoice(student, hostelId);
+      } catch (invError) {
+          console.error("Failed to generate initial invoice:", invError);
+          // Non-blocking error? Or should we fail creation?
+          // For now, log it. User can generate manually if needed.
+      }
+
       return { student, user, password };
 
     } catch (error) {
