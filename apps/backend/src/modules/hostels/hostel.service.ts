@@ -337,7 +337,7 @@ export class HostelService {
   }
 
 
-  async getMonthlyReport(userId: string, role: string, month?: number, year?: number) {
+  async getMonthlyReport(userId: string, role: string, month?: number, year?: number, targetHostelId?: string) {
     let hostelIds: any[] = [];
     
     if (role === 'OWNER') {
@@ -348,6 +348,14 @@ export class HostelService {
         const manager = await Manager.findOne({ userId }).select('hostelId');
         if (manager && manager.hostelId) {
             hostelIds = [manager.hostelId];
+        }
+    } else if (role === 'ADMIN') {
+        if (targetHostelId && targetHostelId !== 'ALL') {
+             hostelIds = [new mongoose.Types.ObjectId(targetHostelId)];
+        } else {
+             // All Active Hostels
+             const hostels = await Hostel.find({ isActive: true }).select('_id');
+             hostelIds = hostels.map(h => h._id);
         }
     }
 

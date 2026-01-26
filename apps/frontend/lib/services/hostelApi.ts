@@ -68,7 +68,15 @@ export const hostelApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Hostel'],
     }),
-    getMonthlyReport: builder.query<ApiResponse<any>, { month?: number; year?: number }>({
+    getAllHostels: builder.query<ApiResponse<IHostel[]>, { limit?: number } | undefined>({
+      query: (params) => ({
+        url: '/hostels',
+        method: 'GET',
+        params: params || undefined,     
+      }),
+      providesTags: ['Hostel'],
+    }),
+    getMonthlyReport: builder.query<ApiResponse<any>, { month?: number; year?: number; hostelId?: string }>({
       query: (params) => ({
         url: '/hostels/reports/monthly',
         method: 'GET',
@@ -87,4 +95,5 @@ export const {
   useUpdateHostelMutation,
   useDeleteHostelMutation,
   useGetMonthlyReportQuery,
+  useGetAllHostelsQuery,
 } = hostelApi;

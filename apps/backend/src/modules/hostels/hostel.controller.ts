@@ -64,12 +64,13 @@ export class HostelController {
   });
 
   getMonthlyReport = asyncHandler(async (req: Request, res: Response) => {
-    const { month, year } = req.query;
+    const { month, year, hostelId } = req.query;
     const result = await hostelService.getMonthlyReport(
       req.user!.id,
       req.user!.role,
       month ? parseInt(month as string) : undefined,
-      year ? parseInt(year as string) : undefined
+      year ? parseInt(year as string) : undefined,
+      hostelId as string
     );
     ApiResponse.success(res, result, 'Report generated successfully');
   });
