@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast';
 import { HiX, HiOutlineUsers, HiOutlinePencilAlt, HiTrash } from 'react-icons/hi';
 import { useGetStudentQuery, useUpdateStudentMutation, useDeleteStudentMutation } from '@/lib/services/studentApi';
 import DeleteConfirmationModal from '@/components/modals/DeleteConfirmationModal';
+import { useAppSelector } from '@/lib/hooks';
 
 const formSchema = z.object({
   fullName: z.string().min(2, 'Name is required'),
@@ -47,6 +48,9 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
     skip: !open || !studentId
   });
   const student = studentResponse?.data;
+  
+  const { user } = useAppSelector((state) => state.auth);
+  const isManager = user?.role === 'MANAGER';
 
   const [updateStudent, { isLoading: isUpdating }] = useUpdateStudentMutation();
 
@@ -120,8 +124,8 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
-      <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-100 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
+      <div className="fixed inset-0 z-101 flex items-center justify-center p-4">
         <div className="w-full max-w-4xl bg-white dark:bg-[#1a0f0a] rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
            {isLoadingData ? (
                <div className="p-12 text-center">
@@ -213,12 +217,37 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
                     <section>
                         <h3 className="text-lg font-bold text-brand-primary mb-4">Admission & Fees</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <Input label="Agreement Date" type="date" {...register('agreementDate')} error={errors.agreementDate?.message} />
-                            <Input label="Monthly Fee" type="number" {...register('monthlyFee', { valueAsNumber: true })} error={errors.monthlyFee?.message} />
-                            <Input label="Security Deposit" type="number" {...register('securityDeposit', { valueAsNumber: true })} error={errors.securityDeposit?.message} />
+                            <Input 
+                                label="Agreement Date" 
+                                type="date" 
+                                {...register('agreementDate')} 
+                                error={errors.agreementDate?.message} 
+                                disabled={isManager}
+                                className={isManager ? "bg-gray-100 dark:bg-gray-800 text-gray-500 cursor-not-allowed" : ""}
+                            />
+                            <Input 
+                                label="Monthly Fee" 
+                                type="number" 
+                                {...register('monthlyFee', { valueAsNumber: true })} 
+                                error={errors.monthlyFee?.message} 
+                                disabled={isManager}
+                                className={isManager ? "bg-gray-100 dark:bg-gray-800 text-gray-500 cursor-not-allowed" : ""}
+                            />
+                            <Input 
+                                label="Security Deposit" 
+                                type="number" 
+                                {...register('securityDeposit', { valueAsNumber: true })} 
+                                error={errors.securityDeposit?.message} 
+                                disabled={isManager}
+                                className={isManager ? "bg-gray-100 dark:bg-gray-800 text-gray-500 cursor-not-allowed" : ""}
+                            />
                              <div className="space-y-1">
                                 <label className="text-xs font-bold uppercase text-brand-text/50">Fee Status</label>
-                                <select {...register('feeStatus')} className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                <select 
+                                    {...register('feeStatus')} 
+                                    disabled={isManager}
+                                    className={`w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 ${isManager ? "bg-gray-100 dark:bg-gray-800 text-gray-500 cursor-not-allowed" : "bg-gray-50 dark:bg-gray-800"}`}
+                                >
                                     <option value="PAID">Paid</option>
                                     <option value="DUE">Due</option>
                                     <option value="PARTIAL">Partial</option>

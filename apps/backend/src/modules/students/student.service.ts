@@ -224,6 +224,15 @@ export class StudentService {
       await Room.findByIdAndUpdate(data.roomId, { $inc: { occupiedBeds: 1 } });
     }
 
+    if (requesterRole === 'MANAGER') {
+        // Security: Prevent Manager from updating financial fields
+        delete (data as any).agreementDate;
+        delete (data as any).monthlyFee;
+        delete (data as any).securityDeposit;
+        delete (data as any).feeStatus;
+        delete (data as any).totalDue;
+    }
+
     if (data.email || data.phone) {
         await User.findByIdAndUpdate(student.userId, {
             ...(data.email && { email: data.email }),
