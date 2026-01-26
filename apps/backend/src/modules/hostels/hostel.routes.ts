@@ -29,7 +29,7 @@ router.get(
 
 router.get(
   '/reports/monthly',
-  authorize('ADMIN', 'OWNER'),
+  authorize('ADMIN', 'OWNER', 'MANAGER'),
   hostelController.getMonthlyReport
 );
 

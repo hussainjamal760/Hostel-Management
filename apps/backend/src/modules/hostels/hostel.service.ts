@@ -337,9 +337,27 @@ export class HostelService {
   }
 
 
-  async getMonthlyReport(ownerId: string, month?: number, year?: number) {
-    const hostels = await Hostel.find({ ownerId }).select('_id name');
-    const hostelIds = hostels.map(h => h._id);
+  async getMonthlyReport(userId: string, role: string, month?: number, year?: number) {
+    let hostelIds: any[] = [];
+    
+    if (role === 'OWNER') {
+        const hostels = await Hostel.find({ ownerId: userId }).select('_id');
+        hostelIds = hostels.map(h => h._id);
+    } else if (role === 'MANAGER') {
+        const Manager = require('../managers/manager.model').default;
+        const manager = await Manager.findOne({ userId }).select('hostelId');
+        if (manager && manager.hostelId) {
+            hostelIds = [manager.hostelId];
+        }
+    }
+
+    if (hostelIds.length === 0) {
+        return {
+            meta: { totalStudents: 0 },
+            summary: {},
+            students: []
+        };
+    }
 
     // If month/year not provided, default to current
     const targetMonth = month || new Date().getMonth() + 1;

@@ -17,6 +17,7 @@ import {
   HiOutlineMenu,
   HiX,
   HiOutlinePlus,
+  HiOutlineChartBar,
 } from 'react-icons/hi';
 
 interface ManagerLayoutProps {
@@ -31,6 +32,7 @@ const menuItems = [
   { name: 'Manage Rooms', href: '/manager/rooms', icon: HiOutlineCollection },
   { name: 'Students', href: '/manager/students', icon: HiOutlineUsers },
   { name: 'Payments', href: '/manager/payments', icon: HiOutlineCollection },
+  { name: 'Reports', href: '/manager/reports', icon: HiOutlineChartBar },
   { name: 'Complaints', href: '/manager/complaints', icon: HiOutlineClipboardList },
 ];
 

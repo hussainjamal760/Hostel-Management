@@ -67,6 +67,7 @@ export class HostelController {
     const { month, year } = req.query;
     const result = await hostelService.getMonthlyReport(
       req.user!.id,
+      req.user!.role,
       month ? parseInt(month as string) : undefined,
       year ? parseInt(year as string) : undefined
     );
