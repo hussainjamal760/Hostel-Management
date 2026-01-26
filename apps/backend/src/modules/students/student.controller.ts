@@ -21,16 +21,21 @@ export class StudentController {
 
   getAllStudents = asyncHandler(async (req: Request, res: Response) => {
     let hostelId = req.query.hostelId as string;
+    const query: any = { ...req.query };
 
     if (req.user?.role === 'MANAGER') {
       hostelId = req.user.hostelId!;
+    } else if (req.user?.role === 'OWNER') {
+        // For Owner, pass ownerId to service to fetch all students across hostels
+        query.ownerId = req.user.id;
+        // Don't enforce hostelId check here
     }
     
-    if (!hostelId) {
+    if (!hostelId && req.user?.role !== 'OWNER' && req.user?.role !== 'ADMIN') {
        throw ApiError.badRequest('Hostel ID is required');
     }
 
-    const result = await studentService.getAllStudents(hostelId, req.query);
+    const result = await studentService.getAllStudents(hostelId, query);
     ApiResponse.paginated(res, result.students, result.pagination, 'Students fetched successfully');
   });
 

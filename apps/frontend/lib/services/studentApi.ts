@@ -4,9 +4,24 @@ import { IStudent } from '@hostelite/shared-types';
 import { ApiResponse } from './authApi';
 import { CreateStudentInput, UpdateStudentInput } from '@hostelite/shared-validators';
 
+// Define PaginatedApiResponse locally or import
+interface PaginatedApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
 export const studentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getStudents: builder.query<ApiResponse<IStudent[]>, { hostelId?: string; roomId?: string; search?: string; feeStatus?: string; page?: number; limit?: number }>({
+    getStudents: builder.query<PaginatedApiResponse<IStudent>, { hostelId?: string; roomId?: string; search?: string; feeStatus?: string; page?: number; limit?: number }>({
       query: (params) => ({
         url: '/students',
         method: 'GET',

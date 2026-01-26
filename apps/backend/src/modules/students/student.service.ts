@@ -81,41 +81,73 @@ export class StudentService {
   }
 
   async getAllStudents(
-    hostelId: string,
+    hostelId: string | undefined,
     query: {
       roomId?: string;
       search?: string;
       feeStatus?: string;
       page?: number;
       limit?: number;
+      ownerId?: string; // Add ownerId to supported query params
     }
   ) {
-    const { roomId, search, feeStatus, page = 1, limit = 10 } = query;
+    const { roomId, search, feeStatus, page = 1, limit = 10, ownerId } = query;
     const skip = (page - 1) * limit;
 
-    const filter: FilterQuery<IStudentDocument> = { hostelId, isActive: true };
+    const filter: FilterQuery<IStudentDocument> = { isActive: true };
+    
+    // Logic for filtering
+    if (hostelId) {
+        filter.hostelId = hostelId;
+    } else if (ownerId) {
+        // Find all hostels for this owner
+        const Hostel = require('../hostels/hostel.model').default;
+        const hostels = await Hostel.find({ ownerId, isActive: true }).select('_id');
+        const hostelIds = hostels.map((h: any) => h._id);
+        
+        if (hostelIds.length > 0) {
+            filter.hostelId = { $in: hostelIds };
+        } else {
+             return {
+                students: [],
+                pagination: { page, limit, total: 0, totalPages: 0, hasNext: false, hasPrev: false }
+             };
+        }
+    }
+
     if (roomId) filter.roomId = roomId;
     if (feeStatus && feeStatus !== 'ALL') filter.feeStatus = feeStatus;
 
     if (search) {
-      // Find rooms matching the search term
-      const matchingRooms = await Room.find({ 
-        hostelId, 
-        roomNumber: { $regex: search, $options: 'i' } 
-      }).select('_id');
+      // Find rooms matching the search term (requires hostel context specific handling if multi-hostel?)
+      // If filtering by multiple hostels (owner view), search regex for room number should work if we rely on simple match.
+      // But looking up Room ID via 'roomNumber' needs to consider multiple hostels. 
+      // Current Room search logic assumed single hostelId.
       
-      const matchingRoomIds = matchingRooms.map(r => r._id);
-
-      filter.$or = [
+      const orConditions: any[] = [
         { fullName: { $regex: search, $options: 'i' } },
-        { fatherName: { $regex: search, $options: 'i' } },
-        { roomId: { $in: matchingRoomIds } } // Search by room number
+        { fatherName: { $regex: search, $options: 'i' } }
       ];
+
+      // If we have specific hostel context(s)
+      if (filter.hostelId) {
+          const matchingRooms = await Room.find({ 
+            hostelId: filter.hostelId, // Can be ID or {$in: [ids]}
+            roomNumber: { $regex: search, $options: 'i' } 
+          }).select('_id');
+          
+          if (matchingRooms.length > 0) {
+             orConditions.push({ roomId: { $in: matchingRooms.map(r => r._id) } });
+          }
+      }
+
+      filter.$or = orConditions;
     }
 
     const students = await Student.find(filter)
       .populate('userId', 'username email phone avatar')
       .populate('roomId', 'roomNumber roomType')
+      .populate('hostelId', 'name address') // Populate Hostel info for Owner view
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
