@@ -11,6 +11,15 @@ export interface HostelStats {
   occupancyRate: number;
   pendingComplaints: number;
   revenue: number;
+  totalRemaining: number;
+  monthlyRevenue: Array<{ month: string; revenue: number }>;
+  complaintsBreakdown: {
+    open: number;
+    inProgress: number;
+    resolved: number;
+  };
+  currentMonthRevenue: number;
+  currentMonthPending: number;
 }
 
 export const hostelApi = baseApi.injectEndpoints({
@@ -59,6 +68,14 @@ export const hostelApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Hostel'],
     }),
+    getMonthlyReport: builder.query<ApiResponse<any>, { month?: number; year?: number }>({
+      query: (params) => ({
+        url: '/hostels/reports/monthly',
+        method: 'GET',
+        params,
+      }),
+      providesTags: ['Hostel', 'Payment', 'Student'],
+    }),
   }),
 });
 
@@ -69,4 +86,5 @@ export const {
   useCreateHostelMutation,
   useUpdateHostelMutation,
   useDeleteHostelMutation,
+  useGetMonthlyReportQuery,
 } = hostelApi;

@@ -62,6 +62,16 @@ export class HostelController {
     );
     ApiResponse.success(res, null, 'Hostel deleted successfully');
   });
+
+  getMonthlyReport = asyncHandler(async (req: Request, res: Response) => {
+    const { month, year } = req.query;
+    const result = await hostelService.getMonthlyReport(
+      req.user!.id,
+      month ? parseInt(month as string) : undefined,
+      year ? parseInt(year as string) : undefined
+    );
+    ApiResponse.success(res, result, 'Report generated successfully');
+  });
 }
 
 export default new HostelController();

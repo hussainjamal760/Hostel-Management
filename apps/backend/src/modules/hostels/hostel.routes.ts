@@ -28,6 +28,12 @@ router.get(
 );
 
 router.get(
+  '/reports/monthly',
+  authorize('ADMIN', 'OWNER'),
+  hostelController.getMonthlyReport
+);
+
+router.get(
   '/:id',
   authorize('ADMIN', 'OWNER', 'MANAGER', 'STUDENT'),
   hostelController.getHostelById
