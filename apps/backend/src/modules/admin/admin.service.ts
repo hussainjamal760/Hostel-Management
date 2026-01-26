@@ -324,6 +324,39 @@ export class AdminService {
       recentActivity: topActivity,
     };
   }
+
+  async fixDatabase() {
+    console.log('Starting DB integrity fix...');
+    const Room = require('../rooms/room.model').default;
+    const Student = require('../students/student.model').default;
+    
+    // 1. Drop the problematic index if it exists
+    try {
+        await Student.collection.dropIndex('roomId_1_bedNumber_1');
+        console.log('Dropped index: roomId_1_bedNumber_1');
+    } catch (e: any) {
+        console.log('Index drop skipped/failed:', e.message);
+    }
+
+    // 2. Recalculate Room Occupancy
+    const rooms = await Room.find({});
+    let fixedCount = 0;
+    
+    for (const room of rooms) {
+        const realCount = await Student.countDocuments({ roomId: room._id, isActive: true });
+        if (room.occupiedBeds !== realCount) {
+            console.log(`Fixing Room ${room.roomNumber}: ${room.occupiedBeds} -> ${realCount}`);
+            room.occupiedBeds = realCount;
+            await room.save();
+            fixedCount++;
+        }
+    }
+    
+    return { 
+        message: 'Database integrity check complete',
+        fixedRooms: fixedCount
+    };
+  }
 }
 
 export default new AdminService();

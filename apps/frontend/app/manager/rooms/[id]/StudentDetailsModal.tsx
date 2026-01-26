@@ -262,10 +262,14 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
                             type="button"
                             onClick={handleDeleteClick}
                             disabled={isDeleting}
-                            className="px-6 py-3 rounded-xl font-bold bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex items-center gap-2"
+                            className={`px-6 py-3 rounded-xl font-bold transition-colors flex items-center gap-2 ${
+                                isManager 
+                                ? 'bg-orange-50 text-orange-600 hover:bg-orange-100' 
+                                : 'bg-red-50 text-red-600 hover:bg-red-100'
+                            }`}
                         >
                             <HiTrash size={20} />
-                            {isDeleting ? 'Deleting...' : 'Delete Student'}
+                            {isDeleting ? 'Processing...' : (isManager ? 'Mark as Left' : 'Delete Student')}
                         </button>
 
                         <div className="flex gap-3">
@@ -296,8 +300,11 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={onConfirmDelete}
-        title="Delete Student"
-        message="Are you sure you want to delete this student? This will remove them from the room and deactivate their account. This action cannot be undone."
+        title={isManager ? "Mark Student as Left" : "Delete Student"}
+        message={isManager 
+            ? "Are you sure you want to mark this student as left? This will free up their bed but keep their record for reports."
+            : "Are you sure you want to delete this student? This will remove them from the room and deactivate their account. This action cannot be undone."
+        }
         isDeleting={isDeleting}
       />
     </>

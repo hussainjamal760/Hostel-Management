@@ -31,12 +31,12 @@ const studentSchema = new Schema<IStudentDocument>(
     roomId: {
       type: Schema.Types.ObjectId as any,
       ref: 'Room',
-      required: [true, 'Room is required'],
+      required: function(this: IStudentDocument): boolean { return this.status === 'ACTIVE'; },
       index: true,
     },
     bedNumber: {
       type: String,
-      required: [true, 'Bed number is required'],
+      required: function(this: IStudentDocument): boolean { return this.status === 'ACTIVE'; },
       trim: true,
     },
     fullName: {
@@ -113,6 +113,12 @@ const studentSchema = new Schema<IStudentDocument>(
       default: FEE_STATUS.DUE,
       index: true,
     },
+    status: {
+      type: String,
+      enum: ['ACTIVE', 'LEFT', 'EXPELLED'],
+      default: 'ACTIVE',
+      index: true,
+    },
     monthlyFee: {
       type: Number,
       required: [true, 'Monthly fee is required'],
@@ -158,7 +164,12 @@ const studentSchema = new Schema<IStudentDocument>(
 
 studentSchema.index({ hostelId: 1, isActive: 1 });
 studentSchema.index({ hostelId: 1, feeStatus: 1 });
-studentSchema.index({ roomId: 1, bedNumber: 1 }, { unique: true });
+// Fix: Only enforce unique room/bed for ACTIVE students. 
+// "Left" students will have null/undefined room/bed, which would otherwise collide.
+studentSchema.index({ roomId: 1, bedNumber: 1 }, { 
+  unique: true, 
+  partialFilterExpression: { status: 'ACTIVE' } 
+});
 
 studentSchema.virtual('age').get(function (this: IStudentDocument) {
   if (!this.dateOfBirth) return null;

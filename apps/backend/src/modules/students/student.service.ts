@@ -255,13 +255,32 @@ export class StudentService {
         throw ApiError.forbidden('Access denied');
     }
 
-    // Hard Delete: Remove student, user, and decrement room occupancy
-    await Room.findByIdAndUpdate(student.roomId, { $inc: { occupiedBeds: -1 } });
-    
-    await Student.findByIdAndDelete(id);
-    await userService.deleteUser(student.userId.toString()); // Ensure userService.deleteUser also performs hard delete or handle it here
-
-    return null;
+    if (requesterRole === 'MANAGER') {
+        // Soft Delete / Mark as Left
+        student.isActive = false;
+        student.status = 'LEFT';
+        const oldRoomId = student.roomId; // Keep ref to decrement later
+        student.roomId = null as any; 
+        student.bedNumber = null as any;
+        student.expectedLeaveDate = new Date();
+        
+        await student.save();
+        
+        // Only decrement if save succeeded!
+        await Room.findByIdAndUpdate(oldRoomId, { $inc: { occupiedBeds: -1 } });
+        
+        return { message: 'Student marked as Left' };
+    } else {
+        // Hard Delete for Admin/Owner
+        const oldRoomId = student.roomId;
+        await Student.findByIdAndDelete(id);
+        await userService.deleteUser(student.userId.toString()); 
+        
+        // Decrement after delete
+        await Room.findByIdAndUpdate(oldRoomId, { $inc: { occupiedBeds: -1 } });
+        
+        return null; // 204 No Content
+    }
   }
 
   async getStudentStats(hostelId: string) {

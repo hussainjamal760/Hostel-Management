@@ -398,7 +398,14 @@ export class HostelService {
 
     // 2. Get Student Statuses for the Month
     const Student = require('../students/student.model').default;
-    const students = await Student.find({ hostelId: { $in: hostelIds }, isActive: true })
+    // Include both Active students AND Left students (to show history in reports)
+    // We filter by 'isActive: true' usually, but for reports we want to see everyone who might have paid or been present.
+    // Ideally we should check if they were active in that month, but for now lets allow all ACTIVE and LEFT.
+    const students = await Student.find({ 
+        hostelId: { $in: hostelIds }, 
+        // isActive: true  <-- Removed to include 'Left' students
+        status: { $in: ['ACTIVE', 'LEFT'] }
+    })
       .populate('hostelId', 'name')
       .populate('roomId', 'roomNumber')
       .populate('userId', 'phone') // Fetch student phone

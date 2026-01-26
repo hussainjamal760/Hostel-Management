@@ -11,4 +11,11 @@ router.get(
   adminController.getDashboardStats
 );
 
+router.post(
+  '/maintenance/fix-db',
+  authenticate,
+  authorize('ADMIN'),
+  adminController.fixDatabase
+);
+
 export default router;

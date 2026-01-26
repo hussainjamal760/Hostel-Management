@@ -7,6 +7,11 @@ export class AdminController {
     const stats = await adminService.getDashboardStats();
     ApiResponse.success(res, stats, 'Dashboard stats retrieved successfully');
   });
+
+  fixDatabase = asyncHandler(async (_req: Request, res: Response) => {
+    const result = await adminService.fixDatabase();
+    ApiResponse.success(res, result, 'Database fixed successfully');
+  });
 }
 
 export default new AdminController();

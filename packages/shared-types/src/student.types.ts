@@ -1,5 +1,6 @@
 export type FeeStatus = 'PAID' | 'PARTIAL' | 'DUE' | 'OVERDUE';
 export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
+export type StudentStatus = 'ACTIVE' | 'LEFT' | 'EXPELLED';
 
 export interface IEmergencyContact {
   name: string;
@@ -32,6 +33,7 @@ export interface IStudent {
   joinDate: Date;
   expectedLeaveDate?: Date;
   feeStatus: FeeStatus;
+  status: StudentStatus;
   totalDue: number;
   idProof?: string;
   photo?: string;
