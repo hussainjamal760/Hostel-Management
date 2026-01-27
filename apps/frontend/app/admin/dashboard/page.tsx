@@ -12,7 +12,7 @@ import {
   HiOutlineClock,
   HiOutlineFlag,
 } from 'react-icons/hi';
-import { useGetDashboardStatsQuery } from '@/lib/services/adminApi';
+import { useGetDashboardStatsQuery, DashboardStats } from '@/lib/services/adminApi';
 import StatsCard from '../components/StatsCard';
 import {
   ChartCard,
@@ -45,17 +45,9 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const stats = statsResponse?.data;
+  const stats = statsResponse?.data as DashboardStats | undefined;
 
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1000000) {
-      return `₨ ${(amount / 1000000).toFixed(1)}M`;
-    }
-    if (amount >= 1000) {
-      return `₨ ${(amount / 1000).toFixed(0)}K`;
-    }
-    return `₨ ${amount}`;
-  };
+
 
   return (
     <div className="space-y-6">
@@ -111,13 +103,21 @@ export default function AdminDashboardPage() {
             />
             <StatsCard
               title="Monthly Recurring Revenue"
-              value={formatCurrency(stats?.monthlyRecurringRevenue || 0)}
+              value={`₨ ${stats?.monthlyRecurringRevenue?.toLocaleString() || 0}`}
               change={stats?.recentTrends?.revenueGrowth 
                 ? `${stats.recentTrends.revenueGrowth > 0 ? '+' : ''}${stats.recentTrends.revenueGrowth}% vs last month`
                 : 'Current month MRR'}
               changeType={stats?.recentTrends?.revenueGrowth && stats.recentTrends.revenueGrowth > 0 ? 'positive' : 'negative'}
               icon={HiOutlineCurrencyDollar}
               iconBg="bg-emerald-500"
+            />
+             <StatsCard
+              title="Total Revenue (Lifetime)"
+              value={`₨ ${stats?.totalRevenue?.toLocaleString() || 0}`}
+              change="Total collected amount"
+              changeType="positive"
+              icon={HiOutlineCurrencyDollar}
+              iconBg="bg-purple-500"
             />
           </div>
 
@@ -134,7 +134,7 @@ export default function AdminDashboardPage() {
             <StatsCard
               title="Pending Payments"
               value={stats?.pendingPayments || 0}
-              change={`${formatCurrency(stats?.pendingPaymentsAmount || 0)} outstanding`}
+              change={`₨ ${stats?.pendingPaymentsAmount?.toLocaleString() || 0} outstanding`}
               changeType="negative"
               icon={HiOutlineClock}
               iconBg="bg-amber-500"

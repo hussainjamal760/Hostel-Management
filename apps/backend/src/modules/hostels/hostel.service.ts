@@ -41,19 +41,33 @@ export class HostelService {
       ownerId?: string;
       search?: string;
       city?: string;
-      isActive?: boolean;
+      isActive?: boolean | string;
       page?: number;
       limit?: number;
     }
   ) {
     console.log('getAllHostels called with query:', query);
     
-    const { ownerId, search, city, isActive = true, page = 1, limit = 10 } = query;
+    const { ownerId, search, city, isActive, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 
     const filter: FilterQuery<IHostelDocument> = {};
     if (ownerId) filter.ownerId = new mongoose.Types.ObjectId(ownerId);
-    if (typeof isActive === 'boolean') filter.isActive = isActive;
+    
+    // Properly handle boolean toggle from query strings
+    if (isActive !== undefined && isActive !== null && isActive !== ('ALL' as any)) {
+      if (isActive === 'true' || isActive === true) {
+        filter.isActive = true;
+      } else {
+        filter.isActive = false;
+      }
+    } else if (isActive === undefined) {
+       // Default behavior if not specified: Show Active Only (Backward Compatibility)
+       // BUT for Admin we might want ALL. Let's stick to default Active for now unless 'ALL' passed.
+       filter.isActive = true; 
+    }
+    // If isActive === 'ALL', we don't set filter.isActive, so it returns both.
+
     if (city) filter['address.city'] = { $regex: city, $options: 'i' };
     
     if (search) {
@@ -116,6 +130,15 @@ export class HostelService {
         
         const activeStudentCount = await Student.countDocuments({ hostelId: hostel._id, isActive: true });
         
+        // Check Payment Status for Current Month
+        const now = new Date();
+        const HostelPayment = require('../payments/hostel-payment.model').default;
+        const payment = await HostelPayment.findOne({
+            hostelId: hostel._id,
+            month: now.getMonth() + 1,
+            year: now.getFullYear()
+        }).select('status');
+
         const realStats = stats.length > 0 ? stats[0] : { totalRooms: 0, totalBeds: 0 };
 
         return { 
@@ -123,7 +146,8 @@ export class HostelService {
             manager,
             totalRooms: realStats.totalRooms, // Override stored value
             totalBeds: realStats.totalBeds,    // Override stored value
-            activeStudentCount // Added new field
+            activeStudentCount, // Added new field
+            currentMonthPaymentStatus: payment ? payment.status : 'NONE' // Added new field
         };
     }));
 

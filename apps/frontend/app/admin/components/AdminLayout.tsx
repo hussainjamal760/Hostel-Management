@@ -33,8 +33,6 @@ const menuItems = [
   { name: 'Payments', href: '/admin/payments', icon: HiOutlineCurrencyDollar },
   { name: 'Complaints', href: '/admin/complaints', icon: HiOutlineClipboardList },
   { name: 'Reports', href: '/admin/reports', icon: HiOutlineChartBar },
-  { name: 'Notifications', href: '/admin/notifications', icon: HiOutlineBell },
-  { name: 'Settings', href: '/admin/settings', icon: HiOutlineCog },
 ];
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {

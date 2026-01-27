@@ -17,6 +17,7 @@ export interface AdminDashboardStats {
   totalActiveHostels: number;
   totalStudents: number;
   monthlyRecurringRevenue: number;
+  totalRevenue: number; // Added
   churnedHostels: number;
   pendingPayments: number;
   pendingPaymentsAmount: number;
@@ -56,6 +57,7 @@ export class AdminService {
       recentPayments,
       recentComplaints,
       recentHostels,
+      totalRevenueData, // Added
     ] = await Promise.all([
       // Total hostels ever onboarded
       Hostel.countDocuments(),
@@ -213,6 +215,12 @@ export class AdminService {
         .limit(3)
         .select('name createdAt')
         .lean(),
+
+      // Total Revenue (Lifetime)
+      HostelPayment.aggregate([
+        { $match: { status: 'COMPLETED' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]),
     ]);
 
     // Calculate trends
@@ -309,6 +317,7 @@ export class AdminService {
       totalActiveHostels: activeHostels,
       totalStudents,
       monthlyRecurringRevenue: currentMRR,
+      totalRevenue: totalRevenueData[0]?.total || 0, // Added
       churnedHostels: inactiveHostels,
       pendingPayments: pendingPaymentsData[0]?.count || 0,
       pendingPaymentsAmount: pendingPaymentsData[0]?.total || 0,

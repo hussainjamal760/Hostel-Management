@@ -13,6 +13,7 @@ export interface DashboardStats {
   totalActiveHostels: number;
   totalStudents: number;
   monthlyRecurringRevenue: number;
+  totalRevenue: number;
   churnedHostels: number;
   pendingPayments: number;
   pendingPaymentsAmount: number;
