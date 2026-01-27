@@ -17,7 +17,8 @@ import {
   HiX,
   HiOutlineChartBar,
   HiOutlineUserAdd,
-  HiOutlineUserGroup
+  HiOutlineUserGroup,
+  HiReceiptTax // Added
 } from 'react-icons/hi';
 
 interface OwnerLayoutProps {
@@ -31,6 +32,7 @@ const menuItems = [
   { name: 'Manage Managers', href: '/owner/managers', icon: HiOutlineUsers },
   { name: 'All Students', href: '/owner/students', icon: HiOutlineUsers },
   { name: 'Complaints', href: '/owner/complaints', icon: HiOutlineClipboardList },
+  { name: 'Expenses', href: '/owner/expenses', icon: HiReceiptTax }, // Added
   { name: 'Reports', href: '/owner/reports', icon: HiOutlineChartBar },
   { name: 'Settings', href: '/owner/settings', icon: HiOutlineOfficeBuilding } // Reusing icon or new one
 ];

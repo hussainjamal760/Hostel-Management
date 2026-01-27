@@ -14,6 +14,8 @@ import { managerRoutes } from '../modules/managers/manager.routes';
 import hostelPaymentRoutes from '../modules/payments/hostel-payment.routes';
 import { API_VERSION } from '@hostelite/shared-constants';
 
+import expenseRoutes from '../modules/expenses/expense.routes';
+
 const router = Router();
 
 router.get('/health', (_req, res) => {
@@ -37,5 +39,6 @@ router.use('/owner-requests', ownerRequestRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/managers', managerRoutes);
 router.use('/admin-payments', hostelPaymentRoutes);
+router.use('/expenses', expenseRoutes);
 
 export default router;

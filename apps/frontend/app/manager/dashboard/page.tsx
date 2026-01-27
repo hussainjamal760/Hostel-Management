@@ -2,6 +2,7 @@
 
 import { useGetOwnerHostelsQuery } from '@/lib/services/hostelApi';
 import { useGetStudentStatsQuery, useGetDashboardAnalyticsQuery } from '@/lib/services/studentApi';
+import { useGetExpenseStatsQuery } from '@/lib/services/expenseApi';
 import { useAppSelector } from '@/lib/hooks';
 import { HiOutlineHome, HiOutlineUserGroup, HiOutlineOfficeBuilding, HiOutlineCurrencyDollar, HiOutlineExclamationCircle, HiOutlineCheckCircle } from 'react-icons/hi';
 import Link from 'next/link';
@@ -21,6 +22,17 @@ export default function ManagerDashboard() {
   const { data: analyticsResponse, isLoading: isLoadingAnalytics } = useGetDashboardAnalyticsQuery(user?.hostelId!, {
     skip: !user?.hostelId
   });
+
+  const { data: expenseStatsResponse, isLoading: isLoadingExpenses } = useGetExpenseStatsQuery(user?.hostelId, {
+      skip: !user?.hostelId
+  });
+
+  const expenseStats = expenseStatsResponse?.data || {
+      totalPending: 0,
+      totalApproved: 0,
+      totalRejected: 0,
+      pendingCount: 0
+  };
 
   const stats = statsResponse?.data || {
     totalStudents: 0,
@@ -124,14 +136,28 @@ export default function ManagerDashboard() {
             </div>
         </Link>
 
-        {/* Total Collected */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Collected</p>
-              <h3 className="text-xl font-bold text-green-600 dark:text-green-400 mt-1">Rs {stats.totalCollected.toLocaleString()}</h3>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Net Profit</p>
+              <h3 className="text-xl font-bold text-green-600 dark:text-green-400 mt-1">Rs {(stats.totalCollected - expenseStats.totalApproved).toLocaleString()}</h3>
+              <p className="text-xs text-gray-400 mt-1">Rev: {stats.totalCollected.toLocaleString()} - Exp: {expenseStats.totalApproved.toLocaleString()}</p>
             </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-lg">
+            <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-lg">
+              <HiOutlineCurrencyDollar size={24} />
+            </div>
+          </div>
+        </div>
+        
+        {/* Total Expenses */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expenses</p>
+              <h3 className="text-xl font-bold text-red-600 dark:text-red-400 mt-1">Rs {expenseStats.totalApproved.toLocaleString()}</h3>
+               <p className="text-xs text-gray-400 mt-1">{expenseStats.totalPending.toLocaleString()} Pending</p>
+            </div>
+            <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-lg">
               <HiOutlineCurrencyDollar size={24} />
             </div>
           </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useGetOwnerHostelsQuery, useGetHostelStatsQuery } from '@/lib/services/hostelApi';
+import { useGetExpenseStatsQuery } from '@/lib/services/expenseApi';
 import CreateHostelForm from '@/components/hostel/CreateHostelForm';
 import OwnerStatsCard from '../components/OwnerStatsCard';
 import QuickActionHub from '../components/QuickActionHub';
@@ -28,6 +29,18 @@ export default function OwnerDashboard() {
   const { data: statsResponse, isLoading: isStatsLoading } = useGetHostelStatsQuery(statsQueryArg, {
     skip: !hasHostel,
   });
+
+  const { data: expenseStatsResponse, isLoading: isExpenseLoading } = useGetExpenseStatsQuery(
+    selectedHostelId === 'ALL' ? undefined : selectedHostelId, 
+    { skip: !hasHostel }
+  );
+
+  const expenseStats = expenseStatsResponse?.data || {
+      totalPending: 0,
+      totalApproved: 0,
+      totalRejected: 0,
+      pendingCount: 0
+  };
 
   if (isHostelLoading) {
     return (
@@ -125,21 +138,37 @@ export default function OwnerDashboard() {
                             change="Lifetime Earnings"
                             changeType="positive"
                         />
+                         <OwnerStatsCard 
+                            title="Total Expenses"
+                            value={formatCurrency(expenseStats.totalApproved)}
+                            icon={HiOutlineCurrencyDollar}
+                            iconBg="bg-red-500"
+                            change={`${expenseStats.approvedCount} approved bills`}
+                            changeType="negative"
+                        />
                         <OwnerStatsCard 
+                            title="Net Profit"
+                            value={formatCurrency(stats.revenue - expenseStats.totalApproved)}
+                            icon={HiOutlineCurrencyDollar}
+                            iconBg="bg-emerald-600"
+                            change="Revenue - Expenses"
+                            changeType={(stats.revenue - expenseStats.totalApproved) >= 0 ? 'positive' : 'negative'}
+                        />
+                        <OwnerStatsCard 
+                            title="Pending Approvals"
+                            value={expenseStats.pendingCount}
+                            icon={HiOutlineClock}
+                            iconBg="bg-orange-500"
+                            change={`Rs ${expenseStats.totalPending.toLocaleString()}`}
+                            changeType={expenseStats.pendingCount > 0 ? 'negative' : 'positive'}
+                        />
+                         <OwnerStatsCard 
                             title="Pending Dues (This Month)"
                             value={formatCurrency(stats.currentMonthPending || 0)}
                             icon={HiOutlineClock}
-                            iconBg="bg-orange-500"
+                            iconBg="bg-yellow-500"
                             change="Current Month"
                             changeType={(stats.currentMonthPending || 0) > 0 ? 'negative' : 'positive'}
-                        />
-                         <OwnerStatsCard 
-                            title="Pending Complaints"
-                            value={stats.pendingComplaints}
-                            icon={HiOutlineExclamationCircle}
-                            iconBg="bg-red-500"
-                            change="Open Issues"
-                            changeType={stats.pendingComplaints > 0 ? 'negative' : 'positive'}
                         />
                          <OwnerStatsCard 
                             title="Total Remaining Dues"

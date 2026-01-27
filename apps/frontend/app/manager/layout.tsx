@@ -17,6 +17,7 @@ import {
   HiX,
   HiOutlinePlus,
   HiOutlineChartBar,
+  HiReceiptTax, // Added
 } from 'react-icons/hi';
 
 interface ManagerLayoutProps {
@@ -29,6 +30,7 @@ const menuItems = [
   { name: 'Create Room', href: '/manager/create-room', icon: HiOutlinePlus },
   { name: 'Manage Rooms', href: '/manager/rooms', icon: HiOutlineCollection },
   { name: 'Students', href: '/manager/students', icon: HiOutlineUsers },
+  { name: 'Expenses', href: '/manager/expenses', icon: HiReceiptTax }, // Added
   { name: 'Payments', href: '/manager/payments', icon: HiOutlineCollection },
   { name: 'Reports', href: '/manager/reports', icon: HiOutlineChartBar },
   { name: 'Complaints', href: '/manager/complaints', icon: HiOutlineClipboardList },
