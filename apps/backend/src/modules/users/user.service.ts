@@ -72,6 +72,11 @@ export class UserService {
     return { user, password: rawPassword }; 
   }
 
+  async bulkDeleteUsers(ids: string[]) {
+    await User.deleteMany({ _id: { $in: ids } });
+    return { count: ids.length };
+  }
+
   async getAllUsers(
     query: {
       role?: Role;

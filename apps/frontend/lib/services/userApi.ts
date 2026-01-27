@@ -58,7 +58,38 @@ export const userApi = baseApi.injectEndpoints({
       }),
       providesTags: ['User'],
     }),
+    updateUser: builder.mutation<ApiResponse<User>, { id: string; data: Partial<User> }>({
+        query: ({ id, data }) => ({
+            url: `/users/${id}`,
+            method: 'PATCH',
+            body: data,
+        }),
+        invalidatesTags: ['User'],
+    }),
+    deleteUser: builder.mutation<ApiResponse<void>, string>({
+        query: (id) => ({
+            url: `/users/${id}`,
+            method: 'DELETE',
+        }),
+        invalidatesTags: ['User'],
+    }),
+    bulkDeleteUsers: builder.mutation<ApiResponse<{ count: number }>, string[]>({
+        query: (ids) => ({
+            url: '/users/bulk-delete',
+            method: 'POST',
+            body: { ids },
+        }),
+        invalidatesTags: ['User'],
+    }),
   }),
 });
 
-export const { useGetMeQuery, useUpdateMeMutation, useGetAllUsersQuery } = userApi;
+export const { 
+    useGetMeQuery, 
+    useUpdateMeMutation, 
+    useGetAllUsersQuery,
+    useUpdateUserMutation,
+    useDeleteUserMutation,
+    useBulkDeleteUsersMutation,
+    useLazyGetAllUsersQuery
+} = userApi;

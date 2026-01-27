@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { asyncHandler, ApiResponse } from '../../utils';
+import { asyncHandler, ApiResponse, ApiError } from '../../utils';
 import userService from './user.service';
 import { Role } from '@hostelite/shared-types';
 
@@ -50,6 +50,15 @@ export class UserController {
   deleteUser = asyncHandler(async (req: Request, res: Response) => {
     await userService.deleteUser(req.params.id);
     ApiResponse.success(res, null, 'User deleted successfully');
+  });
+
+  bulkDelete = asyncHandler(async (req: Request, res: Response) => {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        throw ApiError.badRequest('No user IDs provided');
+    }
+    const result = await userService.bulkDeleteUsers(ids);
+    ApiResponse.success(res, result, 'Users deleted successfully');
   });
 }
 

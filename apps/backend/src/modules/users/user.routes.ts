@@ -18,6 +18,12 @@ router.post(
   userController.createUser
 );
 
+router.post(
+  '/bulk-delete',
+  authorize('ADMIN'),
+  userController.bulkDelete
+);
+
 router.get(
   '/',
   authorize('ADMIN', 'OWNER'),
