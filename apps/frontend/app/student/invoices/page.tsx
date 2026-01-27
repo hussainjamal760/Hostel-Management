@@ -5,11 +5,22 @@ import { useGetAllPaymentsQuery, useSubmitProofMutation } from '@/lib/services/p
 import { useGetStudentMeQuery } from '@/lib/services/studentApi';
 import { useGetHostelByIdQuery } from '@/lib/services/hostelApi';
 import { toast } from 'react-hot-toast';
+import jsPDF from 'jspdf';
+import { HiPrinter, HiDownload } from 'react-icons/hi';
 
 export default function StudentInvoicesPage() {
   const { data: studentData, isLoading: isStudentLoading } = useGetStudentMeQuery();
+  
+  // Filters
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
   const { data: invoicesData, isLoading: isInvoicesLoading, refetch } = useGetAllPaymentsQuery(
-    { studentId: studentData?.data?._id }, 
+    { 
+        studentId: studentData?.data?._id,
+        month: selectedMonth,
+        year: selectedYear
+    }, 
     { skip: !studentData?.data?._id }
   );
 
@@ -50,26 +61,60 @@ export default function StudentInvoicesPage() {
     }
   };
 
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+  const months = [
+    { value: 1, label: 'January' },
+    { value: 2, label: 'February' },
+    { value: 3, label: 'March' },
+    { value: 4, label: 'April' },
+    { value: 5, label: 'May' },
+    { value: 6, label: 'June' },
+    { value: 7, label: 'July' },
+    { value: 8, label: 'August' },
+    { value: 9, label: 'September' },
+    { value: 10, label: 'October' },
+    { value: 11, label: 'November' },
+    { value: 12, label: 'December' },
+  ];
+
   if (isLoading) {
       return <div className="p-8 text-center text-gray-500">Loading invoices...</div>;
   }
 
   return (
     <div className="container mx-auto p-4 space-y-8 max-w-4xl">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
            <h1 className="text-3xl font-extrabold text-[#2c1b13]">Hostel Fee Challans</h1>
            <p className="text-gray-500">Official fee receipts and payment portal</p>
         </div>
-        <button onClick={() => refetch()} className="px-4 py-2 border border-[#2c1b13] text-[#2c1b13] rounded-lg hover:bg-gray-50 transition-colors font-medium">
-           Refresh
-        </button>
+        
+        <div className="flex gap-2 bg-white p-2 rounded-lg shadow-sm border border-gray-200">
+            <select 
+                value={selectedMonth} 
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                className="border-none bg-transparent font-medium focus:ring-0 cursor-pointer"
+            >
+                {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </select>
+            <div className="w-px bg-gray-300"></div>
+            <select 
+                value={selectedYear} 
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                className="border-none bg-transparent font-medium focus:ring-0 cursor-pointer"
+            >
+                 {years.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+        </div>
       </div>
       
       <div className="grid gap-12">
           {invoices.length === 0 && (
             <div className="p-12 text-center border-2 border-dashed border-gray-200 rounded-3xl bg-gray-50">
-                <p className="text-gray-500 text-xl font-medium">No fee challans found.</p>
+                <p className="text-gray-500 text-xl font-medium">No fee challans found for {months.find(m => m.value === selectedMonth)?.label} {selectedYear}.</p>
+                <button onClick={() => { setSelectedMonth(new Date().getMonth() + 1); setSelectedYear(new Date().getFullYear()); }} className="mt-4 text-brand-primary font-bold hover:underline">
+                    View Current Month
+                </button>
             </div>
           )}
 
@@ -108,22 +153,84 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
     // Handle month name safely
     const monthName = new Date(displayYear, displayMonth - 1).toLocaleString('default', { month: 'long' });
     
-    // Status Logic
-    // If we have 'UNPAID' but it is from a previous month, show as OVERDUE?
-    // Or rely on backend status? The backend generates as UNPAID. 
-    // Let's rely on stored status, but alias PENDING -> UNDER_REVIEW for UI if desired.
-    // Actually, backend uses 'PENDING' for "Verification Pending".
-    
     let statusDisplay = invoice.status;
     if (statusDisplay === 'PENDING') statusDisplay = 'UNDER_REVIEW'; // UI Alias
 
     const effectiveProof = localPreview || invoice.paymentProof;
 
+    const handlePrint = () => {
+        const doc = new jsPDF();
+        
+        // Header
+        doc.setFontSize(20);
+        doc.setFont("helvetica", "bold");
+        doc.text("HOSTEL MANAGEMENT SYSTEM", 105, 20, { align: "center" });
+        
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text(hostelData?.data?.name || "Official Fee Challan", 105, 28, { align: "center" });
+
+        // Invoice Meta
+        doc.setFontSize(10);
+        doc.text(`Receipt No: ${invoice.receiptNumber}`, 150, 40);
+        doc.text(`Date: ${new Date(invoice.createdAt).toLocaleDateString()}`, 150, 45);
+        doc.text(`Status: ${invoice.status}`, 150, 50);
+
+        // Student Details
+        doc.setDrawColor(0);
+        doc.line(15, 55, 195, 55);
+        
+        doc.setFont("helvetica", "bold");
+        doc.text("Student Details:", 20, 65);
+        
+        doc.setFont("helvetica", "normal");
+        doc.text(`Name: ${student?.fullName}`, 20, 72);
+        doc.text(`Roll No: ${student?.rollNumber || '-'}`, 20, 77);
+        doc.text(`Room: ${student?.roomId?.roomNumber || '-'} / Bed ${student?.bedNumber || '-'}`, 120, 72);
+        doc.text(`Billing Month: ${monthName} ${displayYear}`, 120, 77);
+
+        // Table
+        const startY = 90;
+        doc.setFillColor(240, 240, 240);
+        doc.rect(15, startY, 180, 10, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.text("Description", 20, startY + 7);
+        doc.text("Amount (PKR)", 160, startY + 7);
+
+        doc.setFont("helvetica", "normal");
+        doc.text(`Hostel Fee / Rent - ${monthName}`, 20, startY + 20);
+        doc.text(`${displayAmount.toLocaleString()}`, 160, startY + 20);
+
+        doc.line(15, startY + 30, 195, startY + 30);
+        
+        doc.setFont("helvetica", "bold");
+        doc.text("Total Payable", 120, startY + 40);
+        doc.text(`PKR ${displayAmount.toLocaleString()}`, 160, startY + 40);
+
+        // Bank Details
+        if (paymentDetails?.bankName) {
+            const bankY = startY + 60;
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text("Bank Details for Payment:", 20, bankY);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Bank: ${paymentDetails.bankName}`, 20, bankY + 7);
+            doc.text(`Account Title: ${paymentDetails.accountTitle}`, 20, bankY + 12);
+            doc.text(`Account No: ${paymentDetails.accountNumber}`, 20, bankY + 17);
+        }
+
+        // Footer
+        doc.setFontSize(8);
+        doc.text("This is a computer generated receipt and does not require a signature.", 105, 280, { align: "center" });
+
+        doc.save(`${invoice.receiptNumber}.pdf`);
+    };
+
     return (
         <div className={`relative bg-white border-2 rounded-lg overflow-hidden shadow-2xl font-serif ${
             statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'
         }`}>
-            {/* Stamp/Status Backdrop */}
+            {/* ... (Existing Status Stamps) ... */}
             {statusDisplay === 'COMPLETED' && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-30deg] opacity-20 pointer-events-none">
                     <div className="border-8 border-green-600 rounded-full px-12 py-6 text-7xl font-black text-green-600 tracking-tighter uppercase">
@@ -131,7 +238,7 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                     </div>
                 </div>
             )}
-            {statusDisplay === 'UNDER_REVIEW' && (
+             {statusDisplay === 'UNDER_REVIEW' && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] opacity-10 pointer-events-none">
                     <div className="border-8 border-amber-600 rounded-xl px-12 py-6 text-4xl font-black text-amber-600 uppercase tracking-tighter text-center">
                         REQUEST SENT<br/>FOR VERIFICATION
@@ -157,6 +264,14 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                    <p className="text-sm font-bold text-gray-600 uppercase tracking-widest">{hostelData?.data?.name || "Hostelite Management System"}</p>
                 </div>
                 <div className="text-right">
+                    <div className="flex items-center justify-end gap-2 mb-2">
+                        <button 
+                            onClick={handlePrint}
+                            className="flex items-center gap-1 text-xs font-bold bg-gray-900 text-white px-3 py-1.5 rounded hover:bg-gray-800 transition-colors"
+                        >
+                            <HiPrinter /> Print / Save PDF
+                        </button>
+                    </div>
                     <div className="text-xs font-bold text-gray-500 uppercase mb-1">Receipt No.</div>
                     <div className="text-lg font-black font-mono tracking-tighter">
                         {invoice.receiptNumber}

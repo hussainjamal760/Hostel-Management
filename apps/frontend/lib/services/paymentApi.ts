@@ -4,7 +4,7 @@ import { IPayment } from '@hostelite/shared-types';
 
 export const paymentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllPayments: builder.query<ApiResponse<IPayment[]>, { studentId?: string; hostelId?: string; status?: string }>({
+    getAllPayments: builder.query<ApiResponse<IPayment[]>, { studentId?: string; hostelId?: string; status?: string; month?: number; year?: number }>({
       query: (params) => ({
         url: '/payments',
         method: 'GET',
