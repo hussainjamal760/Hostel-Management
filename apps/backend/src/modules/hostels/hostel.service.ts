@@ -184,12 +184,36 @@ export class HostelService {
   }
 
 
-  async getStats(ownerId: string) {
-    const hostels = await Hostel.find({ ownerId, isActive: true }).select('_id totalRooms totalBeds monthlyRent');
+  async getStats(ownerId: string, specificHostelId?: string) {
+    const filter: any = { ownerId, isActive: true };
+    if (specificHostelId) {
+        filter._id = specificHostelId;
+    }
+
+    const hostels = await Hostel.find(filter).select('_id totalRooms totalBeds monthlyRent');
     const hostelIds = hostels.map(h => h._id);
 
     // Aggregate data
     const totalHostels = hostels.length;
+
+    // Return dummy stats if no hostels found (or selected)
+    if (hostelIds.length === 0) {
+        return {
+             totalHostels,
+             totalRooms: 0,
+             totalBeds: 0,
+             totalStudents: 0,
+             occupancyRate: 0,
+             pendingComplaints: 0,
+             revenue: 0,
+             totalRemaining: 0,
+             monthlyRevenue: [],
+             complaintsBreakdown: { open: 0, inProgress: 0, resolved: 0 },
+             currentMonthRevenue: 0,
+             currentMonthPending: 0
+        };
+    }
+
     // Parallel queries for deep stats
     const Student = require('../students/student.model').default;
     const Payment = require('../payments/payment.model').default;

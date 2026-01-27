@@ -38,12 +38,13 @@ export const hostelApi = baseApi.injectEndpoints({
       }),
       providesTags: (result, error, id) => [{ type: 'Hostel', id }],
     }),
-    getHostelStats: builder.query<ApiResponse<HostelStats>, void>({
-      query: () => ({
+    getHostelStats: builder.query<ApiResponse<HostelStats>, { hostelId?: string } | undefined>({
+      query: (params) => ({
         url: '/hostels/stats',
         method: 'GET',
+        params: params || undefined,
       }),
-      providesTags: ['Hostel'],
+      providesTags: ['Hostel', 'Payment', 'Student'], // Added related tags for invalidation
     }),
     createHostel: builder.mutation<ApiResponse<IHostel>, CreateHostelInput>({
       query: (data) => ({

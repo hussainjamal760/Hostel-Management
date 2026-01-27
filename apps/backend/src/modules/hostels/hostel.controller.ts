@@ -35,7 +35,8 @@ export class HostelController {
   });
 
   getStats = asyncHandler(async (req: Request, res: Response) => {
-    const result = await hostelService.getStats(req.user!.id);
+    const { hostelId } = req.query;
+    const result = await hostelService.getStats(req.user!.id, hostelId as string);
     ApiResponse.success(res, result, 'Stats fetched successfully');
   });
 
