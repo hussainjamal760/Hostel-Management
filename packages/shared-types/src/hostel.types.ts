@@ -21,6 +21,7 @@ export interface IHostel {
   amenities: string[];
   images: string[];
   monthlyRent: number;
+  subscriptionRate?: number;
 
   isActive: boolean;
   paymentDetails?: {

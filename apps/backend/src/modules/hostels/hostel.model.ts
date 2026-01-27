@@ -73,6 +73,11 @@ const hostelSchema = new Schema<IHostelDocument>(
       required: [true, 'Monthly rent is required'],
       min: [0, 'Rent cannot be negative'],
     },
+    subscriptionRate: {
+      type: Number,
+      default: 0,
+      min: [0, 'Subscription rate cannot be negative'],
+    },
 
     isActive: {
       type: Boolean,

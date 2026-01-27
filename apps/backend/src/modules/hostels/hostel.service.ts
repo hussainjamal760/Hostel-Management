@@ -97,6 +97,8 @@ export class HostelService {
     const Manager = require('../managers/manager.model').default;
     const Room = require('../rooms/room.model').default;
 
+    const Student = require('../students/student.model').default;
+
     const hostelsWithDetails = await Promise.all(hostels.map(async (hostel: any) => {
         const manager = await Manager.findOne({ hostelId: hostel._id }).select('name phoneNumber cnic');
         
@@ -112,13 +114,16 @@ export class HostelService {
             }
         ]);
         
+        const activeStudentCount = await Student.countDocuments({ hostelId: hostel._id, isActive: true });
+        
         const realStats = stats.length > 0 ? stats[0] : { totalRooms: 0, totalBeds: 0 };
 
         return { 
             ...hostel, 
             manager,
             totalRooms: realStats.totalRooms, // Override stored value
-            totalBeds: realStats.totalBeds    // Override stored value
+            totalBeds: realStats.totalBeds,    // Override stored value
+            activeStudentCount // Added new field
         };
     }));
 

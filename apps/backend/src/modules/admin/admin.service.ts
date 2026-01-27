@@ -1,9 +1,8 @@
 import { Hostel } from '../hostels/hostel.model';
 import { Student } from '../students/student.model';
-import { Payment } from '../payments/payment.model';
+import { HostelPayment } from '../payments/hostel-payment.model';
 import { Complaint } from '../complaints/complaint.model';
 import { User } from '../users/user.model';
-import { PAYMENT_STATUS } from '@hostelite/shared-constants';
 
 export interface RecentActivity {
   id: string;
@@ -70,13 +69,13 @@ export class AdminService {
       // Total students across platform
       Student.countDocuments({ isActive: true }),
       
-      // Current month revenue (MRR)
-      Payment.aggregate([
+      // Current month revenue (Platform Fees)
+      HostelPayment.aggregate([
         {
           $match: {
             month: currentMonth,
             year: currentYear,
-            status: PAYMENT_STATUS.COMPLETED,
+            status: 'COMPLETED',
           },
         },
         {
@@ -88,12 +87,12 @@ export class AdminService {
       ]),
       
       // Last month revenue for comparison
-      Payment.aggregate([
+      HostelPayment.aggregate([
         {
           $match: {
             month: lastMonth,
             year: lastMonthYear,
-            status: PAYMENT_STATUS.COMPLETED,
+            status: 'COMPLETED',
           },
         },
         {
@@ -104,11 +103,11 @@ export class AdminService {
         },
       ]),
       
-      // Pending payments
-      Payment.aggregate([
+      // Pending payments (Platform Fees)
+      HostelPayment.aggregate([
         {
           $match: {
-            status: PAYMENT_STATUS.PENDING,
+            status: 'PENDING',
           },
         },
         {
@@ -137,11 +136,11 @@ export class AdminService {
         },
       ]),
       
-      // Monthly revenue for last 6 months
-      Payment.aggregate([
+      // Monthly revenue for last 6 months (Platform Fees)
+      HostelPayment.aggregate([
         {
           $match: {
-            status: PAYMENT_STATUS.COMPLETED,
+            status: 'COMPLETED',
             createdAt: {
               $gte: new Date(new Date().setMonth(now.getMonth() - 6)),
             },
@@ -150,8 +149,8 @@ export class AdminService {
         {
           $group: {
             _id: {
-              month: { $month: '$createdAt' },
-              year: { $year: '$createdAt' },
+              month: '$month',
+              year: '$year',
             },
             revenue: { $sum: '$amount' },
           },
@@ -193,8 +192,8 @@ export class AdminService {
         .select('name createdAt')
         .lean(),
 
-      // Recent payments (last 5)
-      Payment.find({ status: PAYMENT_STATUS.COMPLETED })
+      // Recent payments (Platform Fees)
+      HostelPayment.find({ status: 'COMPLETED' })
         .sort({ createdAt: -1 })
         .limit(3)
         .populate('hostelId', 'name')
