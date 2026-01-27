@@ -9,7 +9,6 @@ import { toast } from 'react-hot-toast';
 import {
   HiOutlineHome,
   HiOutlineUsers,
-  HiOutlineOfficeBuilding,
   HiOutlineClipboardList,
   HiOutlineCollection,
   HiOutlineBell,
@@ -27,7 +26,6 @@ interface ManagerLayoutProps {
 // Manager specific menu items (Subset of owner items)
 const menuItems = [
   { name: 'Dashboard', href: '/manager/dashboard', icon: HiOutlineHome },
-  { name: 'My Hostel', href: '/manager/hostel', icon: HiOutlineOfficeBuilding },
   { name: 'Create Room', href: '/manager/create-room', icon: HiOutlinePlus },
   { name: 'Manage Rooms', href: '/manager/rooms', icon: HiOutlineCollection },
   { name: 'Students', href: '/manager/students', icon: HiOutlineUsers },

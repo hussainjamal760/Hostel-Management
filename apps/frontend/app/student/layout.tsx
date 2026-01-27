@@ -14,7 +14,8 @@ import {
   HiOutlineLogout,
   HiOutlineMenu,
   HiX,
-  HiOutlineInformationCircle
+  HiOutlineInformationCircle,
+  HiOutlineSearch
 } from 'react-icons/hi';
 
 interface StudentLayoutProps {
@@ -25,6 +26,7 @@ const menuItems = [
   { name: 'Dashboard', href: '/student/dashboard', icon: HiOutlineHome },
   { name: 'My Profile', href: '/student/profile', icon: HiOutlineUser },
   { name: 'Room Details', href: '/student/room', icon: HiOutlineInformationCircle },
+  { name: 'Find Room', href: '/student/find-room', icon: HiOutlineSearch },
   { name: 'Invoices', href: '/student/invoices', icon: HiOutlineCurrencyDollar },
   { name: 'Complaints', href: '/student/complaints', icon: HiOutlineClipboardList },
 ];
