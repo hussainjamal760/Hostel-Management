@@ -174,31 +174,56 @@ export class PaymentService {
   }
 
   async generateInitialInvoice(student: any, hostelId: string) {
-    const totalAmount = (student.monthlyFee || 0) + (student.securityDeposit || 0);
-    
-    if (totalAmount <= 0) return null; // Nothing to bill
-
+    const invoices = [];
     const date = new Date();
-    const random = Math.floor(1000 + Math.random() * 9000);
-    const receiptNumber = `INV-${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}-${random}`;
-    
-    const payment = await Payment.create({
-      studentId: student._id,
-      hostelId,
-      amount: totalAmount,
-      paymentType: PAYMENT_TYPES.RENT,
-      paymentMethod: PAYMENT_METHODS.CASH, // Default for generated invoice
-      status: PAYMENT_STATUS.PENDING,
-      month: date.getMonth() + 1,
-      year: date.getFullYear(),
-      dueDate: new Date(date.getTime() + 7 * 24 * 60 * 60 * 1000), // Due in 7 days
-      receiptNumber,
-      isVerified: false,
-      description: `Initial Invoice: Monthly Fee (${student.monthlyFee}) + Security Deposit (${student.securityDeposit})`
-    });
+    const dueDate = new Date(date.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days due
 
-    console.log(`Generated Initial Invoice for ${student.fullName}: ${payment.receiptNumber}`);
-    return payment;
+    // 1. Generate Security Deposit Invoice
+    if (student.securityDeposit && student.securityDeposit > 0) {
+        const randomSec = Math.floor(1000 + Math.random() * 9000);
+        const receiptSec = `INV-SEC-${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}-${randomSec}`;
+        
+        const secInvoice = await Payment.create({
+            studentId: student._id,
+            hostelId,
+            amount: student.securityDeposit,
+            paymentType: PAYMENT_TYPES.SECURITY,
+            paymentMethod: PAYMENT_METHODS.CASH,
+            status: PAYMENT_STATUS.UNPAID,
+            month: date.getMonth() + 1,
+            year: date.getFullYear(),
+            dueDate,
+            receiptNumber: receiptSec,
+            isVerified: false,
+            description: `Initial Security Deposit`
+        });
+        invoices.push(secInvoice);
+    }
+
+    // 2. Generate Monthly Fee Invoice
+    if (student.monthlyFee && student.monthlyFee > 0) {
+        const randomFee = Math.floor(1000 + Math.random() * 9000);
+        const receiptFee = `INV-FEE-${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}-${randomFee}`;
+        
+        const feeInvoice = await Payment.create({
+            studentId: student._id,
+            hostelId,
+            amount: student.monthlyFee,
+            paymentType: PAYMENT_TYPES.RENT,
+            paymentMethod: PAYMENT_METHODS.CASH,
+            status: PAYMENT_STATUS.UNPAID,
+            month: date.getMonth() + 1,
+            year: date.getFullYear(),
+            dueDate,
+            receiptNumber: receiptFee,
+            isVerified: false,
+            description: `Monthly Fee for ${date.toLocaleString('default', { month: 'long' })}`
+        });
+        invoices.push(feeInvoice);
+    }
+
+    console.log(`Generated ${invoices.length} initial invoices for ${student.fullName}`);
+    return invoices;
   }
 }
 
