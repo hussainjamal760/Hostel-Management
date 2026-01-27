@@ -381,6 +381,75 @@ export class StudentService {
       currentOccupancy: roomStats[0]?.currentOccupancy || 0
     };
   }
+
+  async getDashboardAnalytics(hostelId: string) {
+    const Payment = require('../payments/payment.model').default;
+    const Complaint = require('../complaints/complaint.model').default;
+
+    // 1. Action Center Counts
+    const pendingPayments = await Payment.countDocuments({ 
+        hostelId, 
+        paymentProof: { $exists: true, $ne: null },
+        isVerified: false 
+    });
+
+    const openComplaints = await Complaint.countDocuments({
+        hostelId,
+        status: { $in: ['OPEN', 'IN_PROGRESS'] }
+    });
+
+    // 2. Revenue Chart Data (Last 6 Months)
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+    sixMonthsAgo.setDate(1); // Start of month
+
+    const revenueData = await Payment.aggregate([
+        {
+            $match: {
+                hostelId: new Types.ObjectId(hostelId),
+                status: 'COMPLETED',
+                createdAt: { $gte: sixMonthsAgo }
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    month: '$month',
+                    year: '$year'
+                },
+                revenue: { $sum: '$amount' }
+            }
+        },
+        { $sort: { '_id.year': 1, '_id.month': 1 } }
+    ]);
+
+    // Fill missing months
+    const chartData = [];
+    const current = new Date(sixMonthsAgo);
+    const now = new Date();
+
+    while (current <= now) {
+        const m = current.getMonth() + 1;
+        const y = current.getFullYear();
+        
+        const found = revenueData.find((d: any) => d._id.month === m && d._id.year === y);
+        chartData.push({
+            name: current.toLocaleString('default', { month: 'short' }),
+            revenue: found ? found.revenue : 0,
+            projected: found ? found.revenue * 1.1 : 50000 // Dummy projection logic for demo
+        });
+
+        current.setMonth(current.getMonth() + 1);
+    }
+
+    return {
+        actionCenter: {
+            pendingPayments,
+            openComplaints
+        },
+        revenueChart: chartData
+    };
+  }
 }
 
 export default new StudentService();

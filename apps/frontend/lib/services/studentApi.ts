@@ -74,6 +74,14 @@ export const studentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Student', 'Room', 'Hostel'],
     }),
+    getDashboardAnalytics: builder.query<ApiResponse<any>, string>({
+      query: (hostelId) => ({
+        url: '/students/analytics',
+        method: 'GET',
+        params: { hostelId },
+      }),
+      providesTags: ['Student', 'Payment', 'Complaint'],
+    }),
   }),
 });
 
@@ -85,4 +93,5 @@ export const {
   useUpdateStudentMutation,
   useDeleteStudentMutation,
   useGetStudentMeQuery,
+  useGetDashboardAnalyticsQuery,
 } = studentApi;

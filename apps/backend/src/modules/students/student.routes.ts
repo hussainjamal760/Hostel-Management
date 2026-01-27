@@ -33,6 +33,12 @@ router.get(
 );
 
 router.get(
+  '/analytics',
+  authorize('ADMIN', 'OWNER', 'MANAGER'),
+  studentController.getAnalytics
+);
+
+router.get(
   '/:id',
   authorize('ADMIN', 'OWNER', 'MANAGER'),
   studentController.getStudentById

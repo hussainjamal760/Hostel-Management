@@ -84,6 +84,17 @@ export class StudentController {
     const stats = await studentService.getStudentStats(hostelId);
     ApiResponse.success(res, stats, 'Stats fetched successfully');
   });
+
+  getAnalytics = asyncHandler(async (req: Request, res: Response) => {
+    let hostelId = req.query.hostelId as string;
+    if (req.user?.role === 'MANAGER') {
+       hostelId = req.user.hostelId!;
+    }
+    if (!hostelId) throw ApiError.badRequest('Hostel ID is required');
+
+    const analytics = await studentService.getDashboardAnalytics(hostelId);
+    ApiResponse.success(res, analytics, 'Analytics fetched successfully');
+  });
 }
 
 export default new StudentController();
