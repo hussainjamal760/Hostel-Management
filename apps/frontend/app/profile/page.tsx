@@ -171,7 +171,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Quick Stats or Additional Info could go here */}
-            {user?.role === 'STUDENT' && (
+            {user?.role === 'CLIENT' && (
                <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 shadow-md text-white">
                  <h3 className="text-lg font-bold mb-2">Want to list your hostel?</h3>
                  <p className="text-indigo-100 text-sm mb-4">Join our community of hostel owners and reach more students.</p>
