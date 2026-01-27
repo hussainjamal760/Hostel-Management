@@ -6,7 +6,9 @@ import { useGetStudentsQuery } from '@/lib/services/studentApi';
 import { HiOutlineSearch, HiOutlineFilter, HiOutlineUser, HiOutlineDotsVertical } from 'react-icons/hi';
 import { useRouter } from 'next/navigation';
 
+import ChangeRoomModal from './ChangeRoomModal';
 import StudentDetailsModal from '../rooms/[id]/StudentDetailsModal';
+import { HiOutlineRefresh } from 'react-icons/hi';
 
 export default function StudentsPage() {
   const { user } = useAppSelector((state) => state.auth);
@@ -17,6 +19,14 @@ export default function StudentsPage() {
   
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+
+  const [changeRoomModalOpen, setChangeRoomModalOpen] = useState(false);
+  const [selectedStudentForMove, setSelectedStudentForMove] = useState<{
+      id: string;
+      name: string;
+      currentRoom: any;
+      currentBed: string;
+  } | null>(null);
   
   const { data: studentsData, isLoading, refetch } = useGetStudentsQuery({
      hostelId: user?.hostelId,
@@ -34,6 +44,16 @@ export default function StudentsPage() {
   const handleViewDetails = (studentId: string) => {
       setSelectedStudentId(studentId);
       setDetailsModalOpen(true);
+  };
+
+  const handleChangeRoomClick = (student: any) => {
+      setSelectedStudentForMove({
+          id: student._id,
+          name: student.fullName,
+          currentRoom: student.roomId,
+          currentBed: student.bedNumber
+      });
+      setChangeRoomModalOpen(true);
   };
 
   return (
@@ -56,9 +76,13 @@ export default function StudentsPage() {
                     className="pl-10 pr-4 py-2 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-brand-primary w-full sm:w-64 transition-all"
                 />
             </div>
-            {/* <button className="p-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-700 rounded-xl text-gray-500 hover:text-brand-primary transition-colors">
-                <HiOutlineFilter size={20} />
-            </button> */}
+            <button 
+                onClick={() => refetch()}
+                className="p-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-700 rounded-xl text-gray-500 hover:text-brand-primary transition-colors"
+                title="Refresh List"
+            >
+                <HiOutlineRefresh size={20} />
+            </button>
         </div>
       </div>
       
@@ -144,13 +168,21 @@ export default function StudentsPage() {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-right">
-                                    <button 
-                                        onClick={() => handleViewDetails(student._id)}
-                                        className="p-2 text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-all"
-                                        title="View Details"
-                                    >
-                                        <HiOutlineDotsVertical size={20} />
-                                    </button>
+                                    <div className="flex items-center justify-end gap-2">
+                                        <button 
+                                            onClick={() => handleChangeRoomClick(student)}
+                                            className="px-3 py-1.5 text-xs font-bold bg-brand-primary/5 text-brand-primary hover:bg-brand-primary hover:text-white rounded-lg transition-all"
+                                        >
+                                            Change Room
+                                        </button>
+                                        <button 
+                                            onClick={() => handleViewDetails(student._id)}
+                                            className="p-2 text-gray-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-all"
+                                            title="View Details"
+                                        >
+                                            <HiOutlineDotsVertical size={20} />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -209,6 +241,18 @@ export default function StudentsPage() {
             setOpen={setDetailsModalOpen} 
             studentId={selectedStudentId}
             onSuccess={() => refetch()}
+          />
+      )}
+
+      {changeRoomModalOpen && selectedStudentForMove && (
+          <ChangeRoomModal 
+              open={changeRoomModalOpen}
+              setOpen={setChangeRoomModalOpen}
+              studentId={selectedStudentForMove.id}
+              studentName={selectedStudentForMove.name}
+              currentRoom={selectedStudentForMove.currentRoom}
+              currentBed={selectedStudentForMove.currentBed}
+              onSuccess={() => refetch()}
           />
       )}
     </div>

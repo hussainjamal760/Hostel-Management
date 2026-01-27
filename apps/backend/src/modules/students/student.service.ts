@@ -222,16 +222,47 @@ export class StudentService {
         throw ApiError.forbidden('Access denied');
     }
 
+    // Handle Room/Bed Change
     if (data.roomId && data.roomId !== student.roomId.toString()) {
+      // Logic for changing room
       const newRoom = await Room.findById(data.roomId);
       if (!newRoom) throw ApiError.notFound('New room not found');
       
+      if (!data.bedNumber) {
+          throw ApiError.badRequest('Bed number is required when changing rooms');
+      }
+
+      // Check if specific bed is occupied in new room
+      const bedTaken = await Student.findOne({
+          roomId: data.roomId,
+          bedNumber: data.bedNumber,
+          isActive: true
+      });
+
+      if (bedTaken) {
+          throw ApiError.badRequest(`Bed ${data.bedNumber} in room ${newRoom.roomNumber} is already occupied`);
+      }
+      
       if (newRoom.occupiedBeds >= newRoom.totalBeds) {
-        throw ApiError.badRequest('New room is fully occupied');
+           // Double check count, though bedTaken check should catch it mostly. 
+           // Technically if data inconsistent, this safety is good.
+           throw ApiError.badRequest('New room is fully occupied');
       }
 
       await Room.findByIdAndUpdate(student.roomId, { $inc: { occupiedBeds: -1 } });
       await Room.findByIdAndUpdate(data.roomId, { $inc: { occupiedBeds: 1 } });
+    } 
+    else if (data.bedNumber && data.bedNumber !== student.bedNumber) {
+        // Same room, different bed
+        const bedTaken = await Student.findOne({
+            roomId: student.roomId,
+            bedNumber: data.bedNumber,
+            isActive: true
+        });
+        
+        if (bedTaken) {
+            throw ApiError.badRequest(`Bed ${data.bedNumber} is already occupied`);
+        }
     }
 
     if (requesterRole === 'MANAGER') {
