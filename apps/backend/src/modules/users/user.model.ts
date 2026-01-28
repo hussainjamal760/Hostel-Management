@@ -2,9 +2,6 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IUser, Role } from '@hostelite/shared-types';
 import { ROLES } from '@hostelite/shared-constants';
 
-/**
- * User Document Interface
- */
 export interface IUserDocument extends Omit<IUser, '_id'>, Document {
   name: string;
   email: string;
@@ -15,17 +12,10 @@ export interface IUserDocument extends Omit<IUser, '_id'>, Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-/**
- * User Model Interface (for statics)
- */
 export interface IUserModel extends Model<IUserDocument> {
   findByEmail(email: string): Promise<IUserDocument | null>;
   countByRole(role: Role, hostelId?: string): Promise<number>;
 }
-
-/**
- * User Schema
- */
 const userSchema = new Schema<IUserDocument>(
   {
     name: {
@@ -123,14 +113,11 @@ const userSchema = new Schema<IUserDocument>(
   }
 );
 
-// Indexes for common queries
 userSchema.index({ role: 1, hostelId: 1 });
 userSchema.index({ createdBy: 1 });
 userSchema.index({ isActive: 1, role: 1 });
 
-/**
- * Static Methods
- */
+
 userSchema.statics.findByEmail = function (email: string) {
   return this.findOne({ email: email.toLowerCase() });
 };

@@ -14,10 +14,8 @@ export class StudentService {
       throw ApiError.notFound('Room not found in this hostel');
     }
 
-    // Verify actual occupancy to prevent sync issues
     const realOccupiedCount = await Student.countDocuments({ roomId: data.roomId, isActive: true });
     
-    // Auto-correct if out of sync
     if (room.occupiedBeds !== realOccupiedCount) {
         await Room.findByIdAndUpdate(data.roomId, { occupiedBeds: realOccupiedCount });
         room.occupiedBeds = realOccupiedCount;
@@ -37,10 +35,8 @@ export class StudentService {
       throw ApiError.badRequest(`Bed ${data.bedNumber} is already occupied`);
     }
 
-    // Generate Custom Credentials
     const firstName = data.fullName.trim().split(' ')[0].toLowerCase();
     
-    // CNIC is 13 digits (per updated validation), take last 3
     const cnicSuffix = data.cnic.slice(-3);
     const phoneSuffix = data.phone.slice(-3);
     const username = `${firstName}-${cnicSuffix}-${phoneSuffix}`;
@@ -72,14 +68,11 @@ export class StudentService {
         $inc: { occupiedBeds: 1 }
       });
 
-      // Generate Initial Invoice
       try {
           const paymentService = require('../payments/payment.service').default;
           await paymentService.generateInitialInvoice(student, hostelId);
       } catch (invError) {
           console.error("Failed to generate initial invoice:", invError);
-          // Non-blocking error? Or should we fail creation?
-          // For now, log it. User can generate manually if needed.
       }
 
       return { student, user, password };
@@ -98,7 +91,7 @@ export class StudentService {
       feeStatus?: string;
       page?: number;
       limit?: number;
-      ownerId?: string; // Add ownerId to supported query params
+      ownerId?: string; 
     }
   ) {
     const { roomId, search, feeStatus, page = 1, limit = 10, ownerId } = query;
@@ -106,11 +99,9 @@ export class StudentService {
 
     const filter: FilterQuery<IStudentDocument> = { isActive: true };
     
-    // Logic for filtering
     if (hostelId) {
         filter.hostelId = hostelId;
     } else if (ownerId) {
-        // Find all hostels for this owner
         const Hostel = require('../hostels/hostel.model').default;
         const hostels = await Hostel.find({ ownerId, isActive: true }).select('_id');
         const hostelIds = hostels.map((h: any) => h._id);
@@ -129,20 +120,14 @@ export class StudentService {
     if (feeStatus && feeStatus !== 'ALL') filter.feeStatus = feeStatus;
 
     if (search) {
-      // Find rooms matching the search term (requires hostel context specific handling if multi-hostel?)
-      // If filtering by multiple hostels (owner view), search regex for room number should work if we rely on simple match.
-      // But looking up Room ID via 'roomNumber' needs to consider multiple hostels. 
-      // Current Room search logic assumed single hostelId.
-      
       const orConditions: any[] = [
         { fullName: { $regex: search, $options: 'i' } },
         { fatherName: { $regex: search, $options: 'i' } }
       ];
 
-      // If we have specific hostel context(s)
       if (filter.hostelId) {
           const matchingRooms = await Room.find({ 
-            hostelId: filter.hostelId, // Can be ID or {$in: [ids]}
+            hostelId: filter.hostelId, 
             roomNumber: { $regex: search, $options: 'i' } 
           }).select('_id');
           
@@ -157,7 +142,7 @@ export class StudentService {
     const students = await Student.find(filter)
       .populate('userId', 'username email phone avatar')
       .populate('roomId', 'roomNumber roomType')
-      .populate('hostelId', 'name address') // Populate Hostel info for Owner view
+      .populate('hostelId', 'name address')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -194,15 +179,13 @@ export class StudentService {
   async getStudentByUserId(userId: string) {
     console.log(`[Debug] Looking for student profile for UserID: ${userId} (Type: ${typeof userId})`);
     
-    // Explicitly cast to ObjectId to ensure query matches
-    const student = await Student.findOne({ userId: new Types.ObjectId(userId) })
-      .populate('userId', 'username email phone avatar') // Populate user details like phone
+    const student = await Student.findOne({ userId:  new Types.ObjectId(userId) })
+      .populate('userId', 'username email phone avatar')
       .populate('roomId', 'roomNumber roomType')
       .exec();
       
     if (!student) {
       console.warn(`[Debug] Student profile NOT found for UserID: ${userId}`);
-      // Fallback: Check if ANY student exists to verify DB connection
       const count = await Student.countDocuments();
       console.warn(`[Debug] Total students in DB: ${count}`);
       
@@ -222,9 +205,7 @@ export class StudentService {
         throw ApiError.forbidden('Access denied');
     }
 
-    // Handle Room/Bed Change
     if (data.roomId && data.roomId !== student.roomId.toString()) {
-      // Logic for changing room
       const newRoom = await Room.findById(data.roomId);
       if (!newRoom) throw ApiError.notFound('New room not found');
       
@@ -232,7 +213,6 @@ export class StudentService {
           throw ApiError.badRequest('Bed number is required when changing rooms');
       }
 
-      // Check if specific bed is occupied in new room
       const bedTaken = await Student.findOne({
           roomId: data.roomId,
           bedNumber: data.bedNumber,
@@ -244,8 +224,6 @@ export class StudentService {
       }
       
       if (newRoom.occupiedBeds >= newRoom.totalBeds) {
-           // Double check count, though bedTaken check should catch it mostly. 
-           // Technically if data inconsistent, this safety is good.
            throw ApiError.badRequest('New room is fully occupied');
       }
 
@@ -253,7 +231,6 @@ export class StudentService {
       await Room.findByIdAndUpdate(data.roomId, { $inc: { occupiedBeds: 1 } });
     } 
     else if (data.bedNumber && data.bedNumber !== student.bedNumber) {
-        // Same room, different bed
         const bedTaken = await Student.findOne({
             roomId: student.roomId,
             bedNumber: data.bedNumber,
@@ -266,7 +243,6 @@ export class StudentService {
     }
 
     if (requesterRole === 'MANAGER') {
-        // Security: Prevent Manager from updating financial fields
         delete (data as any).agreementDate;
         delete (data as any).monthlyFee;
         delete (data as any).securityDeposit;
@@ -297,30 +273,26 @@ export class StudentService {
     }
 
     if (requesterRole === 'MANAGER') {
-        // Soft Delete / Mark as Left
         student.isActive = false;
         student.status = 'LEFT';
-        const oldRoomId = student.roomId; // Keep ref to decrement later
+        const oldRoomId = student.roomId;
         student.roomId = null as any; 
         student.bedNumber = null as any;
         student.expectedLeaveDate = new Date();
         
         await student.save();
         
-        // Only decrement if save succeeded!
         await Room.findByIdAndUpdate(oldRoomId, { $inc: { occupiedBeds: -1 } });
         
         return { message: 'Student marked as Left' };
     } else {
-        // Hard Delete for Admin/Owner
         const oldRoomId = student.roomId;
         await Student.findByIdAndDelete(id);
         await userService.deleteUser(student.userId.toString()); 
         
-        // Decrement after delete
         await Room.findByIdAndUpdate(oldRoomId, { $inc: { occupiedBeds: -1 } });
         
-        return null; // 204 No Content
+        return null;
     }
   }
 

@@ -40,14 +40,12 @@ export default function ReportsPage() {
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     
-    // Header
     doc.setFontSize(20);
     doc.text(`Monthly Report: ${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`, 14, 22);
     
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
     
-    // Summary
     doc.setFontSize(12);
     doc.text('Summary', 14, 45);
     
@@ -67,7 +65,6 @@ export default function ReportsPage() {
       headStyles: { fillColor: [66, 66, 66] }
     });
     
-    // Students List
     doc.text('Student Details', 14, (doc as any).lastAutoTable.finalY + 15);
     
     const tableData = report?.students?.map((s: any) => [
@@ -93,7 +90,6 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
-        {/* ... existing header code ... */}
         <div>
            <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Monthly Reports</h1>
            <p className="text-gray-500">Generate and print financial reports</p>

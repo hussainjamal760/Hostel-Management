@@ -1,8 +1,3 @@
-/**
- * Middlewares Module Index
- * Central export for all middlewares
- */
-
 export { authenticate, optionalAuth } from './auth.middleware';
 export { authorize, requireMinRole, requireHostelAccess } from './role.middleware';
 export { validate, validateRequest } from './validate.middleware';

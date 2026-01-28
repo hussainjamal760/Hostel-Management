@@ -5,10 +5,8 @@ import { useGetMeQuery } from '@/lib/services/userApi';
 import { HiOutlineUser, HiOutlineHome, HiOutlineAcademicCap, HiOutlineCash, HiOutlinePhone, HiOutlineShieldExclamation, HiOutlineInformationCircle } from 'react-icons/hi';
 
 export default function StudentProfilePage() {
-  // Try to fetch full student profile
   const { data: studentResponse, isLoading: isLoadingStudent, error: studentError, isError: isStudentError } = useGetStudentMeQuery();
   
-  // Also fetch basic user data as fallback
   const { data: userResponse, isLoading: isLoadingUser } = useGetMeQuery();
   
   const student = studentResponse?.data;
@@ -47,7 +45,6 @@ export default function StudentProfilePage() {
     </div>
   );
 
-  // Fallback View: User exists but no Student Profile (e.g. CLIENT role)
   if (!student && user) {
       return (
         <div className="space-y-6 pb-12">
@@ -80,10 +77,8 @@ export default function StudentProfilePage() {
       );
   }
 
-  // Handle completely empty state
   if (!student) return null;
 
-  // ... Full Resident View (Existing Code) ...
   return (
     <div className="space-y-6 pb-12">
         <div className="flex items-center justify-between">
@@ -96,7 +91,6 @@ export default function StudentProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Personal Information */}
             <Section title="Personal Information" icon={HiOutlineUser}>
                 <DetailItem label="Full Name" value={student.fullName} />
                 <DetailItem label="Date of Birth" value={new Date(student.dateOfBirth).toLocaleDateString()} />
@@ -105,14 +99,12 @@ export default function StudentProfilePage() {
                 <DetailItem label="CNIC" value={student.cnic} />
             </Section>
 
-            {/* Contact Details */}
             <Section title="Contact Details" icon={HiOutlinePhone}>
                 <DetailItem label="Email" value={(student.userId as any)?.email || user?.email} />
                 <DetailItem label="Phone" value={(student.userId as any)?.phone || user?.phone} />
                 <DetailItem label="Permanent Address" value={student.permanentAddress} />
             </Section>
 
-            {/* Accommodation */}
             <Section title="Accommodation" icon={HiOutlineHome}>
                 <div className="grid grid-cols-2 gap-4">
                     <DetailItem label="Room Number" value={(student.roomId as any)?.roomNumber || 'N/A'} />
@@ -123,21 +115,18 @@ export default function StudentProfilePage() {
                 <DetailItem label="Agreement Date" value={new Date(student.agreementDate).toLocaleDateString()} />
             </Section>
 
-            {/* Guardian Information */}
             <Section title="Guardian Info" icon={HiOutlineShieldExclamation}>
                 <DetailItem label="Father's Name" value={student.fatherName} />
                 <DetailItem label="Father's Phone" value={student.fatherPhone} />
                 <DetailItem label="Father's CNIC" value={student.fatherCnic} />
             </Section>
 
-            {/* Emergency Contact */}
             <Section title="Emergency Contact" icon={HiOutlineShieldExclamation}>
                 <DetailItem label="Name" value={student.emergencyContact?.name} />
                 <DetailItem label="Relation" value={student.emergencyContact?.relation} />
                 <DetailItem label="Phone" value={student.emergencyContact?.phone} />
             </Section>
 
-            {/* Academic & Financial */}
             <Section title="Academic & Financial" icon={HiOutlineAcademicCap}>
                 <DetailItem label="Institution" value={student.institution} />
                 <DetailItem label="Course/Degree" value={student.course} />

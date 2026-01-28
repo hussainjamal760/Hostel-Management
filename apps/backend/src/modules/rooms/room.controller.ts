@@ -22,17 +22,11 @@ export class RoomController {
   bulkCreateRooms = asyncHandler(async (req: Request, res: Response) => {
     let hostelId = req.query.hostelId as string;
     
-    // For Managers, force their assigned hostelId
     if (req.user?.role === 'MANAGER') {
-      // Logic to get manager's hostelId if not in req.user
-      // Assuming it's in req.user or we find it
-      // But verify line 10 logic used req.user.hostelId
       hostelId = req.user.hostelId!; 
     }
 
     if (!hostelId) {
-      // Fallback if not provided in query and not a manager (e.g. Owner adding to specific hostel)
-      // Check body? Or require query param
       if (req.body.hostelId) hostelId = req.body.hostelId;
     }
 

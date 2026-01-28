@@ -4,16 +4,12 @@ import { Student } from '../students/student.model';
 import { ApiError } from '../../utils';
 
 class HostelPaymentService {
-    // Generate Invoice for a Hostel
     async generateMonthlyInvoice(hostelId: string, month: number, year: number) {
         const hostel = await Hostel.findById(hostelId);
         if (!hostel) throw ApiError.notFound('Hostel not found');
 
-        // Check if already exists
         const existing = await HostelPayment.findOne({ hostelId, month, year });
         if (existing) {
-             // If pending, specific implementation logic: Update it? Or throw?
-             // Lets update it with latest stats just in case
              if (existing.status === 'PENDING') {
                 const activeStudentCount = await Student.countDocuments({ hostelId, isActive: true });
                 const rate = hostel.subscriptionRate || 0;
@@ -24,7 +20,7 @@ class HostelPaymentService {
                 await existing.save();
                 return existing;
              }
-             return existing; // Already paid
+             return existing;
         }
 
         const activeStudentCount = await Student.countDocuments({ hostelId, isActive: true });
@@ -43,7 +39,6 @@ class HostelPaymentService {
         return invoice;
     }
 
-    // Mark as Paid
     async markAsPaid(paymentId: string) {
         const payment = await HostelPayment.findById(paymentId);
         if (!payment) throw ApiError.notFound('Invoice not found');
@@ -56,14 +51,12 @@ class HostelPaymentService {
         return payment;
     }
 
-    // Get Pending Payments for a Hostel
     async getPendingPayments(hostelId?: string) {
         const filter: any = { status: 'PENDING' };
         if (hostelId) filter.hostelId = hostelId;
         return HostelPayment.find(filter).populate('hostelId', 'name').sort({ createdAt: -1 });
     }
     
-    // Get Admin Dashboard Stats (New Logic)
     async getAdminRevenueStats() {
         const paid = await HostelPayment.aggregate([
             { $match: { status: 'COMPLETED' } },
@@ -78,7 +71,6 @@ class HostelPaymentService {
         const totalRevenue = paid[0]?.total || 0;
         const totalPending = pending[0]?.total || 0;
 
-        // Monthly Breakdown (Last 6 months)
         const monthly = await HostelPayment.aggregate([
             { 
                 $match: { 

@@ -39,18 +39,14 @@ export default function LoginPage() {
 
       localStorage.setItem('refreshToken', result.tokens.refreshToken);
       
-      // 1. Check for First Login -> Force Password Change
-      // Only for STUDENTS (Manager creates them with temp password)
       const role = result.user.role ? result.user.role.toUpperCase() : '';
 
       if (result.user.isFirstLogin && role === 'STUDENT') {
         toast('Please change your password first');
-        // Force navigation to ensure clean state
         window.location.href = '/change-password';
         return;
       }
 
-      // 2. Role-based Redirection
       switch (role) {
         case 'MANAGER':
           toast.success(`Welcome back, ${result.user.name}!`);

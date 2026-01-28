@@ -78,7 +78,6 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Name */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Name</label>
             <input
@@ -89,7 +88,6 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
             {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
           </div>
 
-          {/* Phone Number */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Phone Number</label>
             <input
@@ -100,7 +98,6 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
             {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber.message}</p>}
           </div>
 
-          {/* CNIC */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">CNIC / ID Card No</label>
             <input
@@ -111,7 +108,6 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
             {errors.cnic && <p className="text-red-500 text-sm mt-1">{errors.cnic.message}</p>}
           </div>
 
-          {/* Salary */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Monthly Salary</label>
             <input
@@ -122,7 +118,6 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
             {errors.salary && <p className="text-red-500 text-sm mt-1">{errors.salary.message}</p>}
           </div>
 
-          {/* Hostel Selection */}
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Assign to Hostel</label>
             <select
@@ -140,7 +135,6 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
             {errors.hostelId && <p className="text-red-500 text-sm mt-1">Hostel selection is required</p>}
           </div>
 
-          {/* Credentials Preview */}
           <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
             <div className="md:col-span-2">
               <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">Login Credentials</h3>
@@ -154,7 +148,6 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
                   {isEditMode ? (
                     initialValues?.userId?.username || 'N/A'
                   ) : (
-                    // Live Calculation for New Mode
                     (() => {
                       const name = watchedName || '';
                       const cnic = watchedCnic || '';
@@ -189,7 +182,6 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
           </div>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading}

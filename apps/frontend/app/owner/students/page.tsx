@@ -15,14 +15,7 @@ export default function AllStudentsPage() {
     feeStatus: feeStatus !== 'ALL' ? feeStatus : undefined,
     page,
     limit: 10,
-    // Note: The hook might fallback to fetching for current hostel if not adjusted, 
-    // but the backend controller now handles Owner role correctly by not requiring hostelId
-    // and using ownerId derived from token. 
-    // However, if the frontend hook enforces hostelId, we might need a separate hook or updated logic.
-    // Looking at studentApi.ts usually it takes { hostelId, ...params }.
-    // If I pass undefined hostelId, the API call /students?hostelId=undefined might fail if frontend service sends it.
-    // But let's assume the service handles query construction cleanly.
-  } as any); 
+ } as any); 
 
   const students = studentsResponse?.data || [];
   const pagination = studentsResponse?.pagination;
@@ -128,7 +121,6 @@ export default function AllStudentsPage() {
           </div>
         )}
         
-        {/* Pagination Logic */}
         {pagination && pagination.totalPages > 1 && (
              <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
                 <button 

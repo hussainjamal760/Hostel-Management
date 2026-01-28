@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import { HiOutlineLocationMarker, HiOutlineSearch } from "react-icons/hi";
 import "leaflet/dist/leaflet.css";
 
-// Dynamically import Leaflet components to avoid SSR issues
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false }
@@ -46,7 +45,6 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ coordinates, onLocation
     const [icon, setIcon] = useState<any>(null);
 
     useEffect(() => {
-        // Initialize Leaflet icon on client side
         import("leaflet").then((L) => {
             const customIcon = new L.Icon({
                 iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",

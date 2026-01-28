@@ -26,15 +26,11 @@ export default function StudentDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
       <div className="bg-gradient-to-r from-brand-primary to-brand-primary/80 rounded-2xl p-8 text-white shadow-lg">
         <h1 className="text-3xl font-bold mb-2">Welcome back, {student.fullName.split(' ')[0]}!</h1>
         <p className="opacity-90">Here's your hostel overview.</p>
       </div>
-
-      {/* Info Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Room Card */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start mb-4">
             <div>
@@ -53,7 +49,6 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        {/* Fee Status Card */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start mb-4">
             <div>
@@ -77,7 +72,6 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        {/* Agreement Card */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start mb-4">
             <div>
@@ -97,7 +91,6 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      {/* Personal Details Preview */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Personal Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

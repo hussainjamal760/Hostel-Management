@@ -95,7 +95,6 @@ export default function ChangePasswordPage() {
         <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow rounded-lg sm:px-10 border border-gray-100 dark:border-gray-700">
           <form className="space-y-6" onSubmit={handleSubmit}>
             
-            {/* Current Password - Required even for first login as security measure (they use the one they just logged in with) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Current Password

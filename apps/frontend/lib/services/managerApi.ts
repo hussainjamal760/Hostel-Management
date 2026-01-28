@@ -2,8 +2,6 @@ import { baseApi } from './api';
 import { CreateManagerInput, UpdateManagerInput } from '@hostelite/shared-validators';
 import { ApiResponse } from './authApi';
 
-// IManager definition (should ideally be imported from shared-types, but defining here for now if not available)
-// Note: IManager interface in frontend might differ slightly (dates as strings)
 export interface IManager {
   _id: string;
   name: string;

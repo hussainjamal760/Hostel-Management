@@ -61,7 +61,6 @@ class MailService {
       logger.info(`Email sent to ${options.to} with subject: ${options.subject}`);
     } catch (error) {
       logger.error('Error sending email:', error);
-      // We don't throw here to prevent breaking the flow if email fails
     }
   }
 }

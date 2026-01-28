@@ -67,7 +67,6 @@ export default function SignupPage() {
       
       toast.success(result.message || 'Signup successful! Please verify your email.');
       
-      // Store email for verification
       localStorage.setItem('pendingVerificationEmail', email);
       
       router.push('/verify-email');

@@ -42,8 +42,8 @@ export default function DashboardCharts({ stats, totalBeds }: DashboardChartsPro
       {
         data: [stats.totalStudents, availableBeds],
         backgroundColor: [
-          'rgba(59, 130, 246, 0.8)', // Brand Primary (Blue-ish)
-          'rgba(229, 231, 235, 0.5)', // Gray (Empty)
+          'rgba(59, 130, 246, 0.8)', 
+          'rgba(229, 231, 235, 0.5)', 
         ],
         borderColor: [
           'rgba(59, 130, 246, 1)',
@@ -60,8 +60,8 @@ export default function DashboardCharts({ stats, totalBeds }: DashboardChartsPro
       {
         data: [stats.paidStudents, stats.dueStudents],
         backgroundColor: [
-          'rgba(34, 197, 94, 0.8)', // Green
-          'rgba(249, 115, 22, 0.8)', // Orange
+          'rgba(34, 197, 94, 0.8)', 
+          'rgba(249, 115, 22, 0.8)', 
         ],
         borderColor: [
           'rgba(34, 197, 94, 1)',
@@ -94,12 +94,11 @@ export default function DashboardCharts({ stats, totalBeds }: DashboardChartsPro
         position: 'bottom' as const,
       },
     },
-    cutout: '70%', // For Doughnut feel
+    cutout: '70%', 
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {/* Occupancy Chart */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col items-center">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 w-full text-left">Occupancy Rate</h3>
         <div className="w-48 h-48 relative">
@@ -113,7 +112,6 @@ export default function DashboardCharts({ stats, totalBeds }: DashboardChartsPro
         </div>
       </div>
 
-      {/* Fee Status Chart */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col items-center">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 w-full text-left">Fee Status</h3>
         <div className="w-48 h-48">
@@ -121,7 +119,6 @@ export default function DashboardCharts({ stats, totalBeds }: DashboardChartsPro
         </div>
       </div>
 
-      {/* Revenue Chart (Bar) */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Revenue Overview</h3>
         <div className="flex-1 flex items-end justify-center w-full">

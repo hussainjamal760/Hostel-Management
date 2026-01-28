@@ -14,7 +14,7 @@ interface ChangeRoomModalProps {
   setOpen: (open: boolean) => void;
   studentId: string;
   studentName: string;
-  currentRoom?: IRoom; // Object or partial
+  currentRoom?: IRoom; 
   currentBed?: string;
   onSuccess: () => void;
 }
@@ -34,15 +34,13 @@ export default function ChangeRoomModal({
 
   const [updateStudent, { isLoading: isUpdating }] = useUpdateStudentMutation();
 
-  // Fetch API data
   const { data: roomsResponse } = useGetRoomsQuery(
     { hostelId: user?.hostelId, limit: 1000 },
     { skip: !open || !user?.hostelId }
   );
   
-  // Get occupied beds for the selected room
   const { data: studentsInRoomResponse } = useGetStudentsQuery(
-      { roomId: selectedRoomId, limit: 100, feeStatus: 'ALL' }, // 'feeStatus: ALL' ensures we get everyone regardless of status
+      { roomId: selectedRoomId, limit: 100, feeStatus: 'ALL' }, 
       { skip: !selectedRoomId }
   );
 
@@ -51,7 +49,6 @@ export default function ChangeRoomModal({
   
   const selectedRoom = rooms.find(r => r._id === selectedRoomId);
 
-  // Determine taken beds
   const takenBeds = useMemo(() => {
       const set = new Set<string>();
       studentsInRoom.forEach(s => {
@@ -60,11 +57,10 @@ export default function ChangeRoomModal({
       return set;
   }, [studentsInRoom]);
 
-  // Generate bed list for grid
   const bedGrid = useMemo(() => {
       if (!selectedRoom) return [];
       return Array.from({ length: selectedRoom.totalBeds }).map((_, i) => {
-          const bedNum = (i + 1).toString(); // Assuming beds 1..N
+          const bedNum = (i + 1).toString(); 
           return {
               bedNumber: bedNum,
               isTaken: takenBeds.has(bedNum),
@@ -105,7 +101,6 @@ export default function ChangeRoomModal({
       <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
         <div className="w-full max-w-2xl bg-white dark:bg-[#1a0f0a] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
           
-          {/* Header */}
           <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-[#1a0f0a]">
             <div>
               <h2 className="text-xl font-bold text-brand-text dark:text-dark-text">Change Room</h2>
@@ -118,7 +113,6 @@ export default function ChangeRoomModal({
 
           <div className="p-6 overflow-y-auto space-y-6">
             
-            {/* Current Status */}
             <div className="flex items-center gap-4 bg-brand-primary/5 p-4 rounded-xl border border-brand-primary/10">
                 <div className="flex-1">
                     <p className="text-xs font-bold uppercase text-brand-text/50">Current Location</p>
@@ -135,7 +129,6 @@ export default function ChangeRoomModal({
                 </div>
             </div>
 
-            {/* Room Selection */}
             <div className="space-y-2">
                 <label className="text-sm font-bold text-brand-text dark:text-dark-text">Select New Room</label>
                 <select 
@@ -151,12 +144,9 @@ export default function ChangeRoomModal({
                         .sort((a,b) => a.roomNumber.localeCompare(b.roomNumber))
                         .map((room) => {
                             const freeCount = room.totalBeds - room.occupiedBeds;
-                            // Disable current room and full rooms (though logic allows swapping if we implement it, but for now simple move)
                             const isCurrent = room._id === currentRoom?._id;
                             const isFull = freeCount <= 0;
                             
-                            // Allow selecting even if full? No, prevent it.
-                            // Unless we were swapping.. but let's stick to moving to free bed.
                             return (
                                 <option 
                                     key={room._id} 
@@ -171,7 +161,6 @@ export default function ChangeRoomModal({
                 </select>
             </div>
 
-            {/* Bed Selection Grid */}
             {selectedRoomId && (
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -211,7 +200,6 @@ export default function ChangeRoomModal({
             )}
           </div>
 
-          {/* Footer */}
           <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3 bg-gray-50 dark:bg-[#1a0f0a]/50">
             <button 
                 onClick={() => setOpen(false)}

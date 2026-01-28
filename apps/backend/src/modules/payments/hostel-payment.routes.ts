@@ -4,7 +4,6 @@ import { authenticate, authorize } from '../../middlewares';
 
 const router = Router();
 
-// Apply Auth globally to these routes
 router.use(authenticate);
 router.use(authorize('ADMIN'));
 

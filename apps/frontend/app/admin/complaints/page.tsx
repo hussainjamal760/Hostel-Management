@@ -9,14 +9,7 @@ export default function AdminComplaintsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  
-  // Backend support for search/filter in complaints?
-  // Controller: const query: any = { ...req.query }; -> getAllComplaints(..., query)
-  // Service: if (query.status) filter.status = query.status; 
-  // Need to check if search is implemented in Service. 
-  // Assuming basic status filter works. Search might not be implemented in backend service yet, but let's try or filter client side if needed.
-  // Actually usually search is good to have.
-  
+
   const { data: complaintsResponse, isLoading, refetch } = useGetComplaintsQuery({ 
       status: statusFilter || undefined,
       page,

@@ -2,14 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { IPayment } from '@hostelite/shared-types';
 import { PAYMENT_TYPES, PAYMENT_METHODS, PAYMENT_STATUS } from '@hostelite/shared-constants';
 
-/**
- * Payment Document Interface
- */
 export interface IPaymentDocument extends Omit<IPayment, '_id'>, Document {}
-
-/**
- * Payment Schema
- */
 const paymentSchema = new Schema<IPaymentDocument>(
   {
     studentId: {

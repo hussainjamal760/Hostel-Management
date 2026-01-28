@@ -10,14 +10,8 @@ class PaymentCronService {
   }
 
   private initCronJobs() {
-    // CRON DISABLED: Manual trigger only as per user request.
-    // cron.schedule('0 0 1 * *', async () => { ... });
   }
 
-  /**
-   * Generates Invoice (UNPAID Payment) for all active students for the new month.
-   * Throws if invoices already exist for the target month (Manual Lock).
-   */
   async generateMonthlyDues(targetMonth?: number, targetYear?: number) {
     try {
       const today = new Date();

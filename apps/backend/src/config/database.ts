@@ -2,10 +2,7 @@ import mongoose from 'mongoose';
 import env from './env';
 import { logger } from './logger';
 
-/**
- * Database Connection
- * Connects to MongoDB Atlas with retry logic
- */
+
 export const connectDB = async (): Promise<void> => {
   try {
     const options = {
@@ -34,9 +31,7 @@ export const connectDB = async (): Promise<void> => {
   }
 };
 
-/**
- * Graceful shutdown
- */
+
 export const disconnectDB = async (): Promise<void> => {
   try {
     await mongoose.connection.close();

@@ -9,7 +9,6 @@ export default function Home() {
       <Header />
       <Hero />
       
-      {/* Features Section */}
       <section id="features" className="py-24 sm:py-32 bg-brand-card/30 dark:bg-dark-card/30">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
@@ -58,7 +57,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-brand-bg dark:bg-dark-bg border-t border-brand-card dark:border-dark-card">
         <div className="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
           <div className="flex justify-center space-x-6 md:order-2">

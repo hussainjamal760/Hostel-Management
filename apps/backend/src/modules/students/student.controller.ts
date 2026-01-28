@@ -26,9 +26,7 @@ export class StudentController {
     if (req.user?.role === 'MANAGER') {
       hostelId = req.user.hostelId!;
     } else if (req.user?.role === 'OWNER') {
-        // For Owner, pass ownerId to service to fetch all students across hostels
         query.ownerId = req.user.id;
-        // Don't enforce hostelId check here
     }
     
     if (!hostelId && req.user?.role !== 'OWNER' && req.user?.role !== 'ADMIN') {
@@ -50,7 +48,6 @@ export class StudentController {
   });
 
   getMe = asyncHandler(async (req: Request, res: Response) => {
-    // Token payload uses 'id', not '_id'
     const result = await studentService.getStudentByUserId(req.user!.id);
     ApiResponse.success(res, result, 'Profile fetched successfully');
   });

@@ -24,7 +24,6 @@ export default function ActionCenterWidget({ pendingPayments, openComplaints, av
       </div>
 
       <div className="p-4 space-y-3 flex-1">
-        {/* Pending Payments */}
         <Link 
             href="/manager/payments?tab=REQUESTS"
             className="flex items-center justify-between p-4 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 group hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors"
@@ -46,7 +45,6 @@ export default function ActionCenterWidget({ pendingPayments, openComplaints, av
             </div>
         </Link>
 
-        {/* Open Complaints */}
         <Link 
             href="/manager/complaints?status=OPEN"
             className="flex items-center justify-between p-4 rounded-lg bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 group hover:bg-orange-100 dark:hover:bg-orange-900/20 transition-colors"
@@ -68,7 +66,6 @@ export default function ActionCenterWidget({ pendingPayments, openComplaints, av
             </div>
         </Link>
 
-        {/* Available Beds (Info Only) */}
         <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
              <div className="flex items-center gap-4">
                 <div className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-300">

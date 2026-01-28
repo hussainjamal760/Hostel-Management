@@ -2,10 +2,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import env from './env';
 import { logger } from './logger';
 
-/**
- * Cloudinary Configuration
- * For image and file uploads
- */
+
 export const configureCloudinary = (): void => {
   if (!env.CLOUDINARY_CLOUD_NAME || !env.CLOUDINARY_API_KEY) {
     logger.warn('⚠️ Cloudinary not configured. File uploads will be disabled.');

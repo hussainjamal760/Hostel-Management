@@ -15,7 +15,6 @@ export default function ManagersPage() {
   const managers = managersResponse?.data || [];
   const hostels = hostelsResponse?.data || [];
   
-  // Helper to get hostel name
   const getHostelName = (hostelId: string) => {
     return hostels.find(h => h._id === hostelId)?.name || 'Unknown Hostel';
   };

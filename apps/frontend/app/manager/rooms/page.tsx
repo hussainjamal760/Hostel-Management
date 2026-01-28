@@ -52,7 +52,6 @@ export default function ManageRoomsPage() {
         </div>
       </div>
       
-       {/* Stats Overview */}
        {roomsData?.data && (
            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                <div className="bg-white dark:bg-dark-card p-4 rounded-xl border border-brand-primary/10 flex items-center justify-between">
@@ -91,7 +90,6 @@ export default function ManageRoomsPage() {
            </div>
        )}
 
-      {/* Filters & View Toggle */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto">
             {['ALL', 'FULL', 'PARTIAL', 'EMPTY'].map((status) => (
@@ -111,7 +109,6 @@ export default function ManageRoomsPage() {
             ))}
         </div>
 
-        {/* View Toggle */}
         <div className="flex bg-white dark:bg-dark-card p-1 rounded-lg border border-brand-primary/10">
             <button
                 onClick={() => setViewMode('GRID')}
@@ -160,7 +157,6 @@ export default function ManageRoomsPage() {
                                     </div>
                                     <div className="space-y-2 text-sm text-brand-text/70 dark:text-dark-text/70 mb-4">
                                         <p>Floor: {room.floor}</p>
-                                        {/* Occupancy Bar */}
                                         <div>
                                             <div className="flex justify-between text-xs mb-1">
                                                 <span>Capacity</span>

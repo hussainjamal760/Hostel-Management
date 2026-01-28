@@ -51,7 +51,6 @@ export class ComplaintService {
     } else if (role === 'MANAGER') {
       filter.$or = [{ recipient: 'MANAGER' }, { recipient: 'BOTH' }];
     } else if (role === 'OWNER') {
-       // Filter by Owner's hostels
        const Hostel = require('../hostels/hostel.model').default;
        const hostels = await Hostel.find({ ownerId: userId }).select('_id');
        const hostelIds = hostels.map((h: any) => h._id);
@@ -59,25 +58,24 @@ export class ComplaintService {
        if (hostelIds.length > 0) {
            filter.hostelId = { $in: hostelIds };
        } else {
-           // Owner has no hostels, so no complaints
            return {
                complaints: [],
                pagination: { page, limit, total: 0, totalPages: 0, hasNext: false, hasPrev: false }
            };
        }
-       // Note: Removed 'recipient' filter so Owner can oversee ALL complaints (Manager + Owner directed)
     } else if (role === 'ADMIN') {
-      // Hostelite Admin sees admin directed complaints (or maybe all via query params)
-      // If specific recipient filter is requested, it's handled by filter.recipient if passed?
-      // But here we set default visibility.
-      // Usually Admin sees all. Let's keep it open or just limit if needed.
-      // Current behavior was: filter.recipient = 'ADMIN';
-      // I'll make it so Admin sees ALL unless filtered.
-    }
+      }
 
     const complaints = await Complaint.find(filter)
-      .populate('studentId', 'fullName roomId bedNumber')
-      .populate('hostelId', 'name address') // Added missing populate
+      .populate({
+        path: 'studentId',
+        select: 'fullName roomId bedNumber',
+        populate: {
+          path: 'roomId',
+          select: 'roomNumber'
+        }
+      })
+      .populate('hostelId', 'name address')
       .populate('assignedTo', 'username role')
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -102,7 +100,14 @@ export class ComplaintService {
 
   async getComplaintById(id: string) {
     const complaint = await Complaint.findById(id)
-      .populate('studentId', 'fullName roomId bedNumber')
+      .populate({
+        path: 'studentId',
+        select: 'fullName roomId bedNumber',
+        populate: {
+          path: 'roomId',
+          select: 'roomNumber'
+        }
+      })
       .populate('assignedTo', 'username role')
       .exec();
       

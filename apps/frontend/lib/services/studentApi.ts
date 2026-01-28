@@ -4,7 +4,6 @@ import { IStudent } from '@hostelite/shared-types';
 import { ApiResponse } from './authApi';
 import { CreateStudentInput, UpdateStudentInput } from '@hostelite/shared-validators';
 
-// Define PaginatedApiResponse locally or import
 interface PaginatedApiResponse<T> {
   success: boolean;
   message: string;

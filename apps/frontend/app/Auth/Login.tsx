@@ -32,7 +32,6 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
 
     try {
       const response = await login({ identifier: email, password }).unwrap();
-      // API wraps response in 'data' property
       const result = response.data || response;
       
       dispatch(setCredentials({
@@ -40,22 +39,17 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
         user: result.user as any,
       }));
 
-      // Store refresh token
       localStorage.setItem('refreshToken', result.tokens.refreshToken);
       
       toast.success(`Welcome back, ${result.user.name}!`);
       
-      // Log for debugging
       console.log('Login Result:', result);
       console.log('Is First Login:', result.user.isFirstLogin);
       console.log('User Role:', result.user.role);
 
-      // 1. Check for First Login -> Force Password Change
-      // Only for STUDENTS (Manager creates them with temp password)
       const role = result.user.role ? result.user.role.toUpperCase() : '';
       
       if (result.user.isFirstLogin && role === 'STUDENT') {
-          // Hard navigation to ensure it happens
           window.location.href = '/change-password';
           return;
       }
@@ -77,13 +71,13 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
               toast.success(`Welcome back, ${result.user.name}!`);
               router.push('/profile');
               break;
-          case 'ADMIN': // Future proofing
+          case 'ADMIN':
               router.push('/admin/dashboard');
               break;
           default:
               console.warn('Unknown role, redirecting to profile:', role);
               toast('Redirecting to Profile (Unknown Role)');
-              router.push('/profile'); // Fallback
+              router.push('/profile');
       }
     } catch (error: any) {
       const message = error?.data?.message || error?.message || "Login failed";

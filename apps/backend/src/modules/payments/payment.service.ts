@@ -21,21 +21,17 @@ export class PaymentService {
     const random = Math.floor(1000 + Math.random() * 9000);
     const receiptNumber = `PAY-${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}-${random}`;
 
-    // If manual creation by manager, default to PAID/COMPLETED
-    // If student, they shouldn't trigger this directly anymore ideally, but if so, PENDING
     const status = (requesterRole === 'STUDENT') ? PAYMENT_STATUS.PENDING : PAYMENT_STATUS.COMPLETED;
     const isVerified = status === PAYMENT_STATUS.COMPLETED;
-    
-    // Check if duplicate for month+year? Maybe not for manual extra payments.
     
     const payment = await Payment.create({
       ...data,
       hostelId: student.hostelId,
-      collectedBy: (requesterRole === 'STUDENT') ? null : collectedBy, // Students don't "collect"
+      collectedBy: (requesterRole === 'STUDENT') ? null : collectedBy, 
       receiptNumber,
       status,
       isVerified,
-      paymentProof: (data as any).paymentProof, // Ensure this is saved if passed
+      paymentProof: (data as any).paymentProof, 
       paidAt: status === PAYMENT_STATUS.COMPLETED ? new Date() : undefined
     });
 
@@ -60,7 +56,7 @@ export class PaymentService {
     
     if (studentId) filter.studentId = studentId;
     if (status) filter.status = status;
-    if (month) filter.month = Number(month); // Ensure number
+    if (month) filter.month = Number(month); 
     if (year) filter.year = Number(year);
 
     const payments = await Payment.find(filter)
@@ -125,7 +121,6 @@ export class PaymentService {
     }
 
     payment.paymentProof = proofUrl;
-    // Update status to PENDING (Verification Pending)
     payment.status = PAYMENT_STATUS.PENDING; 
     
     await payment.save();
@@ -152,18 +147,9 @@ export class PaymentService {
     await payment.save();
 
     // Auto-update Student Status
-    try {
-        // We only switch student to PAID if they have NO other overdue payments?
-        // Or simpler: If they pay this month's rent, they are "Paid" for this month. 
-        // But what about defaults? 
-        // Logic: if all past invoices are PAID, then PAID.
-        // For MVP per request "Reflect in defaulter revenue chart", we just let front-end calculate "Active Defaulter" status.
-        // But we update `feeStatus` for visual nicety.
-        
+    try {      
         await Student.findByIdAndUpdate(payment.studentId, {
-            feeStatus: 'PAID', // This assumes paying ANY invoice makes them paid? Probably weak logic.
-            // Better: Don't rely on 'feeStatus' string on student model anymore. Rely on Invoice status.
-            // But for compatibility with existing UI that reads student.feeStat
+            feeStatus: 'PAID', 
             lastPaymentDate: new Date()
         });
     } catch (error) {

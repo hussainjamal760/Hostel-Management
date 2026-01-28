@@ -9,7 +9,6 @@ import { useCreateHostelMutation } from '@/lib/services/hostelApi';
 import MapPicker from '../ui/MapPicker';
 import { z } from 'zod';
 
-// We need to extend the schema to match the form inputs if they differ slightly, code is auto-generated
 type FormValues = z.infer<typeof createHostelSchema>;
 
 const CITIES = ['Lahore', 'Islamabad', 'Karachi', 'Faisalabad'];
@@ -58,7 +57,6 @@ export default function CreateHostelForm() {
     setLocation({ lat, lng });
     setValue('address.coordinates', { lat, lng });
 
-    // Reverse geocoding to auto-fill street ONLY (no city)
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
         const data = await response.json();
@@ -76,7 +74,7 @@ export default function CreateHostelForm() {
     const value = e.target.value;
     if (value === 'Other') {
       setIsOtherCity(true);
-      setValue('address.city', ''); // Clear so user can type
+      setValue('address.city', ''); 
     } else {
       setIsOtherCity(false);
       setValue('address.city', value);
@@ -88,7 +86,6 @@ export default function CreateHostelForm() {
       <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Create Your Hostel</h2>
       <form onSubmit={handleSubmit(onSubmit, (errors) => console.error("Form Errors:", errors))} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Hostel Name */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Hostel Name</label>
             <input
@@ -99,7 +96,6 @@ export default function CreateHostelForm() {
             {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
           </div>
 
-          {/* Phone Number */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Business Phone Number</label>
             <input
@@ -111,7 +107,6 @@ export default function CreateHostelForm() {
           </div>
         </div>
 
-        {/* Map Selection - Moved Up */}
         <div>
            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Select Location</label>
            <p className="text-sm text-gray-500 mb-2">Click or drag the map to pinpoint the hostel location. Street address will be auto-filled.</p>
@@ -121,7 +116,6 @@ export default function CreateHostelForm() {
            />
         </div>
 
-        {/* Address Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Street Address / Full Address</label>
@@ -167,7 +161,6 @@ export default function CreateHostelForm() {
           </div>
         </div>
         
-        {/* Financials (Required by Schema) */}
         <div className="grid grid-cols-1 gap-6">
            <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Monthly Rent</label>
@@ -180,7 +173,6 @@ export default function CreateHostelForm() {
           </div>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading}

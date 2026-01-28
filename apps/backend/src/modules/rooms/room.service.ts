@@ -176,7 +176,6 @@ export class RoomService {
       throw ApiError.notFound('Room not found');
     }
     
-    // Cascading Soft Delete: Delete all students in this room
     const students = await Student.find({ roomId: id, isActive: true });
     
     for (const student of students) {
@@ -184,9 +183,8 @@ export class RoomService {
     }
 
     room.isActive = false;
-    room.occupiedBeds = 0; // Reset occupancy as students are gone
+    room.occupiedBeds = 0; 
     
-    // Rename room to allow reuse of room number
     room.roomNumber = `${room.roomNumber}-deleted-${Date.now()}`;
     
     await room.save();

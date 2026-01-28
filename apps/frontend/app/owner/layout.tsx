@@ -18,23 +18,22 @@ import {
   HiOutlineChartBar,
   HiOutlineUserAdd,
   HiOutlineUserGroup,
-  HiReceiptTax // Added
+  HiReceiptTax
 } from 'react-icons/hi';
 
 interface OwnerLayoutProps {
   children: React.ReactNode;
 }
 
-// Owner specific menu items
 const menuItems = [
   { name: 'Dashboard', href: '/owner/dashboard', icon: HiOutlineHome },
   { name: 'My Hostel', href: '/owner/hostel', icon: HiOutlineOfficeBuilding },
   { name: 'Manage Managers', href: '/owner/managers', icon: HiOutlineUsers },
   { name: 'All Students', href: '/owner/students', icon: HiOutlineUsers },
   { name: 'Complaints', href: '/owner/complaints', icon: HiOutlineClipboardList },
-  { name: 'Expenses', href: '/owner/expenses', icon: HiReceiptTax }, // Added
+  { name: 'Expenses', href: '/owner/expenses', icon: HiReceiptTax },
   { name: 'Reports', href: '/owner/reports', icon: HiOutlineChartBar },
-  { name: 'Settings', href: '/owner/settings', icon: HiOutlineOfficeBuilding } // Reusing icon or new one
+  { name: 'Settings', href: '/owner/settings', icon: HiOutlineOfficeBuilding }
 ];
 
 export default function OwnerLayout({ children }: OwnerLayoutProps) {
@@ -61,7 +60,6 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
 
   return (
     <div className="flex h-screen bg-brand-bg dark:bg-dark-bg overflow-hidden">
-      {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
@@ -69,14 +67,12 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#2c1b13] dark:bg-[#1a0f0a] transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="flex items-center justify-between p-6 border-b border-[#fcf2e9]/10">
             <Link href="/owner/dashboard" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#fcf2e9] flex items-center justify-center">
@@ -95,7 +91,6 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
             </button>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4 space-y-1">
             {menuItems.map((item) => {
               const isActive = pathname === item.href;
@@ -119,7 +114,6 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
             })}
           </nav>
 
-          {/* User section */}
           <div className="p-4 border-t border-[#fcf2e9]/10">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-[#fcf2e9]/5">
               <div className="w-10 h-10 rounded-full bg-[#fcf2e9] flex items-center justify-center text-[#2c1b13] font-bold text-sm">
@@ -141,9 +135,7 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top bar */}
         <header className="sticky top-0 z-30 bg-brand-bg/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-brand-card/30 dark:border-dark-card/30">
           <div className="flex items-center justify-between px-6 py-4">
             <button
@@ -177,7 +169,6 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
           </div>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-brand-bg dark:bg-dark-bg p-6">
           {children}
         </main>

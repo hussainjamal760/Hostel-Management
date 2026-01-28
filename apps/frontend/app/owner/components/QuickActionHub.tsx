@@ -27,18 +27,18 @@ export default function QuickActionHub() {
             onClick: () => router.push('/owner/reports') 
         },
         { 
-            label: 'Announcements', 
+            label: 'Settings', 
             icon: HiOutlineSpeakerphone, 
             color: 'text-orange-600', 
             bg: 'bg-orange-50 hover:bg-orange-100',
-            onClick: () => router.push('/owner/settings') // Assuming announcements in settings for now
+            onClick: () => router.push('/owner/settings') 
         },
          { 
             label: 'Add Hostel', 
             icon: HiOutlineOfficeBuilding, 
             color: 'text-green-600', 
             bg: 'bg-green-50 hover:bg-green-100',
-            onClick: () => router.push('/owner/hostel') // Redirect to hostel management
+            onClick: () => router.push('/owner/hostel') 
         },
     ];
 

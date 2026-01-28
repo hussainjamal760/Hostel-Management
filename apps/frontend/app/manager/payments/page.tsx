@@ -11,7 +11,6 @@ export default function ManagerPaymentsPage() {
   const { data: managerData } = useGetManagerMeQuery();
   const hostelId = managerData?.data?.hostelId;
 
-  // Tabs state
   const [activeTab, setActiveTab] = useState<'REQUESTS' | 'DEFAULTERS'>('REQUESTS');
 
   const { data: paymentsData, isLoading, refetch } = useGetAllPaymentsQuery(
@@ -26,16 +25,10 @@ export default function ManagerPaymentsPage() {
 
   const payments = paymentsData?.data || [];
 
-  // Filter based on Tab
   const tabFilteredPayments = payments.filter((payment: any) => {
       if (activeTab === 'REQUESTS') {
-          // Show PENDING (Under Review) and COMPLETED (History)
-          // Hide plain UNPAID unless they uploaded a proof (which makes them PENDING usually, but just in case)
-          // Actually, if paymentProof exists, it should be here.
           return payment.status === 'PENDING' || payment.status === 'COMPLETED' || payment.paymentProof;
       } else {
-          // DEFAULTERS / UNPAID
-          // Show UNPAID and OVERDUE where NO proof is uploaded yet.
           return (payment.status === 'UNPAID' || payment.status === 'OVERDUE') && !payment.paymentProof;
       }
   });
@@ -49,9 +42,7 @@ export default function ManagerPaymentsPage() {
           payment.studentId?.roomId?.roomNumber?.toLowerCase().includes(searchLower)
       );
   }).sort((a: any, b: any) => {
-      // Sort logic
       if (activeTab === 'REQUESTS') {
-          // Prioritize Pending Verification
           const aPending = !a.isVerified;
           const bPending = !b.isVerified;
           if (aPending && !bPending) return -1;
@@ -85,7 +76,6 @@ export default function ManagerPaymentsPage() {
         </div>
       </div>
 
-      {/* Tabs / Filter Bar */}
       <div className="flex flex-col sm:flex-row gap-4 border-b border-gray-200 dark:border-gray-700 pb-4">
           <button 
             onClick={() => setActiveTab('REQUESTS')}
@@ -129,7 +119,6 @@ export default function ManagerPaymentsPage() {
              <div key={payment._id} className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border p-6 transition-all ${payment.paymentProof && !payment.isVerified ? 'border-blue-500 ring-1 ring-blue-500/20' : 'border-gray-100 dark:border-gray-700'}`}>
                  <div className="flex flex-col md:flex-row gap-6">
                      
-                     {/* Data Column */}
                      <div className="flex-1 space-y-4">
                          <div className="flex justify-between items-start">
                              <div>
@@ -137,7 +126,6 @@ export default function ManagerPaymentsPage() {
                                      <span className="font-mono text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{payment.receiptNumber}</span>
                                      <span className="text-xs text-gray-400">
                                          {new Date(payment.createdAt).toLocaleDateString()}
-                                         {/* Show Month Name explicitly if useful */}
                                           - {new Date(payment.year, payment.month - 1).toLocaleString('default', { month: 'short' })} '{payment.year.toString().slice(-2)}
                                      </span>
                                  </div>
@@ -168,7 +156,6 @@ export default function ManagerPaymentsPage() {
                          </div>
                      </div>
 
-                     {/* Proof & Action Column - Only if Proof exists */}
                      {payment.paymentProof ? (
                          <div className="md:w-64 flex flex-col gap-4 border-l border-gray-100 dark:border-gray-700 pl-6">
                             <div className="flex flex-col gap-2">

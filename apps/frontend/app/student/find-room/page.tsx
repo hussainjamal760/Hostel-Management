@@ -16,14 +16,6 @@ export default function FindRoomPage() {
     { skip: !hostelId }
   );
 
-  // We actually want ALL rooms to show the full building structure, not just partial ones?
-  // The user request says: "check each room and free and taken bed".
-  // So likely want detailed view of ALL rooms, or at least available ones.
-  // The prompt says "check if ANY room is free or not", implying looking for free spots.
-  // Viewing all rooms gives a better "building structure" feel.
-  // So I will fetch all (maybe filtered by empty/partial if list is huge, but building structure implies all).
-  // Let's remove 'status' filter to get all rooms for the structure.
-  
   const { data: allRoomsResponse, isLoading: allRoomsLoading } = useGetRoomsQuery(
       { hostelId: hostelId as string, limit: 1000 },
       { skip: !hostelId }
@@ -113,8 +105,6 @@ export default function FindRoomPage() {
 function RoomCard({ room }: { room: IRoom }) {
   const freeBeds = room.totalBeds - room.occupiedBeds;
   const isFull = freeBeds === 0;
-  // Create an array for beds
-  // We don't know which specific beds are taken, so we just show Taken first then Free
   const beds = Array.from({ length: room.totalBeds }).map((_, i) => ({
     id: i,
     isTaken: i < room.occupiedBeds,

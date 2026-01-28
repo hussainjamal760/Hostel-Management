@@ -30,7 +30,6 @@ export class UserService {
     let username: string;
     
     if (data.username) {
-        // Custom username provided (e.g. for Students)
         username = data.username;
         const exists = await User.findOne({ username });
         if (exists) {
@@ -102,8 +101,6 @@ export class UserService {
         { phone: regex }
       ];
 
-      // Advanced Search: Find Hostels providing context (Name, City)
-      // We search Hostels matching the string, then find Users linked to them (Students/Managers via hostelId, Owners via ownerId)
       const Hostel = require('../hostels/hostel.model').default;
       const matchingHostels = await Hostel.find({
           $or: [
@@ -127,13 +124,12 @@ export class UserService {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .lean() // Return plain JS objects to allow property addition
+      .lean()
       .exec();
 
     const total = await User.countDocuments(filter);
     const totalPages = Math.ceil(total / limit);
 
-    // Populate details based on role
     const usersWithDetails = await Promise.all(users.map(async (user: any) => {
         if (user.role === 'STUDENT') {
             const Student = require('../students/student.model').default;

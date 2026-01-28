@@ -10,7 +10,6 @@ export default function OwnerSettingsPage() {
   const { data: hostelsData, isLoading } = useGetOwnerHostelsQuery();
   const [updateHostel, { isLoading: isUpdating }] = useUpdateHostelMutation();
   
-  // State for form
   const [bankName, setBankName] = useState('');
   const [accountTitle, setAccountTitle] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
@@ -62,7 +61,6 @@ export default function OwnerSettingsPage() {
       
 
 
-      {/* Payment Details Form */}
       <div className="bg-white dark:bg-[#1a0f0a] rounded-xl shadow-sm border border-gray-100 dark:border-[#fcf2e9]/10 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payment Methods</h2>
         <p className="text-sm text-gray-500 mb-6">
@@ -132,7 +130,6 @@ export default function OwnerSettingsPage() {
 function MonthlyInvoiceGenerator() {
     const [triggerMonthlyDues, { isLoading, error, isSuccess }] = useTriggerMonthlyDuesMutation();
     
-    // Testing Adjustment: Target Next Month
     const date = new Date();
     date.setMonth(date.getMonth() + 1);
     
@@ -146,7 +143,6 @@ function MonthlyInvoiceGenerator() {
         if (!confirm(`Are you sure you want to generate invoices for ${currentMonthName} ${currentYear}? This action cannot be undone.`)) return;
         
         try {
-            // Note: date.getMonth() is 0-indexed, so adding 1 makes it 1-12 for backend.
             const args = { month: date.getMonth() + 1, year: currentYear };
             console.log('Sending Trigger Args:', args);
             await triggerMonthlyDues(args).unwrap();

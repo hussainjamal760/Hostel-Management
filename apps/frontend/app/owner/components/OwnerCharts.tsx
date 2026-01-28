@@ -98,7 +98,7 @@ export default function OwnerCharts({ revenueData, complaintsData }: OwnerCharts
     datasets: [
       {
         data: [complaintsData.open, complaintsData.inProgress, complaintsData.resolved],
-        backgroundColor: ['#ef4444', '#f59e0b', '#22c55e'], // Red, Amber, Green
+        backgroundColor: ['#ef4444', '#f59e0b', '#22c55e'], 
         borderWidth: 0,
         hoverOffset: 10,
       },
@@ -122,7 +122,6 @@ export default function OwnerCharts({ revenueData, complaintsData }: OwnerCharts
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Revenue Trend Chart */}
       <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Revenue Trends</h3>
         <div className="h-[300px]">
@@ -136,7 +135,6 @@ export default function OwnerCharts({ revenueData, complaintsData }: OwnerCharts
         </div>
       </div>
 
-      {/* Complaints Breakdown Chart */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Complaints Status</h3>
         <div className="h-[300px] flex items-center justify-center">

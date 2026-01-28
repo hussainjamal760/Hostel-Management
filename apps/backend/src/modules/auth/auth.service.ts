@@ -33,13 +33,13 @@ export class AuthService {
       email: data.email,
       phone: data.phone,
       password: hashedPassword,
-      role: 'CLIENT', // Default role for self-signup
-      isFirstLogin: false, // Self-signup sets their own password
+      role: 'CLIENT', 
+      isFirstLogin: false, 
       isEmailVerified: false,
       verificationCode,
       verificationCodeExpiresAt,
       isActive: true,
-      username: data.email, // Use email as username by default
+      username: data.email,
     });
 
     await user.save();
@@ -80,8 +80,6 @@ export class AuthService {
       throw ApiError.unauthorized('Invalid credentials');
     }
 
-    // Passwords for manual user creation (like managers) might imply verification or auto-verify
-    // For managers, we likely set isEmailVerified=true on creation
     if (!user.isEmailVerified) {
       throw ApiError.forbidden('Email not verified. Please verify your email first.');
     }

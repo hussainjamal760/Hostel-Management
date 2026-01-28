@@ -13,7 +13,6 @@ export default function OwnerExpensesPage() {
   const [rejectionModalApi, setRejectionModalApi] = useState<{ open: boolean; expenseId: string | null }>({ open: false, expenseId: null });
   const [rejectionReason, setRejectionReason] = useState('');
 
-  // Queries
   const { data: hostelsResponse } = useGetOwnerHostelsQuery();
   const hostels = hostelsResponse?.data || [];
   
@@ -85,7 +84,6 @@ export default function OwnerExpensesPage() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
             <button
@@ -189,7 +187,6 @@ export default function OwnerExpensesPage() {
         </div>
       </div>
 
-       {/* Rejection Modal */}
        {rejectionModalApi.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-sm shadow-xl p-6">

@@ -53,9 +53,6 @@ export default function ManagerDashboard() {
   };
 
   const totalHostels = hostels.length;
-  // const totalBeds = hostels.reduce((acc, h) => acc + h.totalBeds, 0);
-
-  // Calculate available beds for widget
   const availableBeds = Math.max(0, stats.totalCapacity - stats.currentOccupancy);
   
   if (isLoadingHostels || isLoadingStats || isLoadingAnalytics) {
@@ -73,10 +70,8 @@ export default function ManagerDashboard() {
         <p className="text-gray-500 dark:text-gray-400">Here is the overview of your hostel.</p>
       </div>
 
-      {/* Stats Grid */}
       <h3 className="text-lg font-bold text-gray-900 dark:text-white">Student & Fee Overview</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-        {/* Total Students - Clickable */}
         <Link href="/manager/students" className="block transition-transform hover:scale-105">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer h-full">
             <div className="flex items-center justify-between">
@@ -88,7 +83,6 @@ export default function ManagerDashboard() {
                 <HiOutlineUserGroup size={24} />
                 </div>
             </div>
-            {/* Occupancy Mini-Bar */}
             <div className="mt-4">
                 <div className="flex justify-between text-xs mb-1">
                     <span className="text-gray-500">Occupancy</span>
@@ -107,7 +101,6 @@ export default function ManagerDashboard() {
             </div>
         </Link>
         
-        {/* Paid Students */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -120,7 +113,6 @@ export default function ManagerDashboard() {
           </div>
         </div>
 
-        {/* Due Students - Clickable */}
         <Link href="/manager/students?status=DUE" className="block transition-transform hover:scale-105">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer h-full">
             <div className="flex items-center justify-between">
@@ -149,7 +141,6 @@ export default function ManagerDashboard() {
           </div>
         </div>
         
-        {/* Total Expenses */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -163,7 +154,6 @@ export default function ManagerDashboard() {
           </div>
         </div>
 
-        {/* Total Remaining */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -177,7 +167,6 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Analytics Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
               <RevenueLineChart data={analytics.revenueChart} />
@@ -199,7 +188,6 @@ export default function ManagerDashboard() {
         totalBeds={stats.totalCapacity} 
       />
 
-      {/* Hostels List */}
       <div>
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Assigned Hostels</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

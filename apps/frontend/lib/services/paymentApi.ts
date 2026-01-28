@@ -22,10 +22,7 @@ export const paymentApi = baseApi.injectEndpoints({
     }),
     getMyInvoices: builder.query<ApiResponse<{ payments: IPayment[], pagination: any }>, void>({
       query: () => ({
-        url: '/payments', // Backend filters by user role? Checked controller: it expects hostelId. 
-        // Wait, controller getAllPayments requires hostelId if not Manager? 
-        // Need to check backend controller logic again.
-        // For now, passing params explicitly from component is safer.
+        url: '/payments', 
         method: 'GET',
       }),
       providesTags: ['Payment'],
@@ -38,7 +35,6 @@ export const paymentApi = baseApi.injectEndpoints({
           url: `/payments/${id}/proof`,
           method: 'POST',
           body: formData,
-          // RTK Query handles FormData content-type automatically mostly, but let's be sure
         };
       },
       invalidatesTags: ['Payment'],

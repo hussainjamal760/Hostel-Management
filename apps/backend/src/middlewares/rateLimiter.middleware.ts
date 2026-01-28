@@ -2,10 +2,7 @@ import rateLimit from 'express-rate-limit';
 import { env } from '../config';
 import { ApiError } from '../utils';
 
-/**
- * General Rate Limiter
- * Applies to all routes
- */
+
 export const generalLimiter = rateLimit({
   windowMs: env.RATE_LIMIT_WINDOW_MS,
   max: env.RATE_LIMIT_MAX_REQUESTS,
@@ -17,10 +14,7 @@ export const generalLimiter = rateLimit({
   },
 });
 
-/**
- * Auth Rate Limiter
- * Stricter limits for auth routes
- */
+
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 500, // 10 attempts per window
@@ -32,10 +26,7 @@ export const authLimiter = rateLimit({
   },
 });
 
-/**
- * Create User Rate Limiter
- * Limit user creation to prevent abuse
- */
+
 export const createUserLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 50, // 50 users per hour

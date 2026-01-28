@@ -11,7 +11,6 @@ export default function AdminReportsPage() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedHostel, setSelectedHostel] = useState<string>('ALL');
   
-  // Fetch all hostels for the selector
   const { data: hostelsResponse } = useGetAllHostelsQuery({ limit: 100 });
   const hostels = hostelsResponse?.data || [];
 

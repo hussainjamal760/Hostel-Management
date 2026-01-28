@@ -40,14 +40,12 @@ export default function ReportsPage() {
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     
-    // Header
     doc.setFontSize(20);
     doc.text(`Monthly Report: ${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`, 14, 22);
     
     doc.setFontSize(10);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
     
-    // Summary
     doc.setFontSize(12);
     doc.text('Summary', 14, 45);
     
@@ -67,7 +65,6 @@ export default function ReportsPage() {
       headStyles: { fillColor: [66, 66, 66] }
     });
     
-    // Students List
     doc.text('Student Details', 14, (doc as any).lastAutoTable.finalY + 15);
     
     const tableData = report?.students?.map((s: any) => [
@@ -144,7 +141,6 @@ export default function ReportsPage() {
          </div>
       ) : (
         <div ref={printRef} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden print:shadow-none print:border-none">
-           {/* Report Header (Visible in Print) */}
            <div className="p-8 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 print:bg-white text-center">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wide">
                 {months.find(m => m.value === selectedMonth)?.label} {selectedYear} Report
@@ -171,7 +167,6 @@ export default function ReportsPage() {
               </div>
            </div>
            
-           {/* Detailed Table */}
            <div className="p-0 overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
@@ -223,7 +218,6 @@ export default function ReportsPage() {
         </div>
       )}
       
-      {/* Print Styles */}
       <style dangerouslySetInnerHTML={{
         __html: `
         @media print {

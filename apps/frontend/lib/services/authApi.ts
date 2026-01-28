@@ -20,7 +20,7 @@ export interface AuthData {
     avatar?: {
       url: string;
       publicId: string;
-    } | string; // Support both for backward compatibility if needed
+    } | string; 
   };
   tokens: {
     accessToken: string;
@@ -28,7 +28,6 @@ export interface AuthData {
   };
 }
 
-// API wraps all responses in this structure
 export interface ApiResponse<T> {
   success: boolean;
   message: string;

@@ -38,7 +38,6 @@ interface DashboardStatsProps {
 }
 
 export default function DashboardStats({ stats }: DashboardStatsProps) {
-  // Chart Data Configuration
   
   const revenueData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -70,7 +69,7 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
     datasets: [
       {
         label: 'Complaints',
-        data: [stats.pendingComplaints, 15, 5], // Mock breakdown
+        data: [stats.pendingComplaints, 15, 5], 
         backgroundColor: ['rgba(234, 179, 8, 0.6)', 'rgba(34, 197, 94, 0.6)', 'rgba(59, 130, 246, 0.6)'],
       },
     ],
@@ -79,7 +78,6 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Summary Cards */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
           <h3 className="text-gray-500 text-sm font-medium">Total Revenue</h3>
           <p className="text-3xl font-bold mt-2">PKR {stats.revenue.toLocaleString()}</p>
@@ -98,13 +96,11 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Chart */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
           <h3 className="text-lg font-bold mb-4">Revenue Trends</h3>
           <Line data={revenueData} />
         </div>
 
-        {/* Occupancy Chart */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
           <h3 className="text-lg font-bold mb-4">Occupancy Status</h3>
           <div className="h-64 flex justify-center">

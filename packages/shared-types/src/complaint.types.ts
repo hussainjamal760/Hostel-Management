@@ -9,9 +9,11 @@ export type ComplaintCategory =
 
 export type ComplaintRecipient = 'MANAGER' | 'OWNER' | 'BOTH' | 'ADMIN';
 
+import { IStudent } from './student.types';
+
 export interface IComplaint {
   _id: string;
-  studentId: string;
+  studentId: string | IStudent;
   hostelId: string;
   title: string;
   description: string;

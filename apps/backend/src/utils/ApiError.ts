@@ -1,7 +1,3 @@
-/**
- * Custom API Error Class
- * Extends Error with status code for HTTP responses
- */
 export class ApiError extends Error {
   statusCode: number;
   isOperational: boolean;

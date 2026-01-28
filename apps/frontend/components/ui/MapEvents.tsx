@@ -2,14 +2,11 @@
 
 import { useEffect, useRef, useMemo } from "react";
 import { useMapEvents, useMap, Marker } from "react-leaflet";
-// We don't import L here to avoid side effects if this module is imported on server, 
-// though "use client" should protect it. The main issue is L usage.
-// We accept icon as prop.
 
 export function DraggableMarker({ position, onPositionChange, icon }: { 
     position: [number, number]; 
     onPositionChange: (pos: [number, number]) => void;
-    icon: any; // Leaflet icon instance
+    icon: any; 
 }) {
     const markerRef = useRef<any>(null);
     

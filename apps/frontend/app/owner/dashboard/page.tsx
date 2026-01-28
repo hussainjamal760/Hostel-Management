@@ -17,13 +17,11 @@ import {
 import OwnerCharts from '../components/OwnerCharts';
 
 export default function OwnerDashboard() {
-  // State for filter
   const [selectedHostelId, setSelectedHostelId] = useState<string>('ALL');
 
   const { data: hostelResponse, isLoading: isHostelLoading } = useGetOwnerHostelsQuery();
   const hasHostel = hostelResponse?.data && hostelResponse.data.length > 0;
 
-  // Pass selectedHostelId to stats query (if ALL, pass undefined)
   const statsQueryArg = selectedHostelId === 'ALL' ? undefined : { hostelId: selectedHostelId };
   
   const { data: statsResponse, isLoading: isStatsLoading } = useGetHostelStatsQuery(statsQueryArg, {
@@ -64,7 +62,6 @@ export default function OwnerDashboard() {
 
   const stats = statsResponse?.data;
 
-  // Formatting currency
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) {
       return `₨ ${(amount / 1000000).toFixed(1)}M`;
@@ -77,7 +74,6 @@ export default function OwnerDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Header with Filter */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
            <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Dashboard</h1>
@@ -102,7 +98,6 @@ export default function OwnerDashboard() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Main Stats Column (2/3 width on large screens) */}
           <div className="xl:col-span-2 space-y-6">
              {isStatsLoading ? (
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
@@ -112,7 +107,6 @@ export default function OwnerDashboard() {
                  </div>
               ) : stats ? (
                 <>
-                    {/* Key Efficiency Metrics */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <OwnerStatsCard 
                             title="Total Hostels"
@@ -193,7 +187,6 @@ export default function OwnerDashboard() {
               )}
           </div>
 
-          {/* Right Sidebar Column (1/3 width) - New Widgets */}
           <div className="space-y-6">
              <QuickActionHub />
              <ActivityFeedWidget />

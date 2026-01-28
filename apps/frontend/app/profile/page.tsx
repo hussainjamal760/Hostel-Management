@@ -93,7 +93,6 @@ export default function ProfilePage() {
       .slice(0, 2);
   };
 
-  // Helper to handle avatar which can be string or object now
   const getAvatarUrl = (avatar: any) => {
     if (!avatar) return null;
     if (typeof avatar === 'string') return avatar;
@@ -102,7 +101,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#121212] transition-colors duration-300">
-      {/* Navbar with simplified Header */}
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#1E1E1E]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -125,7 +123,6 @@ export default function ProfilePage() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* Left Column: Profile Overview */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col items-center text-center">
               <div className="relative group mx-auto mb-4">
@@ -170,8 +167,7 @@ export default function ProfilePage() {
               </button>
             </div>
 
-            {/* Quick Stats or Additional Info could go here */}
-            {user?.role === 'CLIENT' && (
+            {(user?.role as string) === 'CLIENT' && (
                <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 shadow-md text-white">
                  <h3 className="text-lg font-bold mb-2">Want to list your hostel?</h3>
                  <p className="text-indigo-100 text-sm mb-4">Join our community of hostel owners and reach more students.</p>
@@ -185,11 +181,8 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* Right Column: Details & Actions */}
           <div className="lg:col-span-8 space-y-6">
-            
-            {/* Personal Information */}
-            <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                        <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                    <HiOutlineIdentification className="text-indigo-500" />
@@ -223,14 +216,13 @@ export default function ProfilePage() {
                      <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Member Since</label>
                      <p className="text-gray-900 dark:text-gray-200 font-medium flex items-center gap-2">
                        <HiOutlineClock className="text-gray-400" />
-                       {new Date().getFullYear()} {/* Ideally from user.createdAt */}
+                       {new Date().getFullYear()} 
                      </p>
                    </div>
                  </div>
                </div>
             </div>
 
-            {/* Role Specific Dashboards */}
             {user?.role === 'ADMIN' && (
               <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                  <div className="flex items-center gap-4">
@@ -271,7 +263,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Request Status for Students */}
             {user?.role === 'STUDENT' && latestRequest && (
               <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -342,7 +333,6 @@ export default function ProfilePage() {
   );
 }
 
-// ... helper components same as before but styled better ...
 interface RequestModalProps {
   onClose: () => void;
   onSuccess: () => void;
@@ -351,7 +341,6 @@ interface RequestModalProps {
 }
 
 function RequestModal({ onClose, onSuccess, createRequest, submitting }: RequestModalProps) {
-    // ... logic same as previous ...
     const [formData, setFormData] = useState({
         businessName: '',
         businessPhone: '',
@@ -486,23 +475,17 @@ function EditProfileModal({ user, onClose, onSuccess, updateMe, uploadImage, sub
     setUploading(true);
 
     try {
-      let avatarData = user.avatar; // Default to current avatar
+      let avatarData = user.avatar; 
       
-      // Upload image if file selected
       if (file) {
         const uploadResult = await uploadImage(file).unwrap();
-        // The backend now returns { url, publicId }
-        // uploadResult.data should match that structure
         avatarData = uploadResult.data; 
       }
 
-      // Prepare payload 
       const payload: any = {};
       if (formData.name !== user.name) payload.name = formData.name;
       if (formData.phone !== user.phone) payload.phone = formData.phone;
       
-      // Check if avatar changed (either new file uploaded or just using the new object structure)
-      // Since we don't easily check deep equality, if file was uploaded we definitely send it.
       if (file) {
           payload.avatar = avatarData;
       }

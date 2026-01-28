@@ -11,7 +11,6 @@ import { HiPrinter, HiDownload } from 'react-icons/hi';
 export default function StudentInvoicesPage() {
   const { data: studentData, isLoading: isStudentLoading } = useGetStudentMeQuery();
   
-  // Filters
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
@@ -29,7 +28,6 @@ export default function StudentInvoicesPage() {
   const [localPreviews, setLocalPreviews] = useState<Record<string, string>>({});
 
   const invoices = [...(invoicesData?.data || [])].sort((a: any, b: any) => {
-      // Sort priority: OVERDUE > UNPAID > PENDING > COMPLETED > Newest Date
       const score = (status: string) => {
           if (status === 'OVERDUE') return 4;
           if (status === 'UNPAID') return 3;
@@ -146,22 +144,19 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
     const { data: hostelData } = useGetHostelByIdQuery(hostelId, { skip: !hostelId });
     const paymentDetails = hostelData?.data?.paymentDetails;
 
-    // Use invoice data directly
     const displayAmount = invoice.amount;
     const displayMonth = invoice.month;
     const displayYear = invoice.year;
-    // Handle month name safely
     const monthName = new Date(displayYear, displayMonth - 1).toLocaleString('default', { month: 'long' });
     
     let statusDisplay = invoice.status;
-    if (statusDisplay === 'PENDING') statusDisplay = 'UNDER_REVIEW'; // UI Alias
+    if (statusDisplay === 'PENDING') statusDisplay = 'UNDER_REVIEW';
 
     const effectiveProof = localPreview || invoice.paymentProof;
 
     const handlePrint = () => {
         const doc = new jsPDF();
         
-        // Header
         doc.setFontSize(20);
         doc.setFont("helvetica", "bold");
         doc.text("HOSTEL MANAGEMENT SYSTEM", 105, 20, { align: "center" });
@@ -170,13 +165,10 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
         doc.setFont("helvetica", "normal");
         doc.text(hostelData?.data?.name || "Official Fee Challan", 105, 28, { align: "center" });
 
-        // Invoice Meta
         doc.setFontSize(10);
         doc.text(`Receipt No: ${invoice.receiptNumber}`, 150, 40);
         doc.text(`Date: ${new Date(invoice.createdAt).toLocaleDateString()}`, 150, 45);
         doc.text(`Status: ${invoice.status}`, 150, 50);
-
-        // Student Details
         doc.setDrawColor(0);
         doc.line(15, 55, 195, 55);
         
@@ -189,7 +181,6 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
         doc.text(`Room: ${student?.roomId?.roomNumber || '-'} / Bed ${student?.bedNumber || '-'}`, 120, 72);
         doc.text(`Billing Month: ${monthName} ${displayYear}`, 120, 77);
 
-        // Table
         const startY = 90;
         doc.setFillColor(240, 240, 240);
         doc.rect(15, startY, 180, 10, 'F');
@@ -207,7 +198,6 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
         doc.text("Total Payable", 120, startY + 40);
         doc.text(`PKR ${displayAmount.toLocaleString()}`, 160, startY + 40);
 
-        // Bank Details
         if (paymentDetails?.bankName) {
             const bankY = startY + 60;
             doc.setFontSize(10);
@@ -219,9 +209,8 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
             doc.text(`Account No: ${paymentDetails.accountNumber}`, 20, bankY + 17);
         }
 
-        // Footer
         doc.setFontSize(8);
-        doc.text("This is a computer generated receipt and does not require a signature.", 105, 280, { align: "center" });
+        doc.text("This is a computer generated receipt.", 105, 280, { align: "center" });
 
         doc.save(`${invoice.receiptNumber}.pdf`);
     };
@@ -230,7 +219,6 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
         <div className={`relative bg-white border-2 rounded-lg overflow-hidden shadow-2xl font-serif ${
             statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'
         }`}>
-            {/* ... (Existing Status Stamps) ... */}
             {statusDisplay === 'COMPLETED' && (
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-30deg] opacity-20 pointer-events-none">
                     <div className="border-8 border-green-600 rounded-full px-12 py-6 text-7xl font-black text-green-600 tracking-tighter uppercase">
@@ -253,7 +241,6 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                 </div>
             )}
 
-            {/* Header */}
             <div className={`p-6 border-b-2 flex justify-between items-start ${
                 statusDisplay === 'OVERDUE' ? 'bg-red-50 border-red-600' : 'bg-gray-50 border-gray-900'
             }`}>
@@ -279,11 +266,9 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                 </div>
             </div>
 
-            {/* Body */}
             <div className={`flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x-2 ${
                  statusDisplay === 'OVERDUE' ? 'divide-red-600' : 'divide-gray-900'
             }`}>
-                {/* Left Side: Student & Charge Details */}
                 <div className="flex-1 p-6 space-y-6">
                     <div className="grid grid-cols-2 gap-x-12 gap-y-4">
                         <div className="col-span-2">
@@ -319,7 +304,6 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                          </div>
                     </div>
                     
-                    {/* Visual Signal of payment */}
                     {statusDisplay === 'UNDER_REVIEW' && (
                         <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-lg flex items-center gap-4">
                             <div className="h-10 w-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
@@ -349,7 +333,6 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                     )}
                 </div>
 
-                {/* Right Side: Bank & Proof Thumbnail */}
                 <div className="md:w-72 p-6 flex flex-col justify-between bg-gray-50/50">
                     <div>
                         <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Payment Methods</div>
@@ -378,7 +361,6 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                     </div>
 
                     <div className="mt-8 flex flex-col gap-4">
-                        {/* Preview of proof if exists */}
                         {effectiveProof && (
                              <div className={`relative aspect-square bg-gray-200 rounded-lg overflow-hidden border-2 group shadow-md ${
                                  statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'
@@ -418,7 +400,6 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                 </div>
             </div>
 
-            {/* Proof View Section (Full Width Footer) */}
             {effectiveProof && (
                 <div className={`p-8 bg-gray-100 border-t-2 ${
                     statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'

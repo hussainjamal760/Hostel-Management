@@ -17,7 +17,6 @@ export interface ReviewRequestInput {
 
 export class OwnerRequestService {
   async createRequest(userId: string, data: CreateOwnerRequestInput): Promise<IOwnerRequestDocument> {
-    // Check if user already has a pending request
     const existingRequest = await OwnerRequest.findOne({
       userId,
       status: 'PENDING',
@@ -27,7 +26,6 @@ export class OwnerRequestService {
       throw ApiError.badRequest('You already have a pending request');
     }
 
-    // Check if user is already an owner
     const user = await User.findById(userId);
     if (!user) {
       throw ApiError.notFound('User not found');
@@ -128,11 +126,9 @@ export class OwnerRequestService {
 
     await request.save();
 
-    // If approved, update user role to OWNER
     if (data.status === 'APPROVED') {
       await User.findByIdAndUpdate(request.userId, { role: 'OWNER' });
       
-      // Send approval email
       const user = request.userId as any;
       if (user?.email) {
         try {
@@ -149,12 +145,10 @@ export class OwnerRequestService {
             `,
           });
         } catch (e) {
-          // Email failure shouldn't block the approval
           console.error('Failed to send approval email:', e);
         }
       }
     } else if (data.status === 'REJECTED') {
-      // Send rejection email
       const user = request.userId as any;
       if (user?.email) {
         try {

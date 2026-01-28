@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiError, verifyAccessToken, TokenPayload } from '../utils';
 import { logger } from '../config';
 
-// Extend Express Request to include user
 declare global {
   namespace Express {
     interface Request {
@@ -11,10 +10,7 @@ declare global {
   }
 }
 
-/**
- * Authentication Middleware
- * Verifies JWT token and attaches user to request
- */
+
 export const authenticate = (req: Request, _res: Response, next: NextFunction): void => {
   try {
     const authHeader = req.headers.authorization;
@@ -43,10 +39,7 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction): 
   }
 };
 
-/**
- * Optional Authentication
- * Attaches user if token is valid, but doesn't require it
- */
+
 export const optionalAuth = (req: Request, _res: Response, next: NextFunction): void => {
   try {
     const authHeader = req.headers.authorization;
@@ -61,7 +54,6 @@ export const optionalAuth = (req: Request, _res: Response, next: NextFunction): 
 
     next();
   } catch {
-    // Token invalid, but continue without user
     next();
   }
 };

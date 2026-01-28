@@ -18,7 +18,6 @@ const Verification: React.FC<VerificationProps> = ({ open, setOpen, setRoute }) 
   const [verifyEmail, { isLoading }] = useVerifyEmailMutation();
 
   useEffect(() => {
-    // Get email from localStorage
     const pendingEmail = localStorage.getItem('pendingVerificationEmail');
     if (pendingEmail) {
       setEmail(pendingEmail);
@@ -53,7 +52,6 @@ const Verification: React.FC<VerificationProps> = ({ open, setOpen, setRoute }) 
       }
     }
     setCode(newCode);
-    // Focus the next empty input or the last one
     const nextEmpty = newCode.findIndex(c => c === '');
     if (nextEmpty !== -1) {
       inputRefs.current[nextEmpty]?.focus();
@@ -82,10 +80,8 @@ const Verification: React.FC<VerificationProps> = ({ open, setOpen, setRoute }) 
       
       toast.success(result.message || "Email verified successfully!");
       
-      // Clear stored email
       localStorage.removeItem('pendingVerificationEmail');
       
-      // Navigate to login
       setRoute("Login");
     } catch (error: any) {
       const message = error?.data?.message || error?.message || "Verification failed";

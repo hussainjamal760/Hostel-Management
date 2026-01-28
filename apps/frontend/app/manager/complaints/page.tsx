@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 
 export default function ManagerComplaintsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const { data: complaintsResponse, isLoading } = useGetComplaintsQuery({ status: statusFilter });
+  const { data: complaintsResponse, isLoading } = useGetComplaintsQuery({ status: statusFilter || undefined });
   const [updateComplaint, { isLoading: isUpdating }] = useUpdateComplaintMutation();
   const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
   const [resolutionText, setResolutionText] = useState('');
@@ -35,7 +35,7 @@ export default function ManagerComplaintsPage() {
     }
   };
 
-  const handleStatusUpdate = async (id: string, status: string) => {
+  const handleStatusUpdate = async (id: string, status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED') => {
       try {
           await updateComplaint({ id, data: { status } }).unwrap();
           toast.success(`Marked as ${status}`);
@@ -94,8 +94,8 @@ export default function ManagerComplaintsPage() {
                   </div>
                   <div className="text-right text-sm text-gray-500">
                     <p>{new Date(complaint.createdAt).toLocaleDateString()}</p>
-                    <p className="font-medium text-brand-primary">{complaint.studentId?.fullName}</p>
-                    <p className="text-xs">Room {complaint.studentId?.roomId?.roomNumber || 'N/A'}</p>
+                    <p className="font-medium text-brand-primary">{(complaint.studentId as any)?.fullName}</p>
+                    <p className="text-xs">Room {(complaint.studentId as any)?.roomId?.roomNumber || 'N/A'}</p>
                   </div>
                 </div>
 
@@ -164,7 +164,7 @@ export default function ManagerComplaintsPage() {
           <div className="bg-white dark:bg-dark-card rounded-2xl w-full max-w-lg shadow-2xl p-6">
             <h3 className="text-xl font-bold text-brand-text dark:text-dark-text mb-4">Resolve Complaint</h3>
             <p className="text-sm text-gray-500 mb-4">
-                You are resolving complaint <strong>#{selectedComplaint._id.slice(-6)}</strong> from <strong>{selectedComplaint.studentId?.fullName}</strong>.
+                You are resolving complaint <strong>#{selectedComplaint._id.slice(-6)}</strong> from <strong>{(selectedComplaint.studentId as any)?.fullName}</strong>.
             </p>
             
             <form onSubmit={handleResolve}>

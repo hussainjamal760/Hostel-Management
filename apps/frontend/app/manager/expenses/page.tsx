@@ -10,7 +10,6 @@ import { toast } from 'react-hot-toast';
 export default function ManagerExpensesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Form State
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('UTILITIES');
@@ -20,11 +19,9 @@ export default function ManagerExpensesPage() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Queries
   const { data: hostelsResponse } = useGetOwnerHostelsQuery();
   const hostels = hostelsResponse?.data || [];
   
-  // Auto-select first hostel
   React.useEffect(() => {
     if (hostels.length > 0 && !selectedHostelId) {
         setSelectedHostelId(hostels[0]._id);
@@ -58,7 +55,6 @@ export default function ManagerExpensesPage() {
         await createExpense(formData).unwrap();
         toast.success('Expense submitted successfully');
         setIsModalOpen(false);
-        // Reset form
         setTitle('');
         setAmount('');
         setFile(null);

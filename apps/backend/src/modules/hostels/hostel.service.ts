@@ -54,7 +54,6 @@ export class HostelService {
     const filter: FilterQuery<IHostelDocument> = {};
     if (ownerId) filter.ownerId = new mongoose.Types.ObjectId(ownerId);
     
-    // Properly handle boolean toggle from query strings
     if (isActive !== undefined && isActive !== null && isActive !== ('ALL' as any)) {
       if (isActive === 'true' || isActive === true) {
         filter.isActive = true;
@@ -62,11 +61,8 @@ export class HostelService {
         filter.isActive = false;
       }
     } else if (isActive === undefined) {
-       // Default behavior if not specified: Show Active Only (Backward Compatibility)
-       // BUT for Admin we might want ALL. Let's stick to default Active for now unless 'ALL' passed.
        filter.isActive = true; 
     }
-    // If isActive === 'ALL', we don't set filter.isActive, so it returns both.
 
     if (city) filter['address.city'] = { $regex: city, $options: 'i' };
     
@@ -78,14 +74,10 @@ export class HostelService {
          { 'address.city': regex }
       ];
 
-      // Advanced Search: Find Owners or Managers matching the name, then filter Hostels
-      // 1. Find Owners
       const owners = await User.find({ name: regex, role: 'OWNER' }).select('_id');
       if (owners.length > 0) {
           searchConditions.push({ ownerId: { $in: owners.map(o => o._id) } });
       }
-
-      // 2. Find Managers -> Get their Hostel IDs
       const Manager = require('../managers/manager.model').default;
       const managers = await Manager.find({ name: regex }).select('hostelId');
       if (managers.length > 0) {
@@ -107,7 +99,6 @@ export class HostelService {
 
     console.log('getAllHostels found:', hostels.length, 'hostels');
 
-    // Populate Manager and Real-time Stats manually
     const Manager = require('../managers/manager.model').default;
     const Room = require('../rooms/room.model').default;
 
@@ -116,7 +107,6 @@ export class HostelService {
     const hostelsWithDetails = await Promise.all(hostels.map(async (hostel: any) => {
         const manager = await Manager.findOne({ hostelId: hostel._id }).select('name phoneNumber cnic');
         
-        // Real-time calculation for accuracy
         const stats = await Room.aggregate([
             { $match: { hostelId: hostel._id, isActive: true } },
             { 
@@ -130,7 +120,6 @@ export class HostelService {
         
         const activeStudentCount = await Student.countDocuments({ hostelId: hostel._id, isActive: true });
         
-        // Check Payment Status for Current Month
         const now = new Date();
         const HostelPayment = require('../payments/hostel-payment.model').default;
         const payment = await HostelPayment.findOne({
@@ -144,10 +133,10 @@ export class HostelService {
         return { 
             ...hostel, 
             manager,
-            totalRooms: realStats.totalRooms, // Override stored value
-            totalBeds: realStats.totalBeds,    // Override stored value
-            activeStudentCount, // Added new field
-            currentMonthPaymentStatus: payment ? payment.status : 'NONE' // Added new field
+            totalRooms: realStats.totalRooms, 
+            totalBeds: realStats.totalBeds,    
+            activeStudentCount, 
+            currentMonthPaymentStatus: payment ? payment.status : 'NONE' 
         };
     }));
 
@@ -187,7 +176,6 @@ export class HostelService {
 
     Object.assign(hostel, data);
 
-    // Self-healing: Fix invalid data if present (likely from legacy or bug)
     if (hostel.totalRooms < 0) hostel.totalRooms = 0;
     if (hostel.totalBeds < 0) hostel.totalBeds = 0;
 
@@ -222,10 +210,8 @@ export class HostelService {
     const hostels = await Hostel.find(filter).select('_id totalRooms totalBeds monthlyRent');
     const hostelIds = hostels.map(h => h._id);
 
-    // Aggregate data
     const totalHostels = hostels.length;
 
-    // Return dummy stats if no hostels found (or selected)
     if (hostelIds.length === 0) {
         return {
              totalHostels,
@@ -243,7 +229,6 @@ export class HostelService {
         };
     }
 
-    // Parallel queries for deep stats
     const Student = require('../students/student.model').default;
     const Payment = require('../payments/payment.model').default;
     const Complaint = require('../complaints/complaint.model').default;
@@ -277,14 +262,6 @@ export class HostelService {
             { $group: { _id: null, total: { $sum: '$amount' } } }
         ]),
 
-        // Total Remaining (Pending/Due payments for these hostels)
-        // Note: This matches Payment records. If we want student dues from Student model, we'd sum student.totalDue.
-        // User asked for "Total Remaining Amount" similar to Admin/Manager view which usually sums up Student Dues or Pending Invoices.
-        // Let's stick to Payment model 'PENDING' for invoices, OR Student model 'totalDue' virtual/field?
-        // In StudentService.getStudentStats we sum '$monthlyFee' for non-paid students.
-        // Let's use Student aggregation for "Remaining" to match "Student Dues", which is more relevant for Owner.
-        // But wait, the Admin dashboard used Payment collection 'PENDING'.
-        // Let's use Payment PENDING for now to be consistent with "Invoices generated but not paid".
         Payment.aggregate([
              { $match: { hostelId: { $in: hostelIds }, status: 'PENDING' } },
              { $group: { _id: null, total: { $sum: '$amount' } } }
@@ -313,7 +290,7 @@ export class HostelService {
           { $sort: { '_id.year': 1, '_id.month': 1 } }
         ]),
 
-        // Current Month Stats
+          // Current Month Stats
         Payment.aggregate([
             {
                 $match: {
@@ -451,21 +428,16 @@ export class HostelService {
 
     // 2. Get Student Statuses for the Month
     const Student = require('../students/student.model').default;
-    // Include both Active students AND Left students (to show history in reports)
-    // We filter by 'isActive: true' usually, but for reports we want to see everyone who might have paid or been present.
-    // Ideally we should check if they were active in that month, but for now lets allow all ACTIVE and LEFT.
     const students = await Student.find({ 
         hostelId: { $in: hostelIds }, 
-        // isActive: true  <-- Removed to include 'Left' students
         status: { $in: ['ACTIVE', 'LEFT'] }
     })
       .populate('hostelId', 'name')
       .populate('roomId', 'roomNumber')
-      .populate('userId', 'phone') // Fetch student phone
+      .populate('userId', 'phone') 
       .lean();
 
     const studentReports = await Promise.all(students.map(async (student: any) => {
-      // Find payment record for this specific month/year
       const payment = await Payment.findOne({
         studentId: student._id,
         month: targetMonth,
@@ -487,8 +459,6 @@ export class HostelService {
       };
     }));
 
-    // Recalculate Summary from actual student data for accuracy
-    // This ensures students without invoices (UNPAID) are also counted in pending
     const calculatedPending = studentReports.reduce((acc, curr) => acc + curr.dueAmount, 0);
 
     return {
@@ -499,8 +469,8 @@ export class HostelService {
         totalStudents: students.length
       },
       summary: {
-        totalRevenue, // Keep from Payment aggregation (most accurate for confirmed payments)
-        totalPending: calculatedPending, // Use calculated pending
+        totalRevenue, 
+        totalPending: calculatedPending, 
         collectedCount: monthlyPayments.find((p: any) => p._id === 'COMPLETED')?.count || 0,
         pendingCount: studentReports.filter(s => s.status !== 'COMPLETED').length,
       },

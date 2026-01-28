@@ -125,7 +125,6 @@ const Header = () => {
       </div>
       </header>
 
-      {/* Mobile Menu - Modern Slide-in Sidebar */}
       {open && (
         <div className="fixed inset-0 z-[9999] md:hidden">
           {/* Backdrop */}
@@ -207,9 +206,7 @@ const Header = () => {
                 ))}
               </nav>
 
-              {/* Footer */}
               <div className="p-6 border-t border-[#2c1b13]/10 dark:border-[#fcf2e9]/10 space-y-4">
-                {/* Theme Switcher */}
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-[#2c1b13]/5 dark:bg-[#fcf2e9]/5">
                   <span className="text-sm font-semibold text-[#2c1b13] dark:text-[#fcf2e9]">Theme</span>
                   <ThemeSwitcher />

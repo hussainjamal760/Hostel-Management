@@ -9,7 +9,6 @@ cloudinary.config({
 
 export const uploadToCloudinary = async (file: Express.Multer.File, folder: string = 'hostelite/avatars') => {
   try {
-    // Convert buffer to base64
     const b64 = Buffer.from(file.buffer).toString('base64');
     let dataURI = 'data:' + file.mimetype + ';base64,' + b64;
     

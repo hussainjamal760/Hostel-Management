@@ -164,8 +164,6 @@ const studentSchema = new Schema<IStudentDocument>(
 
 studentSchema.index({ hostelId: 1, isActive: 1 });
 studentSchema.index({ hostelId: 1, feeStatus: 1 });
-// Fix: Only enforce unique room/bed for ACTIVE students. 
-// "Left" students will have null/undefined room/bed, which would otherwise collide.
 studentSchema.index({ roomId: 1, bedNumber: 1 }, { 
   unique: true, 
   partialFilterExpression: { status: 'ACTIVE' } 

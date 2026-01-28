@@ -32,7 +32,6 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
   );
   const [isOtherCity, setIsOtherCity] = useState(false);
 
-  // Helper to determine default city value
   const getDefaultCity = () => {
     if (!initialValues?.address?.city) return '';
     return CITIES.includes(initialValues.address.city) ? initialValues.address.city : 'Other';
@@ -58,7 +57,6 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
     },
   });
 
-  // Handle initial city state for "Other"
   useEffect(() => {
     if (initialValues?.address?.city && !CITIES.includes(initialValues.address.city)) {
       setIsOtherCity(true);
@@ -101,7 +99,6 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
     setLocation({ lat, lng });
     setValue('address.coordinates', { lat, lng });
 
-    // Reverse geocoding to auto-fill street ONLY (no city)
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
         const data = await response.json();
@@ -119,7 +116,7 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
     const value = e.target.value;
     if (value === 'Other') {
       setIsOtherCity(true);
-      setValue('address.city', ''); // Clear so user can type
+      setValue('address.city', ''); 
     } else {
       setIsOtherCity(false);
       setValue('address.city', value);
@@ -144,7 +141,6 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
 
       <form onSubmit={handleSubmit(onSubmit, (errors) => console.error("Form Errors:", errors))} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Hostel Name */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Hostel Name</label>
             <input
@@ -155,7 +151,6 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
             {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
           </div>
 
-          {/* Phone Number */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Business Phone Number</label>
             <input
@@ -167,7 +162,6 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
           </div>
         </div>
 
-        {/* Map Selection */}
         <div>
            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Select Location</label>
            <p className="text-sm text-gray-500 mb-2">Click or drag the map to pinpoint the hostel location. Street address will be auto-filled.</p>
@@ -177,7 +171,6 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
            />
         </div>
 
-        {/* Address Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Street Address / Full Address</label>
@@ -223,7 +216,6 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
           </div>
         </div>
         
-        {/* Financials */}
         <div className="grid grid-cols-1 gap-6">
            <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Monthly Rent</label>
@@ -236,7 +228,6 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
           </div>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading}

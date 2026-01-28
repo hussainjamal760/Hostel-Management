@@ -62,13 +62,11 @@ const SignUp: React.FC<SignUpProps> = ({ open, setOpen, setRoute, setSignupEmail
       
       toast.success(result.message || "Signup successful! Please verify your email.");
       
-      // Store email for verification page
       if (setSignupEmail) {
         setSignupEmail(email);
       }
       localStorage.setItem('pendingVerificationEmail', email);
       
-      // Navigate to verification
       setRoute("Verification");
     } catch (error: any) {
       const message = error?.data?.message || error?.message || "Signup failed";

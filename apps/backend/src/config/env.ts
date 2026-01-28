@@ -3,10 +3,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-/**
- * Environment Configuration
- * Validates and exports all environment variables
- */
 const env = cleanEnv(process.env, {
   // Server
   NODE_ENV: str({ choices: ['development', 'test', 'production'], default: 'development' }),

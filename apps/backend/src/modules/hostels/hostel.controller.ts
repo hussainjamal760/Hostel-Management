@@ -21,7 +21,6 @@ export class HostelController {
     if (req.user?.role === 'OWNER') {
       filters.ownerId = req.user.id;
     } else if (req.user?.role === 'MANAGER') {
-      // Find the manager record to get ownerId
       const manager = await Manager.findOne({ userId: req.user!.id });
       if (manager) {
         filters.ownerId = manager.ownerId;

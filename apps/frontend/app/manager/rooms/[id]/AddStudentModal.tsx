@@ -7,28 +7,17 @@ import { z } from 'zod';
 import { toast } from 'react-hot-toast';
 import { HiX, HiOutlineUsers, HiOutlineCheck } from 'react-icons/hi';
 import { useCreateStudentMutation } from '@/lib/services/studentApi';
-import { createStudentSchema } from '@hostelite/shared-validators'; // We'll need to use a localized schema or wait for shared rebuild if needed. 
-// Ideally shared-validators is available, assuming monorepo setup handles it.
-// If type error occurs, we might need to redefine schema locally for now or ensure shared lib is built.
-// Given previous context, shared-validators is used.
+import { createStudentSchema } from '@hostelite/shared-validators'; 
 
-// Since the shared validator imports might break if not compiled, and I cannot compile it easily here without build step,
-// I will replicate the Zod schema locally for the form to ensure it works immediately, 
-// OR I will trust the build environment. I'll define a local type/schema to be safe and dependent.
-// Actually, I should use the shared one, but I'll define a local one matching it to avoid "cannot find module" issues if hot-reload is lagging.
-// Wait, I can see shared-validators is in packages. I should rely on it.
-
-// Re-defining schema locally to ensure immediate responsiveness and valid types for the form
-// especially since I modified the shared one just now and build might lag.
 const formSchema = z.object({
   fullName: z.string().min(2, 'Name is required'),
   fatherName: z.string().min(2, "Father's name is required"),
-  cnic: z.string().min(13, 'CNIC is required'), // Simplified regex for UI, strict on submit
+  cnic: z.string().min(13, 'CNIC is required'), 
   fatherCnic: z.string().min(13, "Father's CNIC is required"),
   phone: z.string().min(10, 'Phone is required'),
   fatherPhone: z.string().min(10, "Father's phone is required"),
   email: z.string().email('Invalid email'),
-  dateOfBirth: z.string().min(1, 'Date of birth is required'), // input type date returns string
+  dateOfBirth: z.string().min(1, 'Date of birth is required'), 
   gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
   bloodGroup: z.string().optional(),
   permanentAddress: z.string().min(10, 'Address is required'),
@@ -40,7 +29,6 @@ const formSchema = z.object({
   monthlyFee: z.number().min(0),
   securityDeposit: z.number().min(0),
   agreementDate: z.string().min(1, 'Agreement date is required'),
-  // Files - implementing as simple placeholders or state for now
 });
 
 type FormInputs = z.infer<typeof formSchema>;
@@ -78,23 +66,20 @@ export default function AddStudentModal({ open, setOpen, roomId, bedNumber, onSu
         bedNumber,
         dateOfBirth: new Date(data.dateOfBirth),
         agreementDate: new Date(data.agreementDate),
-        joinDate: new Date(data.agreementDate), // "payment starts from ask date"
+        joinDate: new Date(data.agreementDate), 
       };
 
       const response = await createStudent(payload as any).unwrap();
       
-      // Assuming response structure: { success: true, data: { student, user, password } }
-      // Check authApi/studentApi Types/Response
       const result = response.data || response;
       
       setCredentials({
         username: result.user.username,
-        password: result.password // Plain text password returned from API
+        password: result.password 
       });
       
       toast.success('Student created successfully');
       onSuccess();
-      // Don't close immediately, let them see credentials
     } catch (error: any) {
       toast.error(error?.data?.message || 'Failed to create student');
       console.error(error);
@@ -191,7 +176,6 @@ export default function AddStudentModal({ open, setOpen, roomId, bedNumber, onSu
 
                 <hr className="border-gray-200 dark:border-gray-800" />
                 
-                {/* Emergency Contact */}
                 <section>
                     <h3 className="text-lg font-bold text-brand-primary mb-4">Emergency Contact</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -203,7 +187,6 @@ export default function AddStudentModal({ open, setOpen, roomId, bedNumber, onSu
                 
                  <hr className="border-gray-200 dark:border-gray-800" />
 
-                {/* Admission & Fees */}
                 <section>
                     <h3 className="text-lg font-bold text-brand-primary mb-4">Admission & Fees</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

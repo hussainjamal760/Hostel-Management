@@ -2,13 +2,13 @@
 
 import { useGetStudentMeQuery, useGetStudentsQuery } from '@/lib/services/studentApi';
 import { useGetRoomQuery } from '@/lib/services/roomApi';
-import { HiOutlineUserGroup, HiOutlineWifi, HiOutlineLightningBolt, HiOutlineOfficeBuilding, HiOutlineCurrencyDollar, HiOutlineUsers } from 'react-icons/hi';
+import { HiOutlineUserGroup, HiOutlineOfficeBuilding, HiOutlineUsers }  from 'react-icons/hi';
+import { FaWhatsapp } from 'react-icons/fa';
 
 export default function StudentRoomPage() {
   const { data: studentResponse, isLoading: isLoadingMe } = useGetStudentMeQuery();
   const student = studentResponse?.data;
   
-  // Conditionally fetch room only if student has a roomId
   const roomId = (student?.roomId as any)?._id || (typeof student?.roomId === 'string' ? student.roomId : null);
   
   const { data: roomResponse, isLoading: isLoadingRoom } = useGetRoomQuery(roomId, {
@@ -36,7 +36,6 @@ export default function StudentRoomPage() {
   }
 
   if (!student) {
-      // Logic handled by dashboard/profile usually, but safe fallback
       return <div>Profile not found.</div>;
   }
 
@@ -61,7 +60,6 @@ export default function StudentRoomPage() {
             </span>
         </div>
 
-        {/* Room Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col">
                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Floor</span>
@@ -106,7 +104,6 @@ export default function StudentRoomPage() {
                     {roommates && roommates.length > 0 ? (
                         roommates.map((mate) => {
                             const isMe = mate._id === student._id;
-                            // Helper to safely access user fields
                             const mateUser = mate.userId as any;
                             
                             return (
@@ -122,7 +119,6 @@ export default function StudentRoomPage() {
                                                 </h4>
                                                 <p className="text-sm text-gray-500 dark:text-gray-400">Bed {mate.bedNumber}</p>
                                             </div>
-                                            {/* Show phone only to roommates if desired, or always */}
                                             {!isMe && (
                                                 <a 
                                                     href={getWhatsAppLink(mateUser?.phone)} 
@@ -149,13 +145,10 @@ export default function StudentRoomPage() {
   );
 }
 
-// Helper to format phone number for WhatsApp
 const getWhatsAppLink = (phone: string) => {
   if (!phone) return '#';
-  // Remove all non-numerics
   let clean = phone.replace(/\D/g, '');
   
-  // Handle Pakistan numbers (03...) -> 923...
   if (clean.startsWith('03')) {
     clean = '92' + clean.substring(1);
   }
@@ -163,5 +156,3 @@ const getWhatsAppLink = (phone: string) => {
   return `https://wa.me/${clean}`;
 };
 
-import { HiOutlinePhone } from 'react-icons/hi';
-import { FaWhatsapp } from 'react-icons/fa';

@@ -4,17 +4,7 @@ import paymentService from './payment.service';
 import { Role } from '@hostelite/shared-types';
 
 export class PaymentController {
-  createPayment = asyncHandler(async (req: Request, res: Response) => {
-    // If student, force studentId to be their own (or verify)
-    // For now, simpler to trust body but we should valid.
-    // If we want to be strict: 
-    // if (req.user.role === 'STUDENT') req.body.studentId = req.user.studentProfileId; 
-    // But we don't have studentProfileId on req.user easily without DB call. 
-    // Let's rely on service or assume body is correct for MVP, user seems trust-based.
-    
-    // Actually, createPayment in router might be restricted to ADMIN/MANAGER.
-    // Need to check router permissions.
-    
+  createPayment = asyncHandler(async (req: Request, res: Response) => {   
     const result = await paymentService.createPayment(
         req.body, 
         req.user!._id,
@@ -73,9 +63,7 @@ export class PaymentController {
 
     let proofUrl = req.body.proofUrl;
     
-    // If file is attached directly to this request (middleware handled)
     if (req.file) {
-        // We'd need to import the cloudinary uploader here or use the service
         const { uploadToCloudinary } = require('../../utils/cloudinary');
         try {
             const result = await uploadToCloudinary(req.file, 'hostelite/payments'); // Use better folder
@@ -102,7 +90,6 @@ export class PaymentController {
   });
 
   triggerMonthlyDues = asyncHandler(async (req: Request, res: Response) => {
-     // Admin/Owner only ideally
      console.log('Trigger Monthly Dues Body:', req.body);
      const { month, year } = req.body;
      const { paymentScheduler } = require('./cron.service');
@@ -111,7 +98,6 @@ export class PaymentController {
          ApiResponse.success(res, result, 'Monthly dues generation triggered');
      } catch (error: any) {
          if (error.message && error.message.includes('already been generated')) {
-             // Return conflict but allow frontend to handle it as a "success" lock state
              throw new ApiError(409, error.message);
          }
          throw error;

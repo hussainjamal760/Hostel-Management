@@ -17,7 +17,7 @@ export interface AdminDashboardStats {
   totalActiveHostels: number;
   totalStudents: number;
   monthlyRecurringRevenue: number;
-  totalRevenue: number; // Added
+  totalRevenue: number;
   churnedHostels: number;
   pendingPayments: number;
   pendingPaymentsAmount: number;
@@ -40,7 +40,6 @@ export class AdminService {
     const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
     const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
-    // Parallel queries for better performance
     const [
       totalHostels,
       activeHostels,
@@ -57,21 +56,16 @@ export class AdminService {
       recentPayments,
       recentComplaints,
       recentHostels,
-      totalRevenueData, // Added
+      totalRevenueData,
     ] = await Promise.all([
-      // Total hostels ever onboarded
       Hostel.countDocuments(),
       
-      // Active hostels
       Hostel.countDocuments({ isActive: true }),
       
-      // Inactive (churned) hostels
       Hostel.countDocuments({ isActive: false }),
       
-      // Total students across platform
       Student.countDocuments({ isActive: true }),
       
-      // Current month revenue (Platform Fees)
       HostelPayment.aggregate([
         {
           $match: {
@@ -88,7 +82,6 @@ export class AdminService {
         },
       ]),
       
-      // Last month revenue for comparison
       HostelPayment.aggregate([
         {
           $match: {
@@ -105,7 +98,6 @@ export class AdminService {
         },
       ]),
       
-      // Pending payments (Platform Fees)
       HostelPayment.aggregate([
         {
           $match: {
@@ -121,7 +113,6 @@ export class AdminService {
         },
       ]),
       
-      // Flagged hostels (hostels with open complaints)
       Complaint.aggregate([
         {
           $match: {
@@ -138,7 +129,6 @@ export class AdminService {
         },
       ]),
       
-      // Monthly revenue for last 6 months (Platform Fees)
       HostelPayment.aggregate([
         {
           $match: {
@@ -162,7 +152,6 @@ export class AdminService {
         },
       ]),
       
-      // Hostels by city
       Hostel.aggregate([
         {
           $match: { isActive: true },
@@ -181,20 +170,16 @@ export class AdminService {
         },
       ]),
       
-      // Last month students for growth calculation
       Student.countDocuments({
         isActive: true,
         createdAt: { $lt: new Date(new Date().setMonth(now.getMonth() - 1)) },
       }),
-
-      // Recent users (last 5 registrations)
       User.find({ role: 'STUDENT' })
         .sort({ createdAt: -1 })
         .limit(3)
         .select('name createdAt')
         .lean(),
 
-      // Recent payments (Platform Fees)
       HostelPayment.find({ status: 'COMPLETED' })
         .sort({ createdAt: -1 })
         .limit(3)
@@ -202,7 +187,7 @@ export class AdminService {
         .select('amount hostelId createdAt')
         .lean(),
 
-      // Recent complaints (last 5)
+        // Recent complaints (last 5)
       Complaint.find()
         .sort({ createdAt: -1 })
         .limit(3)
@@ -245,10 +230,8 @@ export class AdminService {
       count: item.count,
     }));
 
-    // Format recent activity
     const recentActivity: RecentActivity[] = [];
     
-    // Helper function to calculate relative time
     const getRelativeTime = (date: Date): string => {
       const now = new Date();
       const diffMs = now.getTime() - new Date(date).getTime();
@@ -263,7 +246,6 @@ export class AdminService {
       return new Date(date).toLocaleDateString();
     };
 
-    // Add user activities
     recentUsers.forEach((user: any) => {
       recentActivity.push({
         id: user._id.toString(),
@@ -338,7 +320,6 @@ export class AdminService {
     const Room = require('../rooms/room.model').default;
     const Student = require('../students/student.model').default;
     
-    // 1. Drop the problematic index if it exists
     try {
         await Student.collection.dropIndex('roomId_1_bedNumber_1');
         console.log('Dropped index: roomId_1_bedNumber_1');
@@ -346,7 +327,6 @@ export class AdminService {
         console.log('Index drop skipped/failed:', e.message);
     }
 
-    // 2. Recalculate Room Occupancy
     const rooms = await Room.find({});
     let fixedCount = 0;
     

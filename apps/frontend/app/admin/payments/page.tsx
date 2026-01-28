@@ -4,29 +4,11 @@ import { useState } from 'react';
 import { useGetAllPaymentsQuery, useTriggerMonthlyDuesMutation, useVerifyPaymentMutation } from '@/lib/services/paymentApi';
 import { toast } from 'react-hot-toast';
 import { HiCheck, HiX, HiExternalLink, HiSearch, HiExclamationCircle, HiCollection, HiLightningBolt, HiOfficeBuilding } from 'react-icons/hi';
-// import { useGetHostelsQuery } from '@/lib/services/hostelApi'; // Not used yet
 
 export default function AdminPaymentsPage() {
-  // State for Invoice Generation
   const [isGenerating, setIsGenerating] = useState(false);
   const [triggerMonthlyDues] = useTriggerMonthlyDuesMutation();
-  
-  // We probably want to fetch payments for *all* hostels. 
-  // The backend getAllPayments controller takes a hostelId query.
-  // If I pass nothing, does it return all? 
-  // Controller: 
-  // if (!hostelId) throw ApiError.badRequest('Hostel ID is required');
-  // So I might need to fetch hostels first and let admin pick one, OR update backend to allow fetching all for Admin.
-  // For now, let's just implement the "Generate" button primarily, and maybe a list of recent payments if I can get a hostel ID.
-  // Actually, if I can't see payments without a hostel ID, I should probably add a Hostel Selector.
-  
-  // Let's stub the list part or try to fetch for "all" (Requires backend check).
-  // The backend controller: `let hostelId = req.query.hostelId as string; ... if (!hostelId) throw ...`
-  // So I MUST provide a hostelId to see payments.
 
-  // Let's just implement the Generate Button and a placeholder for the list or a Hostel Selector.
-  // Since the user request is specifically about "ADMIN click generate invoice", I will prioritize that.
-  
   const handleGenerateInvoices = async () => {
       const confirmMsg = "Are you sure you want to generate monthly dues for ALL active students in ALL active hostels? This will create UNPAID invoices for the current month.";
       if (!confirm(confirmMsg)) return;
@@ -34,7 +16,6 @@ export default function AdminPaymentsPage() {
       setIsGenerating(true);
       try {
           const today = new Date();
-          // Generate for current month
           await triggerMonthlyDues({
               month: today.getMonth() + 1, // 1-12
               year: today.getFullYear()
@@ -89,12 +70,6 @@ export default function AdminPaymentsPage() {
               Please ensure all student data is up-to-date before running this action.
           </p>
       </div>
-      
-      {/* 
-          TODO: Add Payment List with Hostel Filter. 
-          For now, this page fulfills the core requirement: "ADMIN click generate invoice".
-      */}
-      
     </div>
   );
 }

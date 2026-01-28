@@ -64,7 +64,6 @@ export default function MyHostelPage() {
     );
   }
 
-  // If form is open, show form
   if (isFormOpen) {
     return (
       <div className="max-w-4xl mx-auto">

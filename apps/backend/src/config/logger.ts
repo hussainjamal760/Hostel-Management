@@ -3,16 +3,11 @@ import env from './env';
 
 const { combine, timestamp, printf, colorize, errors } = winston.format;
 
-/**
- * Custom log format
- */
 const logFormat = printf(({ level, message, timestamp, stack }) => {
   return `${timestamp} [${level}]: ${stack || message}`;
 });
 
-/**
- * Winston Logger Configuration
- */
+
 export const logger = winston.createLogger({
   level: env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: combine(
@@ -22,20 +17,18 @@ export const logger = winston.createLogger({
   ),
   defaultMeta: { service: 'hostelite-api' },
   transports: [
-    // Console transport
     new winston.transports.Console({
       format: combine(colorize(), logFormat),
     }),
   ],
 });
 
-// Add file transports in production
 if (env.NODE_ENV === 'production') {
   logger.add(
     new winston.transports.File({
       filename: 'logs/error.log',
       level: 'error',
-      maxsize: 5242880, // 5MB
+      maxsize: 5242880, 
       maxFiles: 5,
     })
   );

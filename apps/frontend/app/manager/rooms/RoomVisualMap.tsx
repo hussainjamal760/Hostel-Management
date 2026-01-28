@@ -11,15 +11,13 @@ interface RoomVisualMapProps {
 export default function RoomVisualMap({ rooms }: RoomVisualMapProps) {
     const router = useRouter();
 
-    // Group rooms by floor
     const floors = rooms.reduce((acc, room) => {
-        const floorKey = room.floor; // Assuming floor is number
+        const floorKey = room.floor; 
         if (!acc[floorKey]) acc[floorKey] = [];
         acc[floorKey].push(room);
         return acc;
     }, {} as Record<number, IRoom[]>);
 
-    // Sort floors (ascending)
     const sortedFloors = Object.keys(floors).map(Number).sort((a, b) => a - b);
 
     return (
@@ -55,7 +53,6 @@ export default function RoomVisualMap({ rooms }: RoomVisualMapProps) {
                                         <p className="text-xs text-brand-text/60">{room.roomType}</p>
                                     </div>
 
-                                    {/* Visual Bed Dots */}
                                     <div className="flex justify-center gap-1 flex-wrap mb-2">
                                         {Array.from({ length: room.totalBeds }).map((_, i) => (
                                             <div 
@@ -69,7 +66,6 @@ export default function RoomVisualMap({ rooms }: RoomVisualMapProps) {
                                         ))}
                                     </div>
 
-                                     {/* Quick Add Button (Overlay) */}
                                     {!isFull && (
                                         <div className="absolute inset-0 bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
                                              <button

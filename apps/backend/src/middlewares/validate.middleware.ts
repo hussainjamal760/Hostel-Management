@@ -2,17 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodSchema, ZodError } from 'zod';
 import { ApiError } from '../utils';
 
-/**
- * Request Validation Middleware
- * Validates request body, query, or params against Zod schema
- */
 export const validate = (schema: ZodSchema, source: 'body' | 'query' | 'params' = 'body') => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     try {
       const data = req[source];
       const result = schema.parse(data);
 
-      // Replace with parsed/transformed data
       req[source] = result;
 
       next();
@@ -34,9 +29,7 @@ export const validate = (schema: ZodSchema, source: 'body' | 'query' | 'params' 
   };
 };
 
-/**
- * Validate multiple sources at once
- */
+
 export const validateRequest = (schemas: {
   body?: ZodSchema;
   query?: ZodSchema;

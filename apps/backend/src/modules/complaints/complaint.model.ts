@@ -8,18 +8,12 @@ import {
   COMPLAINT_STATUS,
 } from '@hostelite/shared-constants';
 
-/**
- * Complaint Document Interface
- */
 export interface IComplaintDocument extends Omit<IComplaint, '_id' | 'studentId' | 'hostelId' | 'assignedTo'>, Document {
   studentId: mongoose.Types.ObjectId;
   hostelId: mongoose.Types.ObjectId;
   assignedTo?: mongoose.Types.ObjectId;
 }
 
-/**
- * Complaint Schema
- */
 const complaintSchema = new Schema<IComplaintDocument>(
   {
     studentId: {
@@ -107,9 +101,6 @@ complaintSchema.index({ hostelId: 1, priority: 1 });
 complaintSchema.index({ studentId: 1, createdAt: -1 });
 complaintSchema.index({ assignedTo: 1, status: 1 });
 
-/**
- * Complaint Model
- */
 export const Complaint = mongoose.model<IComplaintDocument>('Complaint', complaintSchema);
 
 export default Complaint;

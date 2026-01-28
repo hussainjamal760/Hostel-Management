@@ -35,23 +35,21 @@ export default function CreateRoomPage() {
   
   const [bulkCreate, { isLoading: isCreating }] = useBulkCreateRoomsMutation();
 
-  // Handle Generate
+    
   const handleGenerate = () => {
     if (roomCount <= 0) return;
     
-    // Determine start number
     let startNum = 1;
     if (selectedFloor > 0) {
         startNum = selectedFloor * 100 + 1;
     } else {
-        startNum = 1; // Ground floor starts at 001
+        startNum = 1; 
     }
 
     const newDrafts: RoomDraft[] = [];
     
     for (let i = 0; i < roomCount; i++) {
         const currentNum = startNum + i;
-        // Pad number: 1 -> 001, 101 -> 101
         const numStr = currentNum.toString().padStart(3, '0');
         
         newDrafts.push({
@@ -59,7 +57,7 @@ export default function CreateRoomPage() {
             floor: selectedFloor,
             roomType: 'SINGLE',
             totalBeds: 1,
-            rent: 0 // Default rent
+            rent: 0     
         });
     }
     setDraftRooms(newDrafts);
@@ -119,7 +117,6 @@ export default function CreateRoomPage() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar / Floor Tabs */}
         <div className="w-full lg:w-64 flex-shrink-0 space-y-2">
             <div className="p-4 bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-brand-primary/5">
                 <h3 className="font-semibold text-brand-text dark:text-dark-text mb-4">Floors</h3>
@@ -148,9 +145,7 @@ export default function CreateRoomPage() {
             </div>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 space-y-6">
-            {/* Generator Section */}
             <div className="p-6 bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-brand-primary/5">
                 <h3 className="text-lg font-bold text-brand-text dark:text-dark-text mb-4">
                     Create Rooms on {selectedFloor === 0 ? 'Ground Floor' : `${selectedFloor}${getOrdinal(selectedFloor)} Floor`}
@@ -180,7 +175,6 @@ export default function CreateRoomPage() {
                     </button>
                 </div>
 
-                {/* Drafts List */}
                 {draftRooms.length > 0 && (
                     <div className="mt-8 space-y-4 animate-in fade-in slide-in-from-bottom-4">
                         <div className="flex items-center justify-between mb-2">

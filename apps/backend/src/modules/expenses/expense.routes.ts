@@ -6,7 +6,6 @@ import { upload } from '../../middlewares/upload.middleware';
 
 const router = Router();
 
-// Manager: Create Expense (with receipt)
 router.post(
   '/',
   authenticate,
@@ -15,7 +14,6 @@ router.post(
   expenseController.create
 );
 
-// All: Get Expenses
 router.get(
   '/',
   authenticate,
@@ -23,7 +21,6 @@ router.get(
   expenseController.getAll
 );
 
-// Owner: Update Status
 router.patch(
   '/:id/status',
   authenticate,
@@ -31,7 +28,6 @@ router.patch(
   expenseController.updateStatus
 );
 
-// Get Stats
 router.get(
   '/stats',
   authenticate,

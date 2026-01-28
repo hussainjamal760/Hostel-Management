@@ -145,7 +145,6 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
-                     {/* Account Info (Read Only) */}
                      <section className="bg-brand-primary/5 p-4 rounded-xl border border-brand-primary/10">
                         <h3 className="text-sm font-bold uppercase text-brand-primary mb-3">Account Credentials</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -154,7 +153,7 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
                                 <label className="text-xs font-bold uppercase text-brand-text/50">Password</label>
                                 <input 
                                     type="text"
-                                    value="********" // Still hashed
+                                    value="********"
                                     disabled
                                     className="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 cursor-not-allowed font-mono"
                                 />
@@ -162,7 +161,6 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
                         </div>
                     </section>
                     
-                    {/* Personal Info */}
                     <section>
                         <h3 className="text-lg font-bold text-brand-primary mb-4 flex items-center gap-2">
                             <HiOutlineUsers /> Personal Information
@@ -189,7 +187,6 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
 
                     <hr className="border-gray-200 dark:border-gray-800" />
                     
-                    {/* Parent/Guardian */}
                     <section>
                         <h3 className="text-lg font-bold text-brand-primary mb-4">Guardian Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -201,7 +198,6 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
 
                     <hr className="border-gray-200 dark:border-gray-800" />
                     
-                    {/* Emergency Contact */}
                     <section>
                         <h3 className="text-lg font-bold text-brand-primary mb-4">Emergency Contact</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -213,7 +209,6 @@ export default function StudentDetailsModal({ open, setOpen, studentId, onSucces
                     
                     <hr className="border-gray-200 dark:border-gray-800" />
 
-                    {/* Admission & Fees */}
                     <section>
                         <h3 className="text-lg font-bold text-brand-primary mb-4">Admission & Fees</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -20,11 +20,10 @@ export default function RoomDetailsPage() {
   const { data: roomData, isLoading, error, refetch: refetchRoom } = useGetRoomQuery(id as string);
   const room = roomData?.data;
 
-  // Fetch students for this room
   const { data: studentsData, refetch: refetchStudents } = useGetStudentsQuery({
     hostelId: user?.hostelId,
     roomId: id as string,
-    limit: 100 // Fetch all in room
+    limit: 100 
   }, { skip: !user?.hostelId || !id });
   
   const students = studentsData?.data || [];
@@ -88,7 +87,6 @@ export default function RoomDetailsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <button 
             onClick={() => router.back()}
@@ -113,7 +111,6 @@ export default function RoomDetailsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Room Info */}
         <div className="lg:col-span-1 space-y-6">
             <div className="p-6 bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-brand-primary/5">
                 <h3 className="font-semibold text-brand-text dark:text-dark-text mb-4">Details</h3>
@@ -140,7 +137,6 @@ export default function RoomDetailsPage() {
             </div>
         </div>
 
-        {/* Beds Grid */}
         <div className="lg:col-span-2">
             <div className="p-6 bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-brand-primary/5">
                 <h3 className="font-semibold text-brand-text dark:text-dark-text mb-6">Bed Configuration</h3>

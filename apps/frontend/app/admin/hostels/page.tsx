@@ -6,7 +6,6 @@ import { HiSearch, HiOfficeBuilding, HiLocationMarker, HiUser, HiCurrencyDollar,
 import { useUpdateSubscriptionRateMutation, useGenerateInvoiceMutation, useMarkAsPaidMutation, useGetPendingPaymentsQuery } from '@/lib/services/adminPaymentApi';
 import { toast } from 'react-hot-toast';
 
-// Custom hook to fetch all hostels for admin functionality
 import { baseApi } from '@/lib/services/api';
 const adminHostelApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -28,7 +27,6 @@ export default function AdminHostelsPage() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ACTIVE');
   
-  // Rate Editing State
   const [editingRateId, setEditingRateId] = useState<string | null>(null);
   const [tempRate, setTempRate] = useState<number>(0);
 
@@ -96,7 +94,6 @@ export default function AdminHostelsPage() {
         </div>
       </div>
 
-      {/* Filters & Search */}
       <div className="flex flex-col md:flex-row gap-4 border-b border-gray-200 dark:border-gray-700 pb-4 justify-between items-end">
          <div className="flex gap-2">
             {[

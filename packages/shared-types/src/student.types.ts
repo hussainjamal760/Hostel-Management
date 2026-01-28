@@ -8,11 +8,13 @@ export interface IEmergencyContact {
   phone: string;
 }
 
+import { IRoom } from './room.types';
+
 export interface IStudent {
   _id: string;
   userId: string;
   hostelId: string;
-  roomId: string;
+  roomId: string | IRoom;
   bedNumber: string;
   fullName: string;
   fatherName: string;

@@ -38,7 +38,6 @@ export default function StudentsPage() {
 
   const students = studentsData?.data || [];
   
-  // Calculate stats (optional, could be separate API or derived)
   const totalStudents = studentsData?.pagination?.total || 0;
   
   const handleViewDetails = (studentId: string) => {
@@ -64,7 +63,6 @@ export default function StudentsPage() {
           <p className="text-sm text-brand-text/60 dark:text-dark-text/60">Manage all registered students</p>
         </div>
         
-        {/* Actions / Search */}
         <div className="flex gap-2">
             <div className="relative">
                 <HiOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -86,7 +84,6 @@ export default function StudentsPage() {
         </div>
       </div>
       
-      {/* Filters */}
       <div className="flex gap-2 overflow-x-auto pb-2">
          {['ALL', 'PAID', 'DUE'].map((status) => (
              <button
@@ -206,7 +203,6 @@ export default function StudentsPage() {
         )}
       </div>
 
-      {/* Pagination Controls */}
       {!isLoading && (studentsData?.pagination?.total || 0) > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 bg-white dark:bg-dark-card p-4 rounded-2xl shadow-sm border border-brand-primary/5">
               <div className="text-sm text-gray-500 text-center sm:text-left">

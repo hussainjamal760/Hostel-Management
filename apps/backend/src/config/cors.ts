@@ -1,15 +1,10 @@
 import { CorsOptions } from 'cors';
 import env from './env';
 
-/**
- * CORS Configuration
- * Allows specific origins based on environment
- */
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
     const allowedOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim());
 
-    // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) {
       return callback(null, true);
     }
@@ -24,7 +19,7 @@ export const corsOptions: CorsOptions = {
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['X-Total-Count', 'X-Total-Pages'],
-  maxAge: 86400, // 24 hours
+  maxAge: 86400, 
 };
 
 export default corsOptions;

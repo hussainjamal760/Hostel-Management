@@ -2,14 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { IRoom } from '@hostelite/shared-types';
 import { ROOM_TYPES } from '@hostelite/shared-constants';
 
-/**
- * Room Document Interface
- */
 export interface IRoomDocument extends Omit<IRoom, '_id'>, Document {}
 
-/**
- * Room Schema
- */
 const roomSchema = new Schema<IRoomDocument>(
   {
     hostelId: {

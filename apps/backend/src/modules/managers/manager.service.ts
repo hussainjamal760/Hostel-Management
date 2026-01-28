@@ -27,21 +27,19 @@ class ManagerService {
       phone: data.phoneNumber,
       password: hashedPassword,
       role: 'MANAGER',
-      isEmailVerified: true, // Verified since created by owner
-      isFirstLogin: true, // Force password change on first login
+      isEmailVerified: true, 
+      isFirstLogin: true, 
       isActive: true,
-      hostelId: new mongoose.Types.ObjectId(data.hostelId), // Link to hostel
+      hostelId: new mongoose.Types.ObjectId(data.hostelId), 
       createdBy: new mongoose.Types.ObjectId(ownerId)
     });
 
-    // Create Manager profile
     const manager = await Manager.create({
       ...data,
       userId: user._id,
       ownerId: new mongoose.Types.ObjectId(ownerId),
     });
 
-    // Return manager with username explicitly attached (for frontend display)
     const result = manager.toObject();
     (result as any).username = username;
     

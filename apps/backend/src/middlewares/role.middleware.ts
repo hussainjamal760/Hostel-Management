@@ -3,10 +3,6 @@ import { Role } from '@hostelite/shared-types';
 import { hasPermission } from '@hostelite/shared-constants';
 import { ApiError } from '../utils';
 
-/**
- * Role-Based Access Control Middleware
- * Restricts access based on user roles
- */
 export const authorize = (...allowedRoles: Role[]) => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
@@ -25,10 +21,7 @@ export const authorize = (...allowedRoles: Role[]) => {
   };
 };
 
-/**
- * Minimum Role Middleware
- * Allows access if user has at least the specified role level
- */
+
 export const requireMinRole = (minRole: Role) => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
@@ -47,21 +40,15 @@ export const requireMinRole = (minRole: Role) => {
   };
 };
 
-/**
- * Hostel Access Middleware
- * Ensures user can only access resources from their hostel
- */
+
 export const requireHostelAccess = (req: Request, _res: Response, next: NextFunction): void => {
   if (!req.user) {
     return next(ApiError.unauthorized('Authentication required'));
   }
 
-  // ADMIN can access all hostels
   if (req.user.role === 'ADMIN') {
     return next();
   }
-
-  // Check if hostelId is in params or query
   const requestedHostelId = req.params.hostelId || req.query.hostelId;
 
   if (requestedHostelId && req.user.hostelId !== requestedHostelId) {

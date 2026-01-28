@@ -2,14 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { INotification } from '@hostelite/shared-types';
 import { NOTIFICATION_TYPES } from '@hostelite/shared-constants';
 
-/**
- * Notification Document Interface
- */
 export interface INotificationDocument extends Omit<INotification, '_id'>, Document {}
-
-/**
- * Notification Schema
- */
 const notificationSchema = new Schema<INotificationDocument>(
   {
     userId: {
@@ -59,16 +52,11 @@ const notificationSchema = new Schema<INotificationDocument>(
   }
 );
 
-// Indexes
 notificationSchema.index({ userId: 1, isRead: 1 });
 notificationSchema.index({ userId: 1, createdAt: -1 });
 
-// Auto-delete old notifications after 30 days
 notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 });
 
-/**
- * Notification Model
- */
 export const Notification = mongoose.model<INotificationDocument>(
   'Notification',
   notificationSchema

@@ -51,7 +51,6 @@ export default function StudentComplaintsPage() {
         </button>
       </div>
 
-      {/* Complaints List */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center">Loading...</div>
@@ -97,7 +96,6 @@ export default function StudentComplaintsPage() {
         )}
       </div>
 
-      {/* Create Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
