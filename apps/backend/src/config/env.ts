@@ -22,12 +22,12 @@ const env = cleanEnv(process.env, {
   JWT_REFRESH_EXPIRY: str({ default: '7d' }),
 
   // Cloudinary
-  CLOUDINARY_CLOUD_NAME: str({ default: '' }),
-  CLOUDINARY_API_KEY: str({ default: '' }),
-  CLOUDINARY_API_SECRET: str({ default: '' }),
+  CLOUDINARY_CLOUD_NAME: str(),
+  CLOUDINARY_API_KEY: str(),
+  CLOUDINARY_API_SECRET: str(),
 
   // Email
-  FROM_EMAIL: str({ default: 'noreply@hostelite.com' }),
+  FROM_EMAIL: str({ default: 'hjamal9865@gmail.com' }),
   SMTP_HOST: str({ default: 'smtp.gmail.com' }),
   SMTP_PORT: port({ default: 587 }),
   SMTP_USER: str(),
@@ -38,7 +38,7 @@ const env = cleanEnv(process.env, {
   RATE_LIMIT_MAX_REQUESTS: num({ default: 500 }),
 
   // CORS
-  CORS_ORIGIN: str({ default: 'http://localhost:5173' }),
+  CORS_ORIGIN: str({ default: 'http://localhost:5000' }),
 
 });
 
