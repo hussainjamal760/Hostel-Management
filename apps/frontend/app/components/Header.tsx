@@ -11,7 +11,8 @@ import SignUp from "../Auth/Signup";
 import Verification from "../Auth/Verification";
 import { useSelector } from "react-redux";
 
-const getInitials = (name: string) => {
+const getInitials = (name: string | undefined | null) => {
+  if (!name) return "U";
   return name
     .split(" ")
     .map((n) => n[0])
@@ -25,7 +26,13 @@ const Header = () => {
   const [open, setOpen] = useState(false);
   const [openAuth, setOpenAuth] = useState(false);
   const [route, setRoute] = useState("Login");
+  const [mounted, setMounted] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
+
+  // Prevent hydration mismatch by only rendering user-dependent content on client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,97 +53,95 @@ const Header = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-[999] transition-all duration-500 ${
-          active
-            ? "bg-brand-bg/80 dark:bg-dark-bg/80 backdrop-blur-xl py-3 shadow-lg"
-            : "bg-transparent py-6"
-        }`}
+        className={`fixed top-0 left-0 w-full z-[999] transition-all duration-500 ${active
+          ? "bg-brand-bg/80 dark:bg-dark-bg/80 backdrop-blur-xl py-3 shadow-lg"
+          : "bg-transparent py-6"
+          }`}
       >
-      <div className="max-w-[1440px] mx-auto flex items-center justify-between px-6 md:px-12">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="relative w-10 h-10 overflow-hidden rounded-xl bg-brand-primary dark:bg-dark-primary flex items-center justify-center transition-transform group-hover:scale-105">
-            <span className="text-white dark:text-[#2c1b13] font-bold text-xl">H</span>
-          </div>
-          <div className="flex flex-col">
-          <span className="font-bold text-2xl tracking-tight text-brand-primary dark:text-dark-text">
-            HOSTELITE
-          </span>
-           <span className="text-sm tracking-tight text-brand-primary dark:text-dark-text">
-            <i>Beyond Ordinary</i>
-          </span>
-          </div>
-        </Link>
+        <div className="max-w-[1440px] mx-auto flex items-center justify-between px-6 md:px-12">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="relative w-10 h-10 overflow-hidden rounded-xl bg-brand-primary dark:bg-dark-primary flex items-center justify-center transition-transform group-hover:scale-105">
+              <span className="text-white dark:text-[#2c1b13] font-bold text-xl">H</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-2xl tracking-tight text-brand-primary dark:text-dark-text">
+                HOSTELITE
+              </span>
+              <span className="text-sm tracking-tight text-brand-primary dark:text-dark-text">
+                <i>Beyond Ordinary</i>
+              </span>
+            </div>
+          </Link>
 
-        <nav className="hidden md:flex items-center gap-10">
-          {navItems.map((item, index) => (
-            <Link
-              key={index}
-              href={item.url}
-              className="text-[14px] uppercase tracking-widest font-semibold text-brand-text/70 hover:text-brand-primary dark:text-dark-text/60 dark:hover:text-dark-primary transition-all relative group"
-            >
-              {item.name}
-              <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-brand-primary dark:bg-dark-primary transition-all duration-300 group-hover:w-full" />
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <ThemeSwitcher />
-          
-          <div className="hidden md:block cursor-pointer">
-            {user ? (
-              <Link href={"/profile"}>
-                {user.avatar?.url ? (
-                  <Image
-                    src={user.avatar.url}
-                    alt="user"
-                    width={35}
-                    height={35}
-                    className="rounded-full border-2 border-brand-primary dark:border-dark-primary"
-                  />
-                ) : (
-                  <div className="w-[35px] h-[35px] rounded-full bg-[#2c1b13] dark:bg-[#fcf2e9] flex items-center justify-center text-[#fcf2e9] dark:text-[#2c1b13] text-sm font-bold border-2 border-brand-primary dark:border-dark-primary">
-                    {getInitials(user.name)}
-                  </div>
-                )}
-              </Link>
-            ) : (
-              <div
-                onClick={() => {
-                  setRoute("Login");
-                  setOpenAuth(true);
-                }}
+          <nav className="hidden md:flex items-center gap-10">
+            {navItems.map((item, index) => (
+              <Link
+                key={index}
+                href={item.url}
+                className="text-[14px] uppercase tracking-widest font-semibold text-brand-text/70 hover:text-brand-primary dark:text-dark-text/60 dark:hover:text-dark-primary transition-all relative group"
               >
-                <HiOutlineUserCircle
-                  size={32}
-                  className="text-black dark:text-[#fff8f2] hover:opacity-80 transition-opacity"
-                />
-              </div>
-            )}
-          </div>
+                {item.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-brand-primary dark:bg-dark-primary transition-all duration-300 group-hover:w-full" />
+              </Link>
+            ))}
+          </nav>
 
-          <button
-            className="md:hidden ml-2 text-brand-primary dark:text-dark-text outline-none"
-            onClick={() => setOpen(!open)}
-          >
-            <HiOutlineMenuAlt3 size={30} />
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeSwitcher />
+
+            <div className="hidden md:block cursor-pointer">
+              {mounted && user ? (
+                <Link href={"/profile"}>
+                  {user.avatar?.url ? (
+                    <Image
+                      src={user.avatar.url}
+                      alt="user"
+                      width={35}
+                      height={35}
+                      className="rounded-full border-2 border-brand-primary dark:border-dark-primary"
+                    />
+                  ) : (
+                    <div className="w-[35px] h-[35px] rounded-full bg-[#2c1b13] dark:bg-[#fcf2e9] flex items-center justify-center text-[#fcf2e9] dark:text-[#2c1b13] text-sm font-bold border-2 border-brand-primary dark:border-dark-primary">
+                      {getInitials(user.name)}
+                    </div>
+                  )}
+                </Link>
+              ) : (
+                <div
+                  onClick={() => {
+                    setRoute("Login");
+                    setOpenAuth(true);
+                  }}
+                >
+                  <HiOutlineUserCircle
+                    size={32}
+                    className="text-black dark:text-[#fff8f2] hover:opacity-80 transition-opacity"
+                  />
+                </div>
+              )}
+            </div>
+
+            <button
+              className="md:hidden ml-2 text-brand-primary dark:text-dark-text outline-none"
+              onClick={() => setOpen(!open)}
+            >
+              <HiOutlineMenuAlt3 size={30} />
+            </button>
+          </div>
         </div>
-      </div>
       </header>
 
       {open && (
         <div className="fixed inset-0 z-[9999] md:hidden">
           {/* Backdrop */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          
+
           {/* Sidebar Panel */}
-          <div className={`absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-[#fcf2e9] dark:bg-[#2c1b13] shadow-2xl transform transition-transform duration-300 ease-out ${
-            open ? 'translate-x-0' : 'translate-x-full'
-          }`}>
+          <div className={`absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-[#fcf2e9] dark:bg-[#2c1b13] shadow-2xl transform transition-transform duration-300 ease-out ${open ? 'translate-x-0' : 'translate-x-full'
+            }`}>
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-[#2c1b13]/10 dark:border-[#fcf2e9]/10">
@@ -156,7 +161,7 @@ const Header = () => {
 
               {/* Profile Section */}
               <div className="p-6 border-b border-[#2c1b13]/10 dark:border-[#fcf2e9]/10">
-                {user ? (
+                {mounted && user ? (
                   <Link href="/profile" onClick={() => setOpen(false)} className="flex items-center gap-4 p-4 rounded-2xl bg-[#2c1b13]/5 dark:bg-[#fcf2e9]/5 hover:bg-[#2c1b13]/10 dark:hover:bg-[#fcf2e9]/10 transition-all">
                     {user.avatar?.url ? (
                       <Image
@@ -211,7 +216,7 @@ const Header = () => {
                   <span className="text-sm font-semibold text-[#2c1b13] dark:text-[#fcf2e9]">Theme</span>
                   <ThemeSwitcher />
                 </div>
-                
+
                 <p className="text-xs text-center text-[#2c1b13]/40 dark:text-[#fcf2e9]/40 tracking-wider">
                   © {new Date().getFullYear()} HOSTELITE
                 </p>

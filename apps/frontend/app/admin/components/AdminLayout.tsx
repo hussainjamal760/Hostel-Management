@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
@@ -37,11 +37,17 @@ const menuItems = [
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { data: pendingCountData } = useGetPendingCountQuery(undefined, {
     pollingInterval: 30000,
     skip: !user || user.role !== 'ADMIN',
@@ -76,9 +82,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-72 bg-[#2c1b13] dark:bg-[#1a0f0a] transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed top-0 left-0 z-50 h-full w-72 bg-[#2c1b13] dark:bg-[#1a0f0a] transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
@@ -109,11 +114,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   key={item.name}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all ${
-                    isActive
-                      ? 'bg-[#fcf2e9] text-[#2c1b13]'
-                      : 'text-[#fcf2e9]/70 hover:bg-[#fcf2e9]/10 hover:text-[#fcf2e9]'
-                  }`}
+                  className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all ${isActive
+                    ? 'bg-[#fcf2e9] text-[#2c1b13]'
+                    : 'text-[#fcf2e9]/70 hover:bg-[#fcf2e9]/10 hover:text-[#fcf2e9]'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <item.icon size={20} />
@@ -133,11 +137,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <div className="p-4 border-t border-[#fcf2e9]/10">
             <div className="flex items-center gap-3 p-3 rounded-xl bg-[#fcf2e9]/5">
               <div className="w-10 h-10 rounded-full bg-[#fcf2e9] flex items-center justify-center text-[#2c1b13] font-bold text-sm">
-                {user?.name ? getInitials(user.name) : 'A'}
+                {mounted && user?.name ? getInitials(user.name) : 'A'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[#fcf2e9] truncate text-sm">{user?.name || 'Admin'}</p>
-                <p className="text-xs text-[#fcf2e9]/60 truncate">{user?.email}</p>
+                <p className="font-semibold text-[#fcf2e9] truncate text-sm">{mounted ? (user?.name || 'Admin') : 'Admin'}</p>
+                <p className="text-xs text-[#fcf2e9]/60 truncate">{mounted ? user?.email : ''}</p>
               </div>
             </div>
             <button
@@ -162,7 +166,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             >
               <HiOutlineMenu size={24} className="text-brand-text dark:text-dark-text" />
             </button>
-            
+
             <div className="hidden lg:block">
               <h1 className="text-xl font-bold text-brand-text dark:text-dark-text">
                 {menuItems.find((item) => item.href === pathname)?.name || 'Dashboard'}
@@ -176,11 +180,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </button>
               <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-brand-card/30 dark:border-dark-card/30">
                 <div className="w-9 h-9 rounded-full bg-brand-primary dark:bg-dark-primary flex items-center justify-center text-white dark:text-dark-bg font-bold text-sm">
-                  {user?.name ? getInitials(user.name) : 'A'}
+                  {mounted && user?.name ? getInitials(user.name) : 'A'}
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-sm font-semibold text-brand-text dark:text-dark-text">{user?.name}</p>
-                  <p className="text-xs text-brand-text/60 dark:text-dark-text/60">{user?.role}</p>
+                  <p className="text-sm font-semibold text-brand-text dark:text-dark-text">{mounted ? user?.name : ''}</p>
+                  <p className="text-xs text-brand-text/60 dark:text-dark-text/60">{mounted ? user?.role : ''}</p>
                 </div>
               </div>
             </div>
