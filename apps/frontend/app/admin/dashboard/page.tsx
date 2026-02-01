@@ -2,7 +2,7 @@
 
 import { useAppSelector } from '@/lib/hooks';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   HiOutlineOfficeBuilding,
   HiOutlineUsers,
@@ -25,19 +25,25 @@ import RecentActivity from '../components/RecentActivity';
 import QuickActions from '../components/QuickActions';
 
 export default function AdminDashboardPage() {
+  const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const router = useRouter();
   const { data: statsResponse, isLoading, error } = useGetDashboardStatsQuery();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
       router.push('/login');
-    } else if (user?.role !== 'ADMIN') {
+    } else if (mounted && user?.role !== 'ADMIN') {
       router.push('/unauthorized');
     }
-  }, [isAuthenticated, user, router]);
+  }, [mounted, isAuthenticated, user, router]);
 
-  if (!isAuthenticated || user?.role !== 'ADMIN') {
+  // Always show loading on server and until mounted on client
+  if (!mounted || !isAuthenticated || user?.role !== 'ADMIN') {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="animate-pulse text-brand-text dark:text-dark-text">Loading...</div>
@@ -84,7 +90,7 @@ export default function AdminDashboardPage() {
             <StatsCard
               title="Total Active Hostels"
               value={stats?.totalActiveHostels || 0}
-              change={stats?.recentTrends?.hostelsGrowth 
+              change={stats?.recentTrends?.hostelsGrowth
                 ? `${stats.recentTrends.hostelsGrowth > 0 ? '+' : ''}${stats.recentTrends.hostelsGrowth}% this month`
                 : 'Active on platform'}
               changeType={stats?.recentTrends?.hostelsGrowth && stats.recentTrends.hostelsGrowth > 0 ? 'positive' : 'neutral'}
@@ -94,7 +100,7 @@ export default function AdminDashboardPage() {
             <StatsCard
               title="Total Students"
               value={stats?.totalStudents?.toLocaleString() || 0}
-              change={stats?.recentTrends?.studentsGrowth 
+              change={stats?.recentTrends?.studentsGrowth
                 ? `${stats.recentTrends.studentsGrowth > 0 ? '+' : ''}${stats.recentTrends.studentsGrowth}% growth`
                 : 'Across all hostels'}
               changeType={stats?.recentTrends?.studentsGrowth && stats.recentTrends.studentsGrowth > 0 ? 'positive' : 'neutral'}
@@ -104,14 +110,14 @@ export default function AdminDashboardPage() {
             <StatsCard
               title="Monthly Recurring Revenue"
               value={`₨ ${stats?.monthlyRecurringRevenue?.toLocaleString() || 0}`}
-              change={stats?.recentTrends?.revenueGrowth 
+              change={stats?.recentTrends?.revenueGrowth
                 ? `${stats.recentTrends.revenueGrowth > 0 ? '+' : ''}${stats.recentTrends.revenueGrowth}% vs last month`
                 : 'Current month MRR'}
               changeType={stats?.recentTrends?.revenueGrowth && stats.recentTrends.revenueGrowth > 0 ? 'positive' : 'negative'}
               icon={HiOutlineCurrencyDollar}
               iconBg="bg-emerald-500"
             />
-             <StatsCard
+            <StatsCard
               title="Total Revenue (Lifetime)"
               value={`₨ ${stats?.totalRevenue?.toLocaleString() || 0}`}
               change="Total collected amount"
@@ -165,13 +171,13 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
           <ChartCard title="Payment Status">
-            <PaymentStatusChart 
+            <PaymentStatusChart
               pendingPayments={stats?.pendingPayments || 0}
               totalStudents={stats?.totalStudents || 0}
             />
           </ChartCard>
           <ChartCard title="Hostel Status">
-            <RoomDistributionChart 
+            <RoomDistributionChart
               active={stats?.totalActiveHostels || 0}
               churned={stats?.churnedHostels || 0}
             />

@@ -16,7 +16,7 @@ export const configureCloudinary = (): void => {
     secure: true,
   });
 
-  logger.info('✅ Cloudinary configured');
+  logger.info('Cloudinary configured');
 };
 
 export { cloudinary };

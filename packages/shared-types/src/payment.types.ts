@@ -27,6 +27,9 @@ export interface IPayment {
   isVerified?: boolean;
   verifiedBy?: string;
   verifiedAt?: Date;
+  dueDate?: Date;
+  billingCycleId?: string;
+  description?: string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -15,32 +15,32 @@ export class StudentService {
     }
 
     const realOccupiedCount = await Student.countDocuments({ roomId: data.roomId, isActive: true });
-    
+
     if (room.occupiedBeds !== realOccupiedCount) {
-        await Room.findByIdAndUpdate(data.roomId, { occupiedBeds: realOccupiedCount });
-        room.occupiedBeds = realOccupiedCount;
+      await Room.findByIdAndUpdate(data.roomId, { occupiedBeds: realOccupiedCount });
+      room.occupiedBeds = realOccupiedCount;
     }
 
     if (room.occupiedBeds >= room.totalBeds) {
       throw ApiError.badRequest('Room is fully occupied');
     }
 
-    const existingBed = await Student.findOne({ 
-      roomId: data.roomId, 
-      bedNumber: data.bedNumber, 
-      isActive: true 
+    const existingBed = await Student.findOne({
+      roomId: data.roomId,
+      bedNumber: data.bedNumber,
+      isActive: true
     });
-    
+
     if (existingBed) {
       throw ApiError.badRequest(`Bed ${data.bedNumber} is already occupied`);
     }
 
     const firstName = data.fullName.trim().split(' ')[0].toLowerCase();
-    
+
     const cnicSuffix = data.cnic.slice(-3);
     const phoneSuffix = data.phone.slice(-3);
     const username = `${firstName}-${cnicSuffix}-${phoneSuffix}`;
-    
+
 
     const { user, password } = await userService.createUser(
       {
@@ -53,11 +53,11 @@ export class StudentService {
         password: generatePassword(6),
         isEmailVerified: true,
       },
-      'MANAGER', 
+      'MANAGER',
       hostelId
     );
 
-    try { 
+    try {
       const student = await Student.create({
         ...data,
         userId: user._id,
@@ -69,10 +69,10 @@ export class StudentService {
       });
 
       try {
-          const paymentService = require('../payments/payment.service').default;
-          await paymentService.generateInitialInvoice(student, hostelId);
+        const paymentService = require('../payments/payment.service').default;
+        await paymentService.generateInitialInvoice(student, hostelId);
       } catch (invError) {
-          console.error("Failed to generate initial invoice:", invError);
+        console.error("Failed to generate initial invoice:", invError);
       }
 
       return { student, user, password };
@@ -91,29 +91,29 @@ export class StudentService {
       feeStatus?: string;
       page?: number;
       limit?: number;
-      ownerId?: string; 
+      ownerId?: string;
     }
   ) {
     const { roomId, search, feeStatus, page = 1, limit = 10, ownerId } = query;
     const skip = (page - 1) * limit;
 
     const filter: FilterQuery<IStudentDocument> = { isActive: true };
-    
+
     if (hostelId) {
-        filter.hostelId = hostelId;
+      filter.hostelId = hostelId;
     } else if (ownerId) {
-        const Hostel = require('../hostels/hostel.model').default;
-        const hostels = await Hostel.find({ ownerId, isActive: true }).select('_id');
-        const hostelIds = hostels.map((h: any) => h._id);
-        
-        if (hostelIds.length > 0) {
-            filter.hostelId = { $in: hostelIds };
-        } else {
-             return {
-                students: [],
-                pagination: { page, limit, total: 0, totalPages: 0, hasNext: false, hasPrev: false }
-             };
-        }
+      const Hostel = require('../hostels/hostel.model').default;
+      const hostels = await Hostel.find({ ownerId, isActive: true }).select('_id');
+      const hostelIds = hostels.map((h: any) => h._id);
+
+      if (hostelIds.length > 0) {
+        filter.hostelId = { $in: hostelIds };
+      } else {
+        return {
+          students: [],
+          pagination: { page, limit, total: 0, totalPages: 0, hasNext: false, hasPrev: false }
+        };
+      }
     }
 
     if (roomId) filter.roomId = roomId;
@@ -126,14 +126,14 @@ export class StudentService {
       ];
 
       if (filter.hostelId) {
-          const matchingRooms = await Room.find({ 
-            hostelId: filter.hostelId, 
-            roomNumber: { $regex: search, $options: 'i' } 
-          }).select('_id');
-          
-          if (matchingRooms.length > 0) {
-             orConditions.push({ roomId: { $in: matchingRooms.map(r => r._id) } });
-          }
+        const matchingRooms = await Room.find({
+          hostelId: filter.hostelId,
+          roomNumber: { $regex: search, $options: 'i' }
+        }).select('_id');
+
+        if (matchingRooms.length > 0) {
+          orConditions.push({ roomId: { $in: matchingRooms.map(r => r._id) } });
+        }
       }
 
       filter.$or = orConditions;
@@ -169,7 +169,7 @@ export class StudentService {
       .populate('userId', 'username email phone avatar')
       .populate('roomId', 'roomNumber roomType')
       .exec();
-      
+
     if (!student) {
       throw ApiError.notFound('Student not found');
     }
@@ -178,17 +178,17 @@ export class StudentService {
 
   async getStudentByUserId(userId: string) {
     console.log(`[Debug] Looking for student profile for UserID: ${userId} (Type: ${typeof userId})`);
-    
-    const student = await Student.findOne({ userId:  new Types.ObjectId(userId) })
+
+    const student = await Student.findOne({ userId: new Types.ObjectId(userId) })
       .populate('userId', 'username email phone avatar')
       .populate('roomId', 'roomNumber roomType')
       .exec();
-      
+
     if (!student) {
       console.warn(`[Debug] Student profile NOT found for UserID: ${userId}`);
       const count = await Student.countDocuments();
       console.warn(`[Debug] Total students in DB: ${count}`);
-      
+
       throw ApiError.notFound('Student profile not found');
     }
     console.log(`[Debug] Found Student Profile: ${student._id}`);
@@ -202,59 +202,59 @@ export class StudentService {
     }
 
     if (requesterRole === 'MANAGER' && student.hostelId.toString() !== requesterHostelId) {
-        throw ApiError.forbidden('Access denied');
+      throw ApiError.forbidden('Access denied');
     }
 
     if (data.roomId && data.roomId !== student.roomId.toString()) {
       const newRoom = await Room.findById(data.roomId);
       if (!newRoom) throw ApiError.notFound('New room not found');
-      
+
       if (!data.bedNumber) {
-          throw ApiError.badRequest('Bed number is required when changing rooms');
+        throw ApiError.badRequest('Bed number is required when changing rooms');
       }
 
       const bedTaken = await Student.findOne({
-          roomId: data.roomId,
-          bedNumber: data.bedNumber,
-          isActive: true
+        roomId: data.roomId,
+        bedNumber: data.bedNumber,
+        isActive: true
       });
 
       if (bedTaken) {
-          throw ApiError.badRequest(`Bed ${data.bedNumber} in room ${newRoom.roomNumber} is already occupied`);
+        throw ApiError.badRequest(`Bed ${data.bedNumber} in room ${newRoom.roomNumber} is already occupied`);
       }
-      
+
       if (newRoom.occupiedBeds >= newRoom.totalBeds) {
-           throw ApiError.badRequest('New room is fully occupied');
+        throw ApiError.badRequest('New room is fully occupied');
       }
 
       await Room.findByIdAndUpdate(student.roomId, { $inc: { occupiedBeds: -1 } });
       await Room.findByIdAndUpdate(data.roomId, { $inc: { occupiedBeds: 1 } });
-    } 
+    }
     else if (data.bedNumber && data.bedNumber !== student.bedNumber) {
-        const bedTaken = await Student.findOne({
-            roomId: student.roomId,
-            bedNumber: data.bedNumber,
-            isActive: true
-        });
-        
-        if (bedTaken) {
-            throw ApiError.badRequest(`Bed ${data.bedNumber} is already occupied`);
-        }
+      const bedTaken = await Student.findOne({
+        roomId: student.roomId,
+        bedNumber: data.bedNumber,
+        isActive: true
+      });
+
+      if (bedTaken) {
+        throw ApiError.badRequest(`Bed ${data.bedNumber} is already occupied`);
+      }
     }
 
     if (requesterRole === 'MANAGER') {
-        delete (data as any).agreementDate;
-        delete (data as any).monthlyFee;
-        delete (data as any).securityDeposit;
-        delete (data as any).feeStatus;
-        delete (data as any).totalDue;
+      delete (data as any).agreementDate;
+      delete (data as any).monthlyFee;
+      delete (data as any).securityDeposit;
+      delete (data as any).feeStatus;
+      delete (data as any).totalDue;
     }
 
     if (data.email || data.phone) {
-        await User.findByIdAndUpdate(student.userId, {
-            ...(data.email && { email: data.email }),
-            ...(data.phone && { phone: data.phone })
-        });
+      await User.findByIdAndUpdate(student.userId, {
+        ...(data.email && { email: data.email }),
+        ...(data.phone && { phone: data.phone })
+      });
     }
 
     Object.assign(student, data);
@@ -269,30 +269,30 @@ export class StudentService {
     }
 
     if (requesterRole === 'MANAGER' && student.hostelId.toString() !== requesterHostelId) {
-        throw ApiError.forbidden('Access denied');
+      throw ApiError.forbidden('Access denied');
     }
 
     if (requesterRole === 'MANAGER') {
-        student.isActive = false;
-        student.status = 'LEFT';
-        const oldRoomId = student.roomId;
-        student.roomId = null as any; 
-        student.bedNumber = null as any;
-        student.expectedLeaveDate = new Date();
-        
-        await student.save();
-        
-        await Room.findByIdAndUpdate(oldRoomId, { $inc: { occupiedBeds: -1 } });
-        
-        return { message: 'Student marked as Left' };
+      student.isActive = false;
+      student.status = 'LEFT';
+      const oldRoomId = student.roomId;
+      student.roomId = null as any;
+      student.bedNumber = null as any;
+      student.expectedLeaveDate = new Date();
+
+      await student.save();
+
+      await Room.findByIdAndUpdate(oldRoomId, { $inc: { occupiedBeds: -1 } });
+
+      return { message: 'Student marked as Left' };
     } else {
-        const oldRoomId = student.roomId;
-        await Student.findByIdAndDelete(id);
-        await userService.deleteUser(student.userId.toString()); 
-        
-        await Room.findByIdAndUpdate(oldRoomId, { $inc: { occupiedBeds: -1 } });
-        
-        return null;
+      const oldRoomId = student.roomId;
+      await Student.findByIdAndDelete(id);
+      await userService.deleteUser(student.userId.toString());
+
+      await Room.findByIdAndUpdate(oldRoomId, { $inc: { occupiedBeds: -1 } });
+
+      return null;
     }
   }
 
@@ -304,11 +304,11 @@ export class StudentService {
     const dueStudents = await Student.countDocuments({ ...activeFilter, feeStatus: { $in: ['DUE', 'OVERDUE', 'PARTIAL'] } });
 
     const financials = await Student.aggregate([
-      { 
-        $match: { 
-          hostelId: new Types.ObjectId(hostelId), 
-          isActive: true 
-        } 
+      {
+        $match: {
+          hostelId: new Types.ObjectId(hostelId),
+          isActive: true
+        }
       },
       {
         $group: {
@@ -328,11 +328,11 @@ export class StudentService {
     ]);
 
     const roomStats = await Room.aggregate([
-      { 
-        $match: { 
-          hostelId: new Types.ObjectId(hostelId), 
-          isActive: true 
-        } 
+      {
+        $match: {
+          hostelId: new Types.ObjectId(hostelId),
+          isActive: true
+        }
       },
       {
         $group: {
@@ -359,15 +359,15 @@ export class StudentService {
     const Complaint = require('../complaints/complaint.model').default;
 
     // 1. Action Center Counts
-    const pendingPayments = await Payment.countDocuments({ 
-        hostelId, 
-        paymentProof: { $exists: true, $ne: null },
-        isVerified: false 
+    const pendingPayments = await Payment.countDocuments({
+      hostelId,
+      paymentProof: { $exists: true, $ne: null },
+      isVerified: false
     });
 
     const openComplaints = await Complaint.countDocuments({
-        hostelId,
-        status: { $in: ['OPEN', 'IN_PROGRESS'] }
+      hostelId,
+      status: { $in: ['OPEN', 'IN_PROGRESS'] }
     });
 
     // 2. Revenue Chart Data (Last 6 Months)
@@ -376,23 +376,23 @@ export class StudentService {
     sixMonthsAgo.setDate(1); // Start of month
 
     const revenueData = await Payment.aggregate([
-        {
-            $match: {
-                hostelId: new Types.ObjectId(hostelId),
-                status: 'COMPLETED',
-                createdAt: { $gte: sixMonthsAgo }
-            }
-        },
-        {
-            $group: {
-                _id: {
-                    month: '$month',
-                    year: '$year'
-                },
-                revenue: { $sum: '$amount' }
-            }
-        },
-        { $sort: { '_id.year': 1, '_id.month': 1 } }
+      {
+        $match: {
+          hostelId: new Types.ObjectId(hostelId),
+          status: 'COMPLETED',
+          createdAt: { $gte: sixMonthsAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            month: '$month',
+            year: '$year'
+          },
+          revenue: { $sum: '$amount' }
+        }
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1 } }
     ]);
 
     // Fill missing months
@@ -401,25 +401,70 @@ export class StudentService {
     const now = new Date();
 
     while (current <= now) {
-        const m = current.getMonth() + 1;
-        const y = current.getFullYear();
-        
-        const found = revenueData.find((d: any) => d._id.month === m && d._id.year === y);
-        chartData.push({
-            name: current.toLocaleString('default', { month: 'short' }),
-            revenue: found ? found.revenue : 0,
-            projected: found ? found.revenue * 1.1 : 50000 // Dummy projection logic for demo
-        });
+      const m = current.getMonth() + 1;
+      const y = current.getFullYear();
 
-        current.setMonth(current.getMonth() + 1);
+      const found = revenueData.find((d: any) => d._id.month === m && d._id.year === y);
+      chartData.push({
+        name: current.toLocaleString('default', { month: 'short' }),
+        revenue: found ? found.revenue : 0,
+        projected: found ? found.revenue * 1.1 : 50000 // Dummy projection logic for demo
+      });
+
+      current.setMonth(current.getMonth() + 1);
     }
 
     return {
-        actionCenter: {
-            pendingPayments,
-            openComplaints
-        },
-        revenueChart: chartData
+      actionCenter: {
+        pendingPayments,
+        openComplaints
+      },
+      revenueChart: chartData
+    };
+  }
+
+  /**
+   * Get due warning information for student dashboard
+   * Shows overdue challans and pending payments
+   */
+  async getStudentDueWarning(studentId: string): Promise<{
+    hasOverdue: boolean;
+    overdueCount: number;
+    pendingCount: number;
+    totalDueAmount: number;
+    oldestDueDate: Date | null;
+    challans: Array<{
+      id: string;
+      amount: number;
+      description: string;
+      dueDate: Date;
+      status: string;
+    }>;
+  }> {
+    const PaymentModel = require('../payments/payment.model').default;
+    const { PAYMENT_STATUS: STATUS, PAYMENT_TYPES: TYPES } = require('@hostelite/shared-constants');
+
+    const unpaidChallans = await PaymentModel.find({
+      studentId,
+      status: { $in: [STATUS.UNPAID, STATUS.OVERDUE] },
+      paymentType: TYPES.RENT
+    }).sort({ dueDate: 1 });
+
+    const overdueChallans = unpaidChallans.filter((c: any) => c.status === STATUS.OVERDUE);
+
+    return {
+      hasOverdue: overdueChallans.length > 0,
+      overdueCount: overdueChallans.length,
+      pendingCount: unpaidChallans.length,
+      totalDueAmount: unpaidChallans.reduce((sum: number, c: any) => sum + c.amount, 0),
+      oldestDueDate: unpaidChallans[0]?.dueDate || null,
+      challans: unpaidChallans.map((c: any) => ({
+        id: c._id.toString(),
+        amount: c.amount,
+        description: c.description || `Monthly Rent - ${c.month}/${c.year}`,
+        dueDate: c.dueDate,
+        status: c.status
+      }))
     };
   }
 }

@@ -89,6 +89,20 @@ const paymentSchema = new Schema<IPaymentDocument>(
       type: String,
       maxlength: [500, 'Notes cannot exceed 500 characters'],
     },
+    dueDate: {
+      type: Date,
+      index: true,
+    },
+    billingCycleId: {
+      type: String,
+      index: true,
+      // Format: YYYY-MM (e.g., "2026-01")
+      // Used for duplicate prevention
+    },
+    description: {
+      type: String,
+      maxlength: [200, 'Description cannot exceed 200 characters'],
+    },
   },
   {
     timestamps: true,
@@ -105,6 +119,13 @@ const paymentSchema = new Schema<IPaymentDocument>(
 paymentSchema.index({ studentId: 1, month: 1, year: 1 });
 paymentSchema.index({ hostelId: 1, status: 1 });
 paymentSchema.index({ hostelId: 1, createdAt: -1 });
+paymentSchema.index({ dueDate: 1, status: 1 });
+
+// Prevent duplicate challans for same student in same billing cycle
+paymentSchema.index(
+  { studentId: 1, billingCycleId: 1, paymentType: 1 },
+  { unique: true, partialFilterExpression: { billingCycleId: { $exists: true } } }
+);
 
 /**
  * Generate receipt number before save

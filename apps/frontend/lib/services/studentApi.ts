@@ -81,6 +81,26 @@ export const studentApi = baseApi.injectEndpoints({
       }),
       providesTags: ['Student', 'Payment', 'Complaint'],
     }),
+    getDueWarning: builder.query<ApiResponse<{
+      hasOverdue: boolean;
+      overdueCount: number;
+      pendingCount: number;
+      totalDueAmount: number;
+      oldestDueDate: string | null;
+      challans: Array<{
+        id: string;
+        amount: number;
+        description: string;
+        dueDate: string;
+        status: string;
+      }>;
+    }>, void>({
+      query: () => ({
+        url: '/students/me/due-warning',
+        method: 'GET',
+      }),
+      providesTags: ['Payment'],
+    }),
   }),
 });
 
@@ -93,4 +113,5 @@ export const {
   useDeleteStudentMutation,
   useGetStudentMeQuery,
   useGetDashboardAnalyticsQuery,
+  useGetDueWarningQuery,
 } = studentApi;

@@ -1,11 +1,14 @@
 'use client';
 
-import { useGetStudentMeQuery } from '@/lib/services/studentApi';
-import { HiOutlineUser, HiOutlineCash, HiOutlineOfficeBuilding, HiOutlineBriefcase } from 'react-icons/hi';
+import { useGetStudentMeQuery, useGetDueWarningQuery } from '@/lib/services/studentApi';
+import { HiOutlineUser, HiOutlineCash, HiOutlineOfficeBuilding, HiOutlineBriefcase, HiOutlineExclamationCircle } from 'react-icons/hi';
+import Link from 'next/link';
 
 export default function StudentDashboard() {
   const { data: studentResponse, isLoading } = useGetStudentMeQuery();
+  const { data: dueWarningResponse } = useGetDueWarningQuery();
   const student = studentResponse?.data;
+  const dueWarning = dueWarningResponse?.data;
 
   if (isLoading) {
     return (
@@ -26,6 +29,49 @@ export default function StudentDashboard() {
 
   return (
     <div className="space-y-8">
+      {/* Due Warning Alert */}
+      {dueWarning && (dueWarning.hasOverdue || dueWarning.pendingCount > 0) && (
+        <div className={`p-6 rounded-2xl border-2 ${dueWarning.hasOverdue
+            ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
+            : 'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700'
+          }`}>
+          <div className="flex items-start gap-4">
+            <div className={`p-3 rounded-full ${dueWarning.hasOverdue
+                ? 'bg-red-100 dark:bg-red-800 text-red-600 dark:text-red-300'
+                : 'bg-orange-100 dark:bg-orange-800 text-orange-600 dark:text-orange-300'
+              }`}>
+              <HiOutlineExclamationCircle size={28} />
+            </div>
+            <div className="flex-1">
+              <h3 className={`text-lg font-bold ${dueWarning.hasOverdue ? 'text-red-700 dark:text-red-300' : 'text-orange-700 dark:text-orange-300'
+                }`}>
+                {dueWarning.hasOverdue ? 'Payment Overdue!' : 'Payment Due'}
+              </h3>
+              <p className={`text-sm mt-1 ${dueWarning.hasOverdue ? 'text-red-600 dark:text-red-400' : 'text-orange-600 dark:text-orange-400'
+                }`}>
+                You have {dueWarning.pendingCount} pending challan{dueWarning.pendingCount > 1 ? 's' : ''}
+                {dueWarning.hasOverdue && ` (${dueWarning.overdueCount} overdue)`}.
+                Total amount: <strong>Rs {dueWarning.totalDueAmount.toLocaleString()}</strong>
+              </p>
+              {dueWarning.oldestDueDate && (
+                <p className="text-xs mt-2 text-gray-500">
+                  Oldest due date: {new Date(dueWarning.oldestDueDate).toLocaleDateString()}
+                </p>
+              )}
+              <Link
+                href="/student/invoices"
+                className={`inline-block mt-4 px-4 py-2 rounded-lg font-medium text-white transition-colors ${dueWarning.hasOverdue
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-orange-600 hover:bg-orange-700'
+                  }`}
+              >
+                View & Pay Challans
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-gradient-to-r from-brand-primary to-brand-primary/80 rounded-2xl p-8 text-white shadow-lg">
         <h1 className="text-3xl font-bold mb-2">Welcome back, {student.fullName.split(' ')[0]}!</h1>
         <p className="opacity-90">Here's your hostel overview.</p>
@@ -53,16 +99,14 @@ export default function StudentDashboard() {
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Fee Status</p>
-              <h3 className={`text-2xl font-bold mt-1 ${
-                student.feeStatus === 'PAID' ? 'text-green-600' : 
-                student.feeStatus === 'OVERDUE' ? 'text-red-600' : 'text-orange-500'
-              }`}>
+              <h3 className={`text-2xl font-bold mt-1 ${student.feeStatus === 'PAID' ? 'text-green-600' :
+                  student.feeStatus === 'OVERDUE' ? 'text-red-600' : 'text-orange-500'
+                }`}>
                 {student.feeStatus}
               </h3>
             </div>
-            <div className={`p-3 rounded-lg ${
-                student.feeStatus === 'PAID' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'
-            }`}>
+            <div className={`p-3 rounded-lg ${student.feeStatus === 'PAID' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'
+              }`}>
               <HiOutlineCash size={24} />
             </div>
           </div>
@@ -94,34 +138,34 @@ export default function StudentDashboard() {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Personal Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-                <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                    <span className="text-gray-500">Full Name</span>
-                    <span className="font-medium">{student.fullName}</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                    <span className="text-gray-500">Phone</span>
-                    <span className="font-medium">{(student.userId as any)?.phone || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                    <span className="text-gray-500">CNIC</span>
-                    <span className="font-medium">{student.cnic}</span>
-                </div>
+          <div className="space-y-4">
+            <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+              <span className="text-gray-500">Full Name</span>
+              <span className="font-medium">{student.fullName}</span>
             </div>
-            <div className="space-y-4">
-                <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                    <span className="text-gray-500">Father's Name</span>
-                    <span className="font-medium">{student.fatherName}</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                    <span className="text-gray-500">Emergency Contact</span>
-                    <span className="font-medium">{student.emergencyContact.phone}</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                    <span className="text-gray-500">Address</span>
-                    <span className="font-medium truncate max-w-[200px]" title={student.permanentAddress}>{student.permanentAddress}</span>
-                </div>
+            <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+              <span className="text-gray-500">Phone</span>
+              <span className="font-medium">{(student.userId as any)?.phone || 'N/A'}</span>
             </div>
+            <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+              <span className="text-gray-500">CNIC</span>
+              <span className="font-medium">{student.cnic}</span>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+              <span className="text-gray-500">Father's Name</span>
+              <span className="font-medium">{student.fatherName}</span>
+            </div>
+            <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+              <span className="text-gray-500">Emergency Contact</span>
+              <span className="font-medium">{student.emergencyContact.phone}</span>
+            </div>
+            <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+              <span className="text-gray-500">Address</span>
+              <span className="font-medium truncate max-w-[200px]" title={student.permanentAddress}>{student.permanentAddress}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
