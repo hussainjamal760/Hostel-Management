@@ -27,6 +27,12 @@ router.get(
 );
 
 router.get(
+  '/me/due-warning',
+  authorize('STUDENT'),
+  studentController.getDueWarning
+);
+
+router.get(
   '/stats',
   authorize('ADMIN', 'OWNER', 'MANAGER'),
   studentController.getStats

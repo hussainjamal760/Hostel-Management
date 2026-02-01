@@ -6,7 +6,7 @@ import { Role } from '@hostelite/shared-types';
 export class StudentController {
   createStudent = asyncHandler(async (req: Request, res: Response) => {
     let hostelId = req.query.hostelId as string;
-    
+
     if (req.user?.role === 'MANAGER') {
       hostelId = req.user.hostelId!;
     }
@@ -26,11 +26,11 @@ export class StudentController {
     if (req.user?.role === 'MANAGER') {
       hostelId = req.user.hostelId!;
     } else if (req.user?.role === 'OWNER') {
-        query.ownerId = req.user.id;
+      query.ownerId = req.user.id;
     }
-    
+
     if (!hostelId && req.user?.role !== 'OWNER' && req.user?.role !== 'ADMIN') {
-       throw ApiError.badRequest('Hostel ID is required');
+      throw ApiError.badRequest('Hostel ID is required');
     }
 
     const result = await studentService.getAllStudents(hostelId, query);
@@ -39,11 +39,11 @@ export class StudentController {
 
   getStudentById = asyncHandler(async (req: Request, res: Response) => {
     const result = await studentService.getStudentById(req.params.id);
-    
+
     if (req.user?.role === 'MANAGER' && result.hostelId.toString() !== req.user.hostelId) {
       throw ApiError.forbidden('Access denied');
     }
-    
+
     ApiResponse.success(res, result, 'Student fetched successfully');
   });
 
@@ -54,19 +54,19 @@ export class StudentController {
 
   updateStudent = asyncHandler(async (req: Request, res: Response) => {
     const result = await studentService.updateStudent(
-        req.params.id, 
-        req.body, 
-        req.user?.hostelId,
-        req.user?.role as Role
+      req.params.id,
+      req.body,
+      req.user?.hostelId,
+      req.user?.role as Role
     );
     ApiResponse.success(res, result, 'Student updated successfully');
   });
 
   deleteStudent = asyncHandler(async (req: Request, res: Response) => {
     await studentService.deleteStudent(
-        req.params.id, 
-        req.user?.hostelId,
-        req.user?.role as Role
+      req.params.id,
+      req.user?.hostelId,
+      req.user?.role as Role
     );
     ApiResponse.success(res, null, 'Student deleted successfully');
   });
@@ -74,7 +74,7 @@ export class StudentController {
   getStats = asyncHandler(async (req: Request, res: Response) => {
     let hostelId = req.query.hostelId as string;
     if (req.user?.role === 'MANAGER') {
-       hostelId = req.user.hostelId!;
+      hostelId = req.user.hostelId!;
     }
     if (!hostelId) throw ApiError.badRequest('Hostel ID is required');
 
@@ -85,12 +85,24 @@ export class StudentController {
   getAnalytics = asyncHandler(async (req: Request, res: Response) => {
     let hostelId = req.query.hostelId as string;
     if (req.user?.role === 'MANAGER') {
-       hostelId = req.user.hostelId!;
+      hostelId = req.user.hostelId!;
     }
     if (!hostelId) throw ApiError.badRequest('Hostel ID is required');
 
     const analytics = await studentService.getDashboardAnalytics(hostelId);
     ApiResponse.success(res, analytics, 'Analytics fetched successfully');
+  });
+
+  /**
+   * Get due warning for logged-in student
+   * Returns overdue challan information for dashboard display
+   */
+  getDueWarning = asyncHandler(async (req: Request, res: Response) => {
+    // Get student profile from user ID
+    const student = await studentService.getStudentByUserId(req.user!.id);
+
+    const warning = await studentService.getStudentDueWarning(student._id.toString());
+    ApiResponse.success(res, warning, 'Due warning fetched successfully');
   });
 }
 

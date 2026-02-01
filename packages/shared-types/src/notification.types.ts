@@ -3,7 +3,10 @@ export type NotificationType =
   | 'PAYMENT_RECEIVED'
   | 'COMPLAINT_UPDATE'
   | 'ANNOUNCEMENT'
-  | 'SYSTEM';
+  | 'SYSTEM'
+  | 'CHALLAN_GENERATED'
+  | 'CHALLAN_OVERDUE'
+  | 'CHALLAN_REMINDER';
 
 export interface INotification {
   _id: string;

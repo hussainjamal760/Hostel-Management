@@ -4,12 +4,12 @@ import paymentService from './payment.service';
 import { Role } from '@hostelite/shared-types';
 
 export class PaymentController {
-  createPayment = asyncHandler(async (req: Request, res: Response) => {   
+  createPayment = asyncHandler(async (req: Request, res: Response) => {
     const result = await paymentService.createPayment(
-        req.body, 
-        req.user!._id,
-        req.user?.hostelId,
-        req.user?.role as Role
+      req.body,
+      req.user!._id,
+      req.user?.hostelId,
+      req.user?.role as Role
     );
     ApiResponse.created(res, result, 'Payment recorded successfully');
   });
@@ -25,16 +25,16 @@ export class PaymentController {
       hostelId = userHostelId!;
       console.log('GetAllPayments - Enforced Manager HostelId:', hostelId);
     } else if (role === 'STUDENT') {
-       const studentService = require('../students/student.service').default;
-       const student = await studentService.getStudentByUserId(userId);
-       if (!student) throw ApiError.notFound('Student profile not found');
-       
-       req.query.studentId = student._id.toString();
-       hostelId = student.hostelId.toString();
+      const studentService = require('../students/student.service').default;
+      const student = await studentService.getStudentByUserId(userId);
+      if (!student) throw ApiError.notFound('Student profile not found');
+
+      req.query.studentId = student._id.toString();
+      hostelId = student.hostelId.toString();
     }
-    
+
     if (!hostelId) {
-       throw ApiError.badRequest('Hostel ID is required');
+      throw ApiError.badRequest('Hostel ID is required');
     }
 
     const result = await paymentService.getAllPayments(hostelId, req.query);
@@ -44,11 +44,11 @@ export class PaymentController {
 
   getPaymentById = asyncHandler(async (req: Request, res: Response) => {
     const result = await paymentService.getPaymentById(req.params.id);
-    
+
     if (req.user?.role === 'MANAGER' && result.hostelId.toString() !== req.user.hostelId) {
       throw ApiError.forbidden('Access denied');
     }
-    
+
     ApiResponse.success(res, result, 'Payment fetched successfully');
   });
 
@@ -62,21 +62,21 @@ export class PaymentController {
     console.log('Submit Proof File:', req.file);
 
     let proofUrl = req.body.proofUrl;
-    
+
     if (req.file) {
-        const { uploadToCloudinary } = require('../../utils/cloudinary');
-        try {
-            const result = await uploadToCloudinary(req.file, 'hostelite/payments'); // Use better folder
-            console.log('Cloudinary Result:', result);
-            proofUrl = result.url;
-        } catch (err) {
-            console.error('Cloudinary Upload Failed:', err);
-            throw new ApiError(500, 'Failed to upload image to cloud storage');
-        }
+      const { uploadToCloudinary } = require('../../utils/cloudinary');
+      try {
+        const result = await uploadToCloudinary(req.file, 'hostelite/payments'); // Use better folder
+        console.log('Cloudinary Result:', result);
+        proofUrl = result.url;
+      } catch (err) {
+        console.error('Cloudinary Upload Failed:', err);
+        throw new ApiError(500, 'Failed to upload image to cloud storage');
+      }
     }
 
     if (!proofUrl) {
-       throw ApiError.badRequest('Proof image is required');
+      throw ApiError.badRequest('Proof image is required');
     }
 
     const result = await paymentService.submitPaymentProof(req.params.id, proofUrl);
@@ -85,23 +85,32 @@ export class PaymentController {
   });
 
   verifyPayment = asyncHandler(async (req: Request, res: Response) => {
-     const result = await paymentService.verifyPayment(req.params.id, req.user!.id);
-     ApiResponse.success(res, result, 'Payment verified successfully');
+    const result = await paymentService.verifyPayment(req.params.id, req.user!.id);
+    ApiResponse.success(res, result, 'Payment verified successfully');
   });
 
   triggerMonthlyDues = asyncHandler(async (req: Request, res: Response) => {
-     console.log('Trigger Monthly Dues Body:', req.body);
-     const { month, year } = req.body;
-     const { paymentScheduler } = require('./cron.service');
-     try {
-         const result = await paymentScheduler.generateMonthlyDues(month, year);
-         ApiResponse.success(res, result, 'Monthly dues generation triggered');
-     } catch (error: any) {
-         if (error.message && error.message.includes('already been generated')) {
-             throw new ApiError(409, error.message);
-         }
-         throw error;
-     }
+    console.log('Trigger Monthly Dues Body:', req.body);
+    const { month, year } = req.body;
+    const { paymentScheduler } = require('./cron.service');
+    try {
+      const result = await paymentScheduler.generateMonthlyDues(month, year);
+      ApiResponse.success(res, result, 'Monthly dues generation triggered');
+    } catch (error: any) {
+      if (error.message && error.message.includes('already been generated')) {
+        throw new ApiError(409, error.message);
+      }
+      throw error;
+    }
+  });
+
+  /**
+   * Manually trigger overdue check for testing/admin purposes
+   */
+  triggerOverdueCheck = asyncHandler(async (_req: Request, res: Response) => {
+    const { paymentScheduler } = require('./cron.service');
+    const result = await paymentScheduler.markOverdueChallans();
+    ApiResponse.success(res, result, 'Overdue check completed');
   });
 
 }

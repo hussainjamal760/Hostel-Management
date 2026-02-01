@@ -37,22 +37,28 @@ router.patch(
 // Manual Payment Routes
 
 router.post(
-    '/:id/proof',
-    authorize('STUDENT'),
-    upload.single('proof'), // Middleware handles file
-    paymentController.submitPaymentProof
+  '/:id/proof',
+  authorize('STUDENT'),
+  upload.single('proof'), // Middleware handles file
+  paymentController.submitPaymentProof
 );
 
 router.post(
-    '/:id/verify',
-    authorize('ADMIN', 'OWNER', 'MANAGER'),
-    paymentController.verifyPayment
+  '/:id/verify',
+  authorize('ADMIN', 'OWNER', 'MANAGER'),
+  paymentController.verifyPayment
 );
 
 router.post(
-    '/actions/generate-monthly-dues',
-    authorize('ADMIN', 'OWNER', 'MANAGER'), // Allow Manager too for testing
-    paymentController.triggerMonthlyDues
+  '/actions/generate-monthly-dues',
+  authorize('ADMIN', 'OWNER', 'MANAGER'), // Allow Manager too for testing
+  paymentController.triggerMonthlyDues
+);
+
+router.post(
+  '/actions/mark-overdue',
+  authorize('ADMIN', 'OWNER'),
+  paymentController.triggerOverdueCheck
 );
 
 export default router;

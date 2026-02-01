@@ -37,6 +37,7 @@ const userSchema = new Schema<IUserDocument>(
       lowercase: true,
       trim: true,
       index: true,
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please enter a valid email address'],
     },
     phone: {
       type: String,
