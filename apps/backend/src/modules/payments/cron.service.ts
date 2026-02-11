@@ -178,7 +178,7 @@ class PaymentCronService {
         userId: user._id,
         title: 'New Monthly Challan Generated',
         body: `Your monthly rent challan of Rs. ${challan.amount} for ${challan.description} is now due. Please pay by ${challan.dueDate.toLocaleDateString()}.`,
-        type: NOTIFICATION_TYPES.CHALLAN_GENERATED,
+        type: (NOTIFICATION_TYPES as any).CHALLAN_GENERATED,
         data: { challanId: challan._id.toString(), amount: challan.amount }
       });
 
@@ -256,7 +256,7 @@ class PaymentCronService {
               userId: (student.userId as any)._id,
               title: 'Payment Overdue',
               body: 'Your monthly rent payment is now overdue. Please pay immediately to avoid penalties.',
-              type: NOTIFICATION_TYPES.CHALLAN_OVERDUE,
+              type: (NOTIFICATION_TYPES as any).CHALLAN_OVERDUE,
               data: { studentId }
             });
           }
@@ -304,7 +304,7 @@ class PaymentCronService {
             userId: user._id,
             title: 'Payment Reminder',
             body: `Reminder: Your challan of Rs. ${challan.amount} is due in 5 days. Please pay by ${(challan as any).dueDate?.toLocaleDateString()}.`,
-            type: NOTIFICATION_TYPES.CHALLAN_REMINDER,
+            type: (NOTIFICATION_TYPES as any).CHALLAN_REMINDER,
             data: { challanId: challan._id.toString() }
           });
           sentCount++;

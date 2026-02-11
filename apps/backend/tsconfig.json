@@ -9,7 +9,8 @@
       "@config/*": ["./config/*"],
       "@modules/*": ["./modules/*"],
       "@middlewares/*": ["./middlewares/*"],
-      "@utils/*": ["./utils/*"]
+      "@utils/*": ["./utils/*"],
+      "@hostelite/shared-constants": ["../../packages/shared-constants/src/index.ts"]
     }
   },
   "include": ["src/**/*"],
