@@ -258,10 +258,6 @@ const Header = () => {
               </nav>
 
               <div className="p-6 border-t border-brand-primary/10 dark:border-brand-bg/10 space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-brand-primary/5 dark:bg-brand-bg/5">
-                  <span className="text-sm font-semibold text-brand-primary dark:text-brand-bg">Theme</span>
-                  <ThemeSwitcher />
-                </div>
 
                 <p className="text-xs text-center text-brand-primary/40 dark:text-brand-bg/40 tracking-wider">
                   © {new Date().getFullYear()} HOSTELITE
@@ -275,6 +271,7 @@ const Header = () => {
       {/* Auth Modals */}
       {route === "Login" && (
         <Login open={openAuth} setOpen={setOpenAuth} setRoute={setRoute} />
+        
       )}
       {route === "Sign-Up" && (
         <SignUp open={openAuth} setOpen={setOpenAuth} setRoute={setRoute} />
