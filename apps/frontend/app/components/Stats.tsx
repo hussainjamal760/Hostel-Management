@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { motion } from "framer-motion";
 
 const stats = [
   { 
@@ -8,28 +9,24 @@ const stats = [
     name: "Active Hostels", 
     value: 500, 
     suffix: "+",
-    icon: "🏢"
   },
   { 
     id: 2, 
     name: "Happy Residents", 
     value: 50000, 
     suffix: "+",
-    icon: "users"
   },
   { 
     id: 3, 
     name: "Uptime", 
     value: 99.9, 
     suffix: "%",
-    icon: "server"
   },
   { 
     id: 4, 
     name: "Support", 
     value: 24, 
     suffix: "/7",
-    icon: "headset"
   },
 ];
 
@@ -52,33 +49,33 @@ const Stats = () => {
   }, []);
 
   return (
-    // Dark Mode BG: brand-primary (Brown)
     <div 
       ref={sectionRef} 
-      className="py-20 relative bg-brand-primary dark:bg-brand-primary transition-colors duration-500"
+      className="py-32 relative bg-brand-primary dark:bg-[#0a0502] overflow-hidden"
     >
-        {/* Decorative pattern */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-
         <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
-                <div 
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((stat, index) => (
+                <motion.div 
                     key={stat.id} 
-                    // Dark Mode Card: bg-brand-bg (Cream)
-                    className="relative overflow-hidden rounded-3xl bg-brand-bg dark:bg-brand-bg border border-white/10 p-8 hover:transform hover:-translate-y-1 transition-all duration-300 group shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="relative text-center p-8 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors cursor-default"
                 >   
-                    <dt className="text-sm font-medium leading-6 text-brand-text/60 dark:text-brand-text/60 uppercase tracking-wider mb-2">
+                    <dt className="text-xs font-bold leading-6 text-white/50 uppercase tracking-[0.2em] mb-4">
                         {stat.name}
                     </dt>
-                    <dd className="text-4xl font-bold tracking-tight text-brand-primary dark:text-brand-primary">
+                    <dd className="text-5xl font-black tracking-tight text-white mb-2">
                         {isVisible ? (
                             <Counter value={stat.value} duration={2000} suffix={stat.suffix} />
                         ) : (
                             <span>0{stat.suffix}</span>
                         )}
                     </dd>
-                </div>
+                    <div className="w-12 h-1 bg-white/10 mx-auto rounded-full mt-4" />
+                </motion.div>
             ))}
             </div>
         </div>

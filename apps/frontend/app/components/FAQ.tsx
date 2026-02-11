@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 const faqs = [
   {
@@ -38,69 +39,96 @@ const FAQ = () => {
     };
 
   return (
-    // Dark Mode BG: brand-primary (Brown)
-    <section className="bg-brand-primary dark:bg-brand-primary transition-colors duration-500 py-32 border-t border-brand-primary/5 dark:border-white/5">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="bg-brand-primary dark:bg-[#0a0502] py-32 relative">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             
             {/* Left Column: Sticky Header */}
             <div className="lg:col-span-5 h-fit lg:sticky lg:top-32">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-brand-bg dark:text-brand-bg text-xs font-bold tracking-widest uppercase mb-6">
-                    Support
-                </div>
-                {/* Light Text */}
-                <h2 className="text-4xl font-bold tracking-tight text-white dark:text-brand-bg mb-6">
-                    Frequently asked questions
-                </h2>
-                <p className="text-lg text-brand-bg/60 dark:text-brand-bg/60 mb-10 leading-relaxed">
-                    Everything you need to know about the product and billing. Can’t find the answer you’re looking for? Please chat to our friendly team.
-                </p>
-                
-                <Link 
-                    href="/contact"
-                    className="inline-flex items-center justify-center px-8 py-4 rounded-xl font-bold transition-all bg-brand-bg text-brand-primary dark:bg-brand-bg dark:text-brand-primary shadow-lg hover:shadow-xl hover:-translate-y-1"
+                <motion.div 
+                   initial={{ opacity: 0, x: -20 }}
+                   whileInView={{ opacity: 1, x: 0 }}
+                   viewport={{ once: true }}
+                   className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs font-bold tracking-widest uppercase mb-6"
                 >
-                    Contact Support
-                </Link>
+                    Support
+                </motion.div>
+                <motion.h2 
+                   initial={{ opacity: 0, y: 10 }}
+                   whileInView={{ opacity: 1, y: 0 }}
+                   viewport={{ once: true }}
+                   transition={{ delay: 0.1 }}
+                   className="text-4xl font-black tracking-tight text-white mb-6"
+                >
+                    Frequently asked questions
+                </motion.h2>
+                <motion.p 
+                   initial={{ opacity: 0, y: 10 }}
+                   whileInView={{ opacity: 1, y: 0 }}
+                   viewport={{ once: true }}
+                   transition={{ delay: 0.2 }}
+                   className="text-lg text-white/50 mb-10 leading-relaxed"
+                >
+                    Everything you need to know about the product and billing. Can’t find the answer you’re looking for? Please chat to our friendly team.
+                </motion.p>
+                
+                <motion.div
+                   initial={{ opacity: 0, y: 10 }}
+                   whileInView={{ opacity: 1, y: 0 }}
+                   viewport={{ once: true }}
+                   transition={{ delay: 0.3 }}
+                >
+                    <Link 
+                        href="/contact"
+                        className="inline-flex items-center justify-center px-8 py-4 rounded-xl font-bold transition-all bg-white text-black hover:bg-white/90 hover:scale-105"
+                    >
+                        Contact Support
+                    </Link>
+                </motion.div>
             </div>
 
-            {/* Right Column: Accordion (Light Cards) */}
+            {/* Right Column: Accordion */}
             <div className="lg:col-span-7 space-y-4">
                 {faqs.map((faq, index) => (
-                    <div 
-                        key={index} 
-                        // Dark Mode Card: bg-brand-bg (Cream)
-                        className={`group rounded-2xl bg-brand-bg dark:bg-brand-bg border border-transparent dark:border-white/10 px-6 py-2 overflow-hidden transition-all duration-300 ${openIndex === index ? 'shadow-lg' : 'shadow-sm opacity-90 hover:opacity-100'}`}
+                    <motion.div 
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 }} 
+                        className={`group rounded-2xl border border-white/5 px-6 transition-all duration-300 ${openIndex === index ? 'bg-white/10' : 'bg-transparent hover:bg-white/5'}`}
                     >
                         <button 
                             onClick={() => toggleFAQ(index)}
-                            className="flex w-full items-center justify-between py-4 text-left focus:outline-none"
+                            className="flex w-full items-center justify-between py-6 text-left focus:outline-none"
                         >
-                            {/* Dark Text */}
-                            <span className={`text-lg transition-colors duration-300 font-semibold ${openIndex === index ? 'text-brand-primary dark:text-brand-primary' : 'text-brand-text dark:text-brand-text'}`}>
+                            <span className={`text-lg transition-colors duration-300 font-bold ${openIndex === index ? 'text-white' : 'text-white/80'}`}>
                                 {faq.question}
                             </span>
                             <span className="ml-6 flex-shrink-0">
                                 <div className={`relative h-6 w-6 transform transition-transform duration-300 ${openIndex === index ? 'rotate-180' : 'rotate-0'}`}>
-                                    {/* Dark Icons */}
-                                    <div className={`absolute top-1/2 left-0 h-[2px] w-full bg-brand-text dark:bg-brand-text transform -translate-y-1/2 transition-colors`}></div>
-                                    <div className={`absolute top-0 left-1/2 h-full w-[2px] bg-brand-text dark:bg-brand-text transform -translate-x-1/2 transition-all ${openIndex === index ? 'scale-y-0 opacity-0' : 'scale-y-100 opacity-100'}`}></div>
+                                    <div className="absolute top-1/2 left-0 h-[2px] w-full bg-white transform -translate-y-1/2"></div>
+                                    <div className={`absolute top-0 left-1/2 h-full w-[2px] bg-white transform -translate-x-1/2 transition-all ${openIndex === index ? 'scale-y-0 opacity-0' : 'scale-y-100 opacity-100'}`}></div>
                                 </div>
                             </span>
                         </button>
                         
-                        <div 
-                            className={`grid transition-all duration-300 ease-in-out ${
-                                openIndex === index ? 'grid-rows-[1fr] opacity-100 pb-4' : 'grid-rows-[0fr] opacity-0 pb-0'
-                            }`}
-                        >
-                            <div className="overflow-hidden">
-                                <p className="text-base leading-7 text-brand-text/70 dark:text-brand-text/70 border-t border-brand-text/10 pt-4 mt-2">
-                                    {faq.answer}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                        <AnimatePresence>
+                            {openIndex === index && (
+                                <motion.div 
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                    className="overflow-hidden"
+                                >
+                                    <p className="text-base leading-7 text-white/60 pb-6">
+                                        {faq.answer}
+                                    </p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
                 ))}
             </div>
 

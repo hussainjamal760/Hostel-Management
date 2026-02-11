@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 
 const steps = [
   {
@@ -35,57 +38,70 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    // Dark Mode BG: brand-primary (Brown)
-    <section className="py-24 relative overflow-hidden bg-brand-bg dark:bg-brand-primary transition-colors duration-500">
-      {/* Background Gradients */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-card/20 dark:bg-brand-bg/20 rounded-full blur-[120px]" />
-      </div>
-
+    <section className="py-32 relative bg-brand-primary dark:bg-[#0a0502] overflow-hidden">
+      
       <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
-        <div className="mx-auto max-w-2xl text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary text-brand-bg dark:bg-brand-bg dark:text-brand-primary text-xs font-bold tracking-widest uppercase mb-4">
-            Simple Process
-          </div>
-          <h2 className="text-4xl font-bold tracking-tight text-brand-text dark:text-brand-bg sm:text-5xl mb-6">
-            Get started in minutes
-          </h2>
-          <p className="text-lg leading-relaxed text-brand-text/60 dark:text-brand-bg/60">
-            We've simplified hostel management into a streamlined process so you can focus on what matters most.
-          </p>
+        <div className="mx-auto max-w-2xl text-center mb-24">
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.9 }}
+               whileInView={{ opacity: 1, scale: 1 }}
+               viewport={{ once: true }}
+               className="inline-flex items-center justify-center w-16 h-1 bg-white/10 rounded-full mb-8" 
+            />
+            <motion.h2 
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               className="text-4xl md:text-5xl font-black text-white mb-6"
+            >
+              Seamless onboarding.
+            </motion.h2>
+            <motion.p 
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               transition={{ delay: 0.1 }}
+               className="text-lg text-white/60"
+            >
+               From sign up to automation in three simple steps.
+            </motion.p>
         </div>
 
         <div className="relative">
           {/* Connecting Line (Desktop) */}
-          <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-brand-primary/20 dark:via-brand-bg/20 to-transparent -translate-y-1/2 z-0" />
+          <div className="hidden md:block absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-y-1/2 z-0" />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {steps.map((step, index) => (
-              <div key={index} className="relative z-10 group perspective-1000">
-                {/* Dark Mode Card: bg-brand-bg (Cream) */}
-                <div className="relative p-8 rounded-3xl bg-brand-primary dark:bg-brand-bg border border-white/10 shadow-xl hover:transform hover:-translate-y-2 transition-all duration-300">
-                  {/* Number Watermark */}
-                  <span className="absolute -top-6 -right-4 text-9xl font-bold text-white/5 dark:text-brand-primary/5 select-none pointer-events-none group-hover:scale-110 transition-transform duration-500">
+              <motion.div 
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.2 }}
+                  className="relative z-10 group"
+              >
+                <div className="relative p-8 rounded-3xl bg-[#0F0F0F] border border-white/5 shadow-2xl transition-transform duration-500 hover:-translate-y-4">
+                  {/* Glowing Number */}
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-8xl font-black text-white/5 pointer-events-none group-hover:text-white/10 transition-colors">
                     {step.number}
-                  </span>
+                  </div>
 
-                  <div className="relative flex flex-col items-center text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-brand-bg dark:bg-brand-primary flex items-center justify-center text-brand-primary dark:text-brand-bg shadow-lg mb-6 group-hover:rotate-6 transition-transform duration-300">
+                  <div className="relative flex flex-col items-center text-center mt-4">
+                    <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-6 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)] group-hover:scale-110 transition-transform">
                       {step.icon}
                     </div>
                     
-                    {/* Text: Light (on dark card) / Dark (on light card) */}
-                    <h3 className="text-xl font-bold text-white dark:text-brand-text mb-3">
+                    <h3 className="text-xl font-bold text-white mb-4">
                       {step.title}
                     </h3>
                     
-                    <p className="text-brand-bg/70 dark:text-brand-text/70 leading-relaxed text-sm">
+                    <p className="text-white/60 leading-relaxed text-sm">
                       {step.description}
                     </p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
