@@ -10,7 +10,9 @@
       "@modules/*": ["./modules/*"],
       "@middlewares/*": ["./middlewares/*"],
       "@utils/*": ["./utils/*"],
-      "@hostelite/shared-constants": ["../../packages/shared-constants/src/index.ts"]
+      "@hostelite/shared-constants": ["../../packages/shared-constants/dist/index.d.ts"],
+      "@hostelite/shared-types": ["../../packages/shared-types/dist/index.d.ts"],
+      "@hostelite/shared-validators": ["../../packages/shared-validators/dist/index.d.ts"]
     }
   },
   "include": ["src/**/*"],
