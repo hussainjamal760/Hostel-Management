@@ -1,16 +1,19 @@
 import { createApp } from './app';
 import { connectDB, disconnectDB, env, logger } from './config';
+// Import payment scheduler to initialize cron jobs
+import './modules/payments/cron.service';
 
 const startServer = async (): Promise<void> => {
   try {
     await connectDB();
 
+    logger.info('Scheduled tasks initialized');
 
     const app = createApp();
 
     const server = app.listen(env.PORT, () => {
-      logger.info(`🚀 Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
-      logger.info(`📚 API docs: http://localhost:${env.PORT}/api/v1/health`);
+      logger.info(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
+      logger.info(`API docs: http://localhost:${env.PORT}/api/v1/health`);
     });
 
     const gracefulShutdown = async (signal: string) => {
