@@ -22,12 +22,8 @@ const env = cleanEnv(process.env, {
   CLOUDINARY_API_KEY: str(),
   CLOUDINARY_API_SECRET: str(),
 
-  // Email
-  FROM_EMAIL: str({ default: 'hjamal9865@gmail.com' }),
-  SMTP_HOST: str({ default: 'smtp.gmail.com' }),
-  SMTP_PORT: port({ default: 587 }),
-  SMTP_USER: str(),
-  SMTP_PASS: str(),
+  RESEND_API_KEY: str(),
+  FROM_EMAIL: str({ default: 'Hostel Management <onboarding@resend.dev>' }),
 
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: num({ default: 900000 }), // 15 minutes
