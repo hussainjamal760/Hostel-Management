@@ -24,7 +24,9 @@ export class AuthService {
     }
 
     const verificationCode = generatePin(6);
-    const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await mailService.sendVerificationEmail(data.email, verificationCode);
 
     const hashedPassword = await hashPassword(data.password);
 
@@ -43,7 +45,6 @@ export class AuthService {
     });
 
     await user.save();
-    await mailService.sendVerificationEmail(data.email, verificationCode);
 
     return { message: 'Signup successful. Verification code sent to email.' };
   }
