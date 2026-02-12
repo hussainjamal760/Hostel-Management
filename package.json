@@ -21,7 +21,7 @@
     "dev:mobile": "npm run start -w apps/mobile-app",
     "build:backend": "npm run build -w apps/backend",
     "build:web": "npm run build -w apps/web-admin",
-    "build:shared": "npm run build --workspaces --if-present",
+    "build:shared": "npm run build -w packages/shared-types && npm run build -w packages/shared-constants && npm run build -w packages/shared-validators",
     "lint": "npm run lint --workspaces --if-present",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "clean": "rimraf **/node_modules **/dist **/.turbo"
