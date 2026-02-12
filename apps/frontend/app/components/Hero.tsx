@@ -1,47 +1,46 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import Link from "next/link";
+
+const container: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.04 },
+  },
+};
+
+const child: Variants = {
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      type: "spring",
+      damping: 12,
+      stiffness: 100,
+    },
+  },
+  hidden: {
+    opacity: 0,
+    y: 20,
+    filter: "blur(10px)",
+    transition: {
+      type: "spring",
+      damping: 12,
+      stiffness: 100,
+    },
+  },
+};
 
 const Hero = () => {
   const sentence = "Manage Your Hostel Effortlessly.";
   const letters = sentence.split("");
 
-  const container = {
-    hidden: { opacity: 0 },
-    visible: (i = 1) => ({
-      opacity: 1,
-      transition: { staggerChildren: 0.08, delayChildren: 0.04 * i },
-    }),
-  };
-
-  const child = {
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: "blur(0px)",
-      transition: {
-        type: "spring",
-        damping: 12,
-        stiffness: 100,
-      },
-    },
-    hidden: {
-      opacity: 0,
-      y: 20,
-      filter: "blur(10px)",
-      transition: {
-        type: "spring",
-        damping: 12,
-        stiffness: 100,
-      },
-    },
-  };
-
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-brand-primary dark:bg-[#0a0502]">
-      {/* Background Animated Gradient Orbs */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div 
             animate={{ 
@@ -65,7 +64,6 @@ const Hero = () => {
 
       <div className="container mx-auto px-6 relative z-10 text-center">
         
-        {/* Badge */}
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -76,7 +74,6 @@ const Hero = () => {
             Beta Version
         </motion.div>
 
-        {/* Headline with Typing Effect */}
         <motion.div
             style={{ overflow: "hidden", display: "flex", justifyContent: "center", flexWrap: "wrap" }}
             variants={container}
@@ -91,7 +88,6 @@ const Hero = () => {
           ))}
         </motion.div>
 
-        {/* Subtext */}
         <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -102,7 +98,6 @@ const Hero = () => {
             Experience the future of hostel management today.
         </motion.p>
 
-        {/* Buttons */}
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -118,7 +113,6 @@ const Hero = () => {
             
         </motion.div>
 
-        {/* Floating UI Mockup */}
         <motion.div
             initial={{ opacity: 0, y: 100, rotateX: 20 }}
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
@@ -131,7 +125,6 @@ const Hero = () => {
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                 className="relative rounded-t-3xl border border-white/10 bg-[#0F0F0F]/80 backdrop-blur-xl shadow-2xl overflow-hidden"
             >
-                {/* Mockup Header */}
                 <div className="flex items-center gap-4 px-6 py-4 border-b border-white/5 bg-white/5">
                     <div className="flex gap-2">
                         <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
@@ -143,9 +136,7 @@ const Hero = () => {
                     </div>
                 </div>
                 
-                {/* Mockup Body Content - Abstract Representation */}
                 <div className="p-8 grid grid-cols-12 gap-6 h-[400px] md:h-[600px]">
-                    {/* Sidebar */}
                     <div className="col-span-3 hidden md:block space-y-4">
                         <div className="h-8 w-2/3 bg-white/10 rounded-lg"></div>
                         <div className="h-4 w-full bg-white/5 rounded-lg"></div>
@@ -153,7 +144,6 @@ const Hero = () => {
                         <div className="h-4 w-4/5 bg-white/5 rounded-lg"></div>
                     </div>
                     
-                    {/* Main Content */}
                     <div className="col-span-12 md:col-span-9 space-y-6">
                         <div className="grid grid-cols-3 gap-6">
                             <div className="h-32 rounded-2xl bg-white/5 border border-white/5"></div>
@@ -169,7 +159,6 @@ const Hero = () => {
                     </div>
                 </div>
 
-                {/* Reflection/Gloss effect */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div>
             </motion.div>
         </motion.div>
