@@ -41,25 +41,32 @@ class MailService {
   }
 
   private async send(options: { to: string; subject: string; html: string; text?: string }) {
-    const response = await axios.post(
-      'https://api.resend.com/emails',
-      {
-        from: this.fromEmail,
-        to: [options.to],
-        subject: options.subject,
-        html: options.html,
-        text: options.text,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
+    try {
+      const response = await axios.post(
+        'https://api.resend.com/emails',
+        {
+          from: this.fromEmail,
+          to: [options.to],
+          subject: options.subject,
+          html: options.html,
+          text: options.text,
         },
-        timeout: 10000,
-      }
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000,
+        }
+      );
 
-    return response.data;
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response) {
+        logger.error(`Resend API error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+      }
+      throw error;
+    }
   }
 }
 
