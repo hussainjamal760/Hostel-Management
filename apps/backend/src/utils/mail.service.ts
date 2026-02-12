@@ -41,6 +41,7 @@ class MailService {
   }
 
   private async send(options: { to: string; subject: string; html: string; text?: string }) {
+    logger.info(`Resend debug - from: "${this.fromEmail}", apiKey starts with: "${this.apiKey.substring(0, 8)}..."`);
     try {
       const response = await axios.post(
         'https://api.resend.com/emails',
