@@ -5,8 +5,6 @@ import {
   generateTokens,
   verifyRefreshToken,
   ApiError,
-  generatePin,
-  mailService,
 } from '../../utils';
 import { logger } from '../../config';
 import {
@@ -23,11 +21,6 @@ export class AuthService {
       throw ApiError.badRequest('Email already registered');
     }
 
-    const verificationCode = generatePin(6);
-    const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-
-    await mailService.sendVerificationEmail(data.email, verificationCode);
-
     const hashedPassword = await hashPassword(data.password);
 
     const user = new User({
@@ -37,16 +30,14 @@ export class AuthService {
       password: hashedPassword,
       role: 'CLIENT', 
       isFirstLogin: false, 
-      isEmailVerified: false,
-      verificationCode,
-      verificationCodeExpiresAt,
+      isEmailVerified: true,
       isActive: true,
       username: data.email,
     });
 
     await user.save();
 
-    return { message: 'Signup successful. Verification code sent to email.' };
+    return { message: 'Signup successful. You can now login.' };
   }
 
   async verifyEmail(data: VerifyEmailInput) {
@@ -81,9 +72,7 @@ export class AuthService {
       throw ApiError.unauthorized('Invalid credentials');
     }
 
-    if (!user.isEmailVerified) {
-      throw ApiError.forbidden('Email not verified. Please verify your email first.');
-    }
+
 
     if (!user.isActive) {
       throw ApiError.forbidden('Account is deactivated. Contact administrator.');

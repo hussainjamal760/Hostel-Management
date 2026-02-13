@@ -1,13 +1,9 @@
 @import "tailwindcss";
 
-/* Enable dark mode with class selector for Tailwind CSS v4 */
-@variant dark (&:is(.dark *));
-
 :root {
-  /* Light Mode - Warm Beige/Cream Theme */
   --brand-bg: #fcf2e9;
-  --brand-text: #2c1b13;
-  --brand-primary: #2c1b13;
+  --brand-text: #fcf2e9;
+  --brand-primary: #fcf2e9;
   --brand-card: #e8d5c4;
   --dark-bg: #1a0f0a;
   --dark-text: #fcf2e9;
@@ -15,11 +11,6 @@
   --dark-card: #2c1b13;
   
   --background: #fcf2e9;
-  --foreground: #2c1b13;
-}
-
-.dark {
-  --background: #1a0f0a;
   --foreground: #fcf2e9;
 }
 
@@ -42,15 +33,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -59,34 +47,16 @@ html {
   background: var(--brand-bg);
 }
 
-.dark ::-webkit-scrollbar-track {
-  background: var(--dark-bg);
-}
-
 ::-webkit-scrollbar-thumb {
   background: var(--brand-primary);
   border-radius: 0;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: var(--dark-primary);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #1a0f0a;
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #fcf2e9;
-}
-
-/* Selection colors */
 ::selection {
   background: var(--brand-primary);
   color: var(--brand-bg);
-}
-
-.dark ::selection {
-  background: var(--dark-primary);
-  color: var(--dark-bg);
 }

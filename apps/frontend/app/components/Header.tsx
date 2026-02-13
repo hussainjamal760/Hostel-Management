@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { HiOutlineMenuAlt3, HiOutlineUserCircle, HiX } from "react-icons/hi";
 import { navItems } from "../utils/navItems";
-import { ThemeSwitcher } from "../utils/ThemeSwitcher";
+
 import Login from "../Auth/Login";
 import SignUp from "../Auth/Signup";
 import Verification from "../Auth/Verification";
