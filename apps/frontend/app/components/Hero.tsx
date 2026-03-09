@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -74,37 +74,7 @@ const Hero = () => {
             transition={{ delay: 1, duration: 1.5, type: "spring", stiffness: 40 }}
             className="mt-20 w-full max-w-5xl relative aspect-video rounded-[40px] overflow-hidden border border-white/10 bg-gradient-to-br from-white/5 to-transparent shadow-2xl"
           >
-             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
-             <div className="flex items-center justify-between px-8 py-5 border-b border-white/5 bg-white/5 backdrop-blur-md">
-                <div className="flex gap-2">
-                   <div className="w-3 h-3 rounded-full bg-white/10"></div>
-                   <div className="w-3 h-3 rounded-full bg-white/10"></div>
-                   <div className="w-3 h-3 rounded-full bg-white/10"></div>
-                </div>
-                <div className="text-[10px] text-white/20 font-bold tracking-[0.2em] uppercase">Dashboard Interface Preview</div>
-                <div className="w-4 h-4 rounded-full bg-brand-primary/20"></div>
-             </div>
-             
-             <div className="p-12 grid grid-cols-12 gap-8">
-                <div className="col-span-8 space-y-6">
-                   <div className="h-12 w-48 bg-white/10 rounded-2xl animate-pulse"></div>
-                   <div className="grid grid-cols-3 gap-6">
-                      <div className="h-32 bg-brand-primary/10 rounded-3xl border border-brand-primary/20"></div>
-                      <div className="h-32 bg-white/5 rounded-3xl"></div>
-                      <div className="h-32 bg-white/5 rounded-3xl"></div>
-                   </div>
-                   <div className="h-64 bg-white/5 rounded-[40px]"></div>
-                </div>
-                <div className="col-span-4 space-y-6 pt-10">
-                   <div className="h-full bg-white/5 rounded-[40px] p-6 border border-white/5">
-                      <div className="space-y-4">
-                         <div className="h-4 w-full bg-white/10 rounded-full"></div>
-                         <div className="h-4 w-5/6 bg-white/10 rounded-full"></div>
-                         <div className="h-4 w-4/6 bg-white/10 rounded-full"></div>
-                      </div>
-                   </div>
-                </div>
-             </div>
+            <Image src="/hero-preview-isolated.png" alt="Hero Dashboard Preview" fill className="object-cover" priority />
           </motion.div>
 
         </div>
