@@ -26,7 +26,12 @@ import {
   HiOutlineShieldCheck,
   HiOutlineIdentification,
 } from 'react-icons/hi';
+import Header from '../components/Header';
+import { motion } from 'framer-motion' 
+import Footer from '../components/Footer';
+import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { Modal } from 'flowbite-react';
 
 export default function ProfilePage() {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
@@ -60,23 +65,23 @@ export default function ProfilePage() {
     switch (status) {
       case 'PENDING':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-            <HiOutlineClock size={14} />
-            Pending Review
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-500/10 text-amber-500 border border-amber-500/20 italic">
+            <HiOutlineClock size={12} />
+            Review In Progress
           </span>
         );
       case 'APPROVED':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
-            <HiOutlineCheck size={14} />
-            Approved
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-brand-primary/10 text-brand-primary border border-brand-primary/20 italic">
+            <HiOutlineCheck size={12} />
+            Verified
           </span>
         );
       case 'REJECTED':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">
-            <HiOutlineX size={14} />
-            Rejected
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20 italic">
+            <HiOutlineX size={12} />
+            Disapproved
           </span>
         );
       default:
@@ -100,206 +105,234 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#121212] transition-colors duration-300">
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#1E1E1E]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">H</span>
-            </div>
-            <span className="font-bold text-xl text-gray-900 dark:text-gray-100 tracking-tight">Hostelite</span>
-          </div>
-          
-          <button
-            onClick={handleLogout}
-            className="group flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 hover:text-red-600 dark:hover:text-red-400"
-          >
-            <HiOutlineLogout size={18} />
-            <span>Sign Out</span>
-          </button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#0a0502] text-white font-sans selection:bg-white/20 selection:text-white">
+      <Header />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <main className="max-w-7xl mx-auto px-6 lg:px-8 py-32 relative">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[150px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-brand-primary/5 rounded-full blur-[120px] pointer-events-none" />
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col items-center text-center">
-              <div className="relative group mx-auto mb-4">
-                <div className="w-28 h-28 rounded-full bg-gray-100 dark:bg-gray-700 p-1 ring-2 ring-indigo-50 dark:ring-indigo-900/30">
-                  <div className="w-full h-full rounded-full overflow-hidden relative">
+          <div className="lg:col-span-4 space-y-8">
+            <motion.div 
+               initial={{ opacity: 0, x: -30 }}
+               animate={{ opacity: 1, x: 0 }}
+               className="bg-white/5 backdrop-blur-xl rounded-[40px] p-8 border border-white/5 flex flex-col items-center text-center relative overflow-hidden group hover:bg-white/10 transition-all duration-500"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/10 blur-[60px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              <div className="relative mb-8">
+                <div className="w-32 h-32 rounded-full bg-white/5 p-1 ring-1 ring-white/10 overflow-hidden relative group-hover:scale-105 transition-transform duration-500 shadow-2xl">
                     {getAvatarUrl(user?.avatar) ? (
-                      <img src={getAvatarUrl(user?.avatar)} alt={user?.name} className="w-full h-full object-cover" />
+                      <img src={getAvatarUrl(user?.avatar)} alt={user?.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     ) : (
-                      <div className="w-full h-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-3xl font-bold">
+                      <div className="w-full h-full bg-brand-primary/10 flex items-center justify-center text-brand-primary text-4xl font-black italic">
                         {getInitials(user?.name || 'User')}
                       </div>
                     )}
-                  </div>
                 </div>
                 <button 
                   onClick={() => setShowEditProfileModal(true)}
-                  className="absolute bottom-0 right-0 p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transition-transform hover:scale-105"
-                  title="Edit Avatar"
+                  className="absolute -bottom-2 -right-2 p-3 rounded-2xl bg-brand-primary text-black hover:scale-110 shadow-xl transition-all active:scale-95"
+                  title="Update Avatar"
                 >
-                  <HiOutlineCamera size={16} />
+                  <HiOutlineCamera size={18} />
                 </button>
               </div>
               
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{user?.name}</h2>
-              <div className="flex items-center gap-2 mt-1 mb-4">
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 uppercase tracking-wide">
+              <h2 className="text-2xl font-black text-white tracking-tight mb-2 uppercase">{user?.name}</h2>
+              <div className="flex items-center gap-3 mb-8">
+                <span className="px-3 py-1 rounded-full text-[10px] font-black bg-white/10 text-white/40 border border-white/5 uppercase tracking-[0.2em] italic">
                   {user?.role}
                 </span>
                 {user?.isEmailVerified && (
-                  <span className="text-green-500" title="Verified Account">
-                    <HiOutlineShieldCheck size={18} />
-                  </span>
+                  <div className="text-brand-primary group-hover:scale-125 transition-transform" title="Verified Identity">
+                    <HiOutlineShieldCheck size={20} />
+                  </div>
                 )}
               </div>
 
-              <button
-                onClick={() => setShowEditProfileModal(true)}
-                className="w-full py-2.5 px-4 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors flex items-center justify-center gap-2 text-sm"
-              >
-                <HiOutlinePencil size={16} />
-                Edit Profile
-              </button>
-            </div>
+              <div className="w-full space-y-3">
+                <button
+                  onClick={() => setShowEditProfileModal(true)}
+                  className="w-full py-4 px-6 rounded-2xl bg-white/5 border border-white/10 text-white text-xs font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-3 group/btn"
+                >
+                  <HiOutlinePencil size={18} className="text-brand-primary transition-transform group-hover/btn:-translate-y-1" />
+                  Edit Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full py-4 px-6 rounded-2xl bg-transparent border border-white/5 text-white/40 text-[10px] font-black uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all flex items-center justify-center gap-3 group/btn"
+                >
+                  <HiOutlineLogout size={16} />
+                  Terminate Session
+                </button>
+              </div>
+            </motion.div>
 
             {(user?.role as string) === 'CLIENT' && (
-               <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 shadow-md text-white">
-                 <h3 className="text-lg font-bold mb-2">Want to list your hostel?</h3>
-                 <p className="text-indigo-100 text-sm mb-4">Join our community of hostel owners and reach more students.</p>
+               <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-linear-to-br from-brand-primary to-orange-900 rounded-[40px] p-10 shadow-2xl text-black relative overflow-hidden group cursor-pointer"
+               >
+                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+                 <h3 className="text-2xl font-black mb-4 tracking-tight leading-none uppercase">List your <br/>property.</h3>
+                 <p className="text-black/60 text-sm mb-8 font-medium leading-relaxed italic">Join our elite circle of hostel owners and dominate the market.</p>
                  <button 
                     onClick={() => setShowRequestModal(true)}
-                    className="w-full py-2 px-4 bg-white text-indigo-600 rounded-lg text-sm font-bold hover:bg-indigo-50 transition-colors"
+                    className="w-full py-4 px-6 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-xl"
                  >
                    Become an Owner
                  </button>
-               </div>
+               </motion.div>
             )}
           </div>
 
-          <div className="lg:col-span-8 space-y-6">
-                        <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-               <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                   <HiOutlineIdentification className="text-indigo-500" />
-                   Personal Information
+          <div className="lg:col-span-8 space-y-8">
+            <motion.div 
+               initial={{ opacity: 0, y: 30 }}
+               animate={{ opacity: 1, y: 0 }}
+               className="bg-white/5 backdrop-blur-xl rounded-[40px] border border-white/5 overflow-hidden"
+            >
+               <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between">
+                 <h3 className="text-xl font-black text-white flex items-center gap-4 uppercase tracking-tighter">
+                   <div className="p-2 rounded-xl bg-brand-primary/10 text-brand-primary">
+                      <HiOutlineIdentification size={20}/>
+                   </div>
+                   Personal Data
                  </h3>
                </div>
-               <div className="p-6">
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div className="space-y-1">
-                     <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Full Name</label>
-                     <p className="text-gray-900 dark:text-gray-200 font-medium flex items-center gap-2">
-                       <HiOutlineUser className="text-gray-400" />
+               <div className="p-10">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                   <div className="space-y-3">
+                     <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic">Full Name</label>
+                     <p className="text-white text-lg font-bold flex items-center gap-3">
+                       <HiOutlineUser className="text-brand-primary" />
                        {user?.name}
                      </p>
                    </div>
-                   <div className="space-y-1">
-                     <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email Address</label>
-                     <p className="text-gray-900 dark:text-gray-200 font-medium flex items-center gap-2">
-                       <HiOutlineMail className="text-gray-400" />
+                   <div className="space-y-3">
+                     <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic">Electronic Mail</label>
+                     <p className="text-white text-lg font-bold flex items-center gap-3">
+                       <HiOutlineMail className="text-brand-primary" />
                        {user?.email}
                      </p>
                    </div>
-                   <div className="space-y-1">
-                     <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Phone Number</label>
-                     <p className="text-gray-900 dark:text-gray-200 font-medium flex items-center gap-2">
-                       <HiOutlinePhone className="text-gray-400" />
+                   <div className="space-y-3">
+                     <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic">Telecommunication</label>
+                     <p className="text-white text-lg font-bold flex items-center gap-3">
+                       <HiOutlinePhone className="text-brand-primary" />
                        {user?.phone || 'Not provided'}
                      </p>
                    </div>
-                   <div className="space-y-1">
-                     <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Member Since</label>
-                     <p className="text-gray-900 dark:text-gray-200 font-medium flex items-center gap-2">
-                       <HiOutlineClock className="text-gray-400" />
+                   <div className="space-y-3">
+                     <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] italic">Tenure Start</label>
+                     <p className="text-white text-lg font-bold flex items-center gap-3">
+                       <HiOutlineClock className="text-brand-primary" />
                        {new Date().getFullYear()} 
                      </p>
                    </div>
                  </div>
                </div>
-            </div>
+            </motion.div>
 
             {user?.role === 'ADMIN' && (
-              <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                 <div className="flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                     <HiOutlineOfficeBuilding size={24} />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white/5 backdrop-blur-xl rounded-[40px] border border-white/5 p-8 flex flex-col md:flex-row items-center justify-between gap-8 group hover:bg-white/10 transition-all duration-500"
+              >
+                 <div className="flex items-center gap-6">
+                   <div className="w-16 h-16 rounded-[24px] bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+                     <HiOutlineOfficeBuilding size={30} />
                    </div>
                    <div>
-                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Admin Portal</h3>
-                     <p className="text-sm text-gray-500 dark:text-gray-400">Manage the entire platform system.</p>
+                     <h3 className="text-2xl font-black text-white uppercase tracking-tight">Admin Terminal</h3>
+                     <p className="text-white/30 text-xs font-light italic mt-1">Global ecosystem oversight and control.</p>
                    </div>
                  </div>
                  <Link
                    href="/admin/dashboard"
-                   className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
+                   className="px-8 py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-2xl"
                  >
-                   Open Dashboard
+                   Access Terminal
                  </Link>
-              </div>
+              </motion.div>
             )}
 
             {user?.role === 'OWNER' && (
-              <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                 <div className="flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400">
-                     <HiOutlineOfficeBuilding size={24} />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white/5 backdrop-blur-xl rounded-[40px] border border-white/5 p-8 flex flex-col md:flex-row items-center justify-between gap-8 group hover:bg-white/10 transition-all duration-500"
+              >
+                 <div className="flex items-center gap-6">
+                   <div className="w-16 h-16 rounded-[24px] bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary group-hover:scale-110 transition-transform">
+                     <HiOutlineOfficeBuilding size={30} />
                    </div>
                    <div>
-                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Owner Dashboard</h3>
-                     <p className="text-sm text-gray-500 dark:text-gray-400">Manage your properties and bookings.</p>
+                     <h3 className="text-2xl font-black text-white uppercase tracking-tight">Control Center</h3>
+                     <p className="text-white/30 text-xs font-light italic mt-1">Manage architectural logistics and residents.</p>
                    </div>
                  </div>
                  <Link
                    href="/owner/dashboard"
-                   className="px-6 py-2.5 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20"
+                   className="px-8 py-4 bg-brand-primary text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-2xl"
                  >
                    Open Dashboard
                  </Link>
-              </div>
+              </motion.div>
             )}
 
             {user?.role === 'STUDENT' && latestRequest && (
-              <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
-                <div className="flex items-center justify-between mb-4">
-                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Hostel Owner Request</h3>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white/5 backdrop-blur-xl rounded-[40px] border border-white/5 p-10 overflow-hidden relative group"
+              >
+                <div className="absolute top-0 right-0 w-48 h-48 bg-brand-primary/5 blur-[80px] pointer-events-none" />
+                <div className="flex items-center justify-between mb-10 pb-6 border-b border-white/5">
+                   <h3 className="text-xl font-black text-white uppercase tracking-tighter italic">Application Status</h3>
                    {getStatusBadge(latestRequest.status)}
                 </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
-                    <span className="text-gray-500 dark:text-gray-400">Business Name</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-200">{latestRequest.businessName}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
-                    <span className="text-gray-500 dark:text-gray-400">Submitted on</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-200">
-                      {new Date(latestRequest.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                   <div className="space-y-2">
+                     <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Operational Title</label>
+                     <p className="text-white text-xl font-bold italic tracking-tight">{latestRequest.businessName}</p>
+                   </div>
+                   <div className="space-y-2">
+                     <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Submission Timeline</label>
+                     <p className="text-white/60 text-xl font-medium">
+                       {new Date(latestRequest.createdAt).toLocaleDateString()}
+                     </p>
+                   </div>
                 </div>
                 
                 {latestRequest.status === 'REJECTED' && latestRequest.adminNotes && (
-                  <div className="mt-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/10 text-sm text-red-700 dark:text-red-400">
-                    <p className="font-bold mb-1">Feedback:</p>
-                    <p>{latestRequest.adminNotes}</p>
+                   <div className="mt-4 p-8 rounded-3xl bg-red-500/10 border border-red-500/20 text-red-500 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-red-500" />
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-4 italic opacity-60">System Feedback</p>
+                    <p className="text-lg font-medium leading-relaxed italic mb-8">"{latestRequest.adminNotes}"</p>
                     <button
                       onClick={() => setShowRequestModal(true)}
-                      className="mt-3 text-red-700 dark:text-red-400 underline font-medium hover:no-underline"
+                      className="px-6 py-3 rounded-xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-xl"
                     >
-                      Submit a new request
+                      Resubmit Engineering Request
                     </button>
                   </div>
                 )}
-              </div>
+              </motion.div>
             )}
             
           </div>
         </div>
       </main>
+
+      <Footer />
+
 
       {/* Request Modal */}
       {showRequestModal && (
@@ -365,73 +398,81 @@ function RequestModal({ onClose, onSuccess, createRequest, submitting }: Request
     
       return (
         <>
-          <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
-          <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
-            <div
-              className="w-full max-w-lg bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto border border-gray-100 dark:border-gray-800"
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-100 bg-black/80 backdrop-blur-md transition-opacity" 
+            onClick={onClose} 
+          />
+          <div className="fixed inset-0 z-101 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="w-full max-w-lg bg-[#0F0F0F] rounded-[40px] shadow-[0_50px_100px_rgba(0,0,0,0.5)] overflow-hidden border border-white/5"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                    Hostel Owner Request
+              <div className="p-10 border-b border-white/5 flex items-center justify-between relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 blur-3xl" />
+                <div className="relative">
+                  <h2 className="text-2xl font-black text-white italic tracking-tight uppercase">
+                    Hostel Registration
                   </h2>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Submit your details for review
+                  <p className="mt-2 text-xs font-black text-white/20 uppercase tracking-widest">
+                    Submit your architectural credentials
                   </p>
                 </div>
-                 <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-                  <HiOutlineX size={20} />
+                 <button onClick={onClose} className="p-3 text-white/40 hover:text-white hover:bg-white/5 rounded-2xl transition-all active:scale-90">
+                  <HiOutlineX size={24} />
                 </button>
               </div>
     
-              <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Business Name
+              <form onSubmit={handleSubmit} className="p-10 space-y-8">
+                <div className="space-y-3">
+                  <label className="block text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">
+                    Operational Title
                   </label>
                   <input
                     type="text"
                     value={formData.businessName}
                     onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-                    placeholder="e.g., Green Valley Hostel"
-                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 dark:focus:ring-indigo-400/50"
+                    placeholder="e.g., Zenith Heights"
+                    className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all font-medium"
                     required
                   />
                 </div>
     
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Business Phone
+                <div className="space-y-3">
+                  <label className="block text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">
+                    Verified Contact
                   </label>
                   <input
                     type="tel"
                     value={formData.businessPhone}
                     onChange={(e) => setFormData({ ...formData, businessPhone: e.target.value })}
-                    placeholder="e.g., +92 300 1234567"
-                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 dark:focus:ring-indigo-400/50"
+                    placeholder="e.g., +92 3XX XXXXXXX"
+                    className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all font-medium"
                     required
                   />
                 </div>
     
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-4 pt-4">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 py-3 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="flex-1 py-4 rounded-2xl border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
                   >
-                    Cancel
+                    Abort
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+                    className="flex-1 py-4 rounded-2xl bg-brand-primary text-black text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-[0_20px_40px_rgba(255,107,0,0.3)] disabled:opacity-50"
                   >
-                    {submitting ? 'Submitting...' : 'Submit Request'}
+                    {submitting ? 'Processing...' : 'Submit Credentials'}
                   </button>
                 </div>
               </form>
-            </div>
+            </motion.div>
           </div>
         </>
       );
@@ -461,7 +502,6 @@ function EditProfileModal({ user, onClose, onSuccess, updateMe, uploadImage, sub
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData({ ...formData, avatar: reader.result as string });
@@ -497,11 +537,11 @@ function EditProfileModal({ user, onClose, onSuccess, updateMe, uploadImage, sub
       }
 
       const result = await updateMe(payload).unwrap();
-      toast.success('Profile updated successfully!');
+      toast.success('Identity updated successfully!');
       onSuccess(result.data);
     } catch (error: any) {
       console.error(error);
-      const msg = error?.data?.message || 'Failed to update profile';
+      const msg = error?.data?.message || 'Update failed';
       toast.error(msg);
     } finally {
         setUploading(false);
@@ -510,83 +550,101 @@ function EditProfileModal({ user, onClose, onSuccess, updateMe, uploadImage, sub
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
-      <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 overflow-y-auto">
-        <div
-          className="w-full max-w-lg bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-2xl overflow-y-auto border border-gray-100 dark:border-gray-800"
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="fixed inset-0 z-100 bg-black/80 backdrop-blur-md transition-opacity" 
+        onClick={onClose} 
+      />
+      <div className="fixed inset-0 z-101 flex items-center justify-center p-4 overflow-y-auto">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="w-full max-w-xl bg-[#0F0F0F] rounded-[40px] shadow-[0_50px_100px_rgba(0,0,0,0.5)] overflow-hidden border border-white/5"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              Edit Profile
-            </h2>
-            <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-              <HiOutlineX size={20} />
+          <div className="p-10 border-b border-white/5 flex items-center justify-between relative overflow-hidden">
+             <div className="absolute top-0 left-0 w-32 h-32 bg-brand-primary/5 blur-3xl" />
+             <div className="relative">
+                <h2 className="text-2xl font-black text-white italic tracking-tight uppercase">
+                  Modify Identity
+                </h2>
+                <p className="mt-2 text-xs font-black text-white/20 uppercase tracking-widest">
+                  Personal logistics configuration
+                </p>
+             </div>
+            <button onClick={onClose} className="p-3 text-white/40 hover:text-white hover:bg-white/5 rounded-2xl transition-all active:scale-90 relative z-10">
+              <HiOutlineX size={24} />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email Address <span className="text-xs text-gray-400 font-normal">(Read-only)</span>
-              </label>
-              <div className="relative">
-                 <HiOutlineMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                 <input
-                    type="email"
-                    value={user.email}
-                    disabled
-                    className="w-full pl-11 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800/50 border-0 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                />
+          <form onSubmit={handleSubmit} className="p-10 space-y-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-4">
+                <label className="block text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">
+                  Permanent Identity <span className="opacity-40 font-bold ml-2">(ReadOnly)</span>
+                </label>
+                <div className="relative">
+                   <HiOutlineMail className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                   <input
+                      type="email"
+                      value={user.email}
+                      disabled
+                      className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/2 border-white/5 text-white/40 cursor-not-allowed text-sm font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <label className="block text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">
+                  Full Nomenclature
+                </label>
+                <div className="relative">
+                   <HiOutlineUser className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-primary" size={18} />
+                   <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all text-sm font-medium"
+                      required
+                   />
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Full Name
+            <div className="space-y-4">
+              <label className="block text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">
+                Telecommunication Node
               </label>
               <div className="relative">
-                 <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" size={18} />
-                 <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 dark:focus:ring-indigo-400/50 transition-all"
-                    required
-                 />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Phone Number
-              </label>
-              <div className="relative">
-                 <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" size={18} />
+                 <HiOutlinePhone className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-primary" size={18} />
                  <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="e.g. 03001234567"
-                    className="w-full pl-11 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 dark:focus:ring-indigo-400/50 transition-all"
+                    className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 transition-all text-sm font-medium"
                     required
                  />
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Profile Picture
+            <div className="space-y-6">
+              <label className="block text-[10px] font-black text-white/30 uppercase tracking-[0.3em] ml-2">
+                Visual Bio-ID
               </label>
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex-shrink-0">
+              <div className="flex items-center gap-8">
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-white/5 border border-white/10 shrink-0 relative group/avatar">
                     {formData.avatar ? (
-                        <img src={formData.avatar} alt="Preview" className="w-full h-full object-cover" />
+                        <img src={formData.avatar} alt="Preview" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <HiOutlineUser size={30} />
+                        <div className="w-full h-full flex items-center justify-center text-white/10 font-black text-2xl italic">
+                            {getInitials(formData.name)}
                         </div>
                     )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center text-white">
+                       <HiOutlineCamera size={24} />
+                    </div>
                 </div>
                 <label className="flex-1 cursor-pointer">
                     <input 
@@ -595,34 +653,34 @@ function EditProfileModal({ user, onClose, onSuccess, updateMe, uploadImage, sub
                         onChange={handleFileChange}
                         className="hidden" 
                     />
-                    <div className="flex flex-col items-center justify-center h-20 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-all">
-                        <HiOutlineUpload className="w-6 h-6 text-gray-400 group-hover:text-indigo-500 mb-1" />
-                        <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                            {file ? 'Change Image' : 'Upload New Image'}
+                    <div className="flex flex-col items-center justify-center p-6 py-8 rounded-[30px] border-2 border-dashed border-white/10 hover:border-brand-primary/50 hover:bg-brand-primary/5 transition-all group/upload">
+                        <HiOutlineUpload className="w-8 h-8 text-white/20 group-hover/upload:text-brand-primary mb-2 transition-transform group-hover/upload:-translate-y-1" />
+                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest group-hover/upload:text-white transition-colors">
+                            {file ? 'Replace Component' : 'Upload Visual ID'}
                         </span>
                     </div>
                 </label>
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-4 pt-10">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-3 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="flex-1 py-4 rounded-2xl border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
               >
-                Cancel
+                Cancel Task
               </button>
               <button
                 type="submit"
                 disabled={submitting || uploading}
-                className="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+                className="flex-1 py-4 rounded-2xl bg-brand-primary text-black text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-[0_20px_40px_rgba(255,107,0,0.3)] disabled:opacity-50"
               >
-                {uploading ? 'Uploading...' : submitting ? 'Saving...' : 'Save Changes'}
+                {uploading ? 'Synching...' : submitting ? 'Configuring...' : 'Apply Modifications'}
               </button>
             </div>
           </form>
-        </div>
+        </motion.div>
       </div>
     </>
   );
