@@ -83,11 +83,11 @@ export default function StudentInvoicesPage() {
     <div className="container mx-auto p-4 space-y-8 max-w-4xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-           <h1 className="text-3xl font-extrabold text-[#2c1b13]">Hostel Fee Challans</h1>
-           <p className="text-gray-500">Official fee receipts and payment portal</p>
+           <h1 className="text-3xl font-extrabold text-brand-text ">Hostel Fee Challans</h1>
+           <p className="text-brand-text/60 ">Official fee receipts and payment portal</p>
         </div>
         
-        <div className="flex gap-2 bg-white p-2 rounded-lg shadow-sm border border-gray-200">
+        <div className="flex gap-2 bg-white text-black p-2 rounded-lg shadow-sm border border-gray-200">
             <select 
                 value={selectedMonth} 
                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
@@ -108,8 +108,8 @@ export default function StudentInvoicesPage() {
       
       <div className="grid gap-12">
           {invoices.length === 0 && (
-            <div className="p-12 text-center border-2 border-dashed border-gray-200 rounded-3xl bg-gray-50">
-                <p className="text-gray-500 text-xl font-medium">No fee challans found for {months.find(m => m.value === selectedMonth)?.label} {selectedYear}.</p>
+            <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-3xl bg-white/5">
+                <p className="text-brand-text/60  text-xl font-medium">No fee challans found for {months.find(m => m.value === selectedMonth)?.label} {selectedYear}.</p>
                 <button onClick={() => { setSelectedMonth(new Date().getMonth() + 1); setSelectedYear(new Date().getFullYear()); }} className="mt-4 text-brand-primary font-bold hover:underline">
                     View Current Month
                 </button>
@@ -260,7 +260,7 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                         </button>
                     </div>
                     <div className="text-xs font-bold text-gray-500 uppercase mb-1">Receipt No.</div>
-                    <div className="text-lg font-black font-mono tracking-tighter">
+                    <div className="text-lg font-black font-mono tracking-tighter text-black">
                         {invoice.receiptNumber}
                     </div>
                 </div>
@@ -273,20 +273,20 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                     <div className="grid grid-cols-2 gap-x-12 gap-y-4">
                         <div className="col-span-2">
                              <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Student Particulars</div>
-                             <div className="text-xl font-bold border-b border-gray-200 pb-1">{student?.fullName}</div>
+                             <div className="text-xl font-bold border-b text-black border-gray-200 pb-1">{student?.fullName}</div>
                         </div>
                         <div>
                              <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Room / Bed</div>
-                             <div className="font-bold border-b border-gray-200 pb-1">{student?.roomId?.roomNumber} / {student?.bedNumber}</div>
+                             <div className="font-bold border-b text-black border-gray-200 pb-1">{student?.roomId?.roomNumber} / {student?.bedNumber}</div>
                         </div>
                         <div>
                              <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">For Period</div>
-                             <div className="font-bold border-b border-gray-200 pb-1">{monthName} {displayYear}</div>
+                             <div className="font-bold border-b text-black border-gray-200 pb-1">{monthName} {displayYear}</div>
                         </div>
                     </div>
 
                     <div className={`border-2 ${statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'}`}>
-                         <div className={`p-2 border-b-2 font-black text-xs uppercase tracking-widest flex justify-between ${
+                         <div className={`p-2 border-b-2 font-black text-black text-xs uppercase tracking-widest flex justify-between ${
                              statusDisplay === 'OVERDUE' ? 'bg-red-50 border-red-600 text-red-900' : 'bg-gray-100 border-gray-900'
                          }`}>
                             <span>Description</span>
@@ -294,12 +294,12 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
                          </div>
                          <div className="p-3">
                              <div className="flex justify-between items-end mb-1">
-                                <span className="text-sm font-bold italic tracking-tight">Accommodation (Hostel Fee)</span>
-                                <span className="font-mono font-bold tracking-tighter">PKR {displayAmount.toLocaleString()}</span>
+                                <span className="text-sm font-bold italic text-black tracking-tight">Accommodation (Hostel Fee)</span>
+                                <span className="font-mono font-bold text-black tracking-tighter">PKR {displayAmount.toLocaleString()}</span>
                              </div>
                              <div className="flex justify-between items-end pt-4 border-t border-gray-300 mt-4">
-                                <span className="text-sm font-black uppercase tracking-widest">Total Payable</span>
-                                <span className="text-xl font-black font-mono tracking-tighter underline underline-offset-4 decoration-2">PKR {displayAmount.toLocaleString()}</span>
+                                <span className="text-sm font-black uppercase tracking-widest text-black">Total Payable</span>
+                                <span className="text-xl font-black font-mono tracking-tighter underline underline-offset-4 decoration-2 text-black">PKR {displayAmount.toLocaleString()}</span>
                              </div>
                          </div>
                     </div>

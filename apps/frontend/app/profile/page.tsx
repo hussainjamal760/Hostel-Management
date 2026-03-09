@@ -29,9 +29,7 @@ import {
 import Header from '../components/Header';
 import { motion } from 'framer-motion' 
 import Footer from '../components/Footer';
-import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { Modal } from 'flowbite-react';
 
 export default function ProfilePage() {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);

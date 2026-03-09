@@ -34,10 +34,9 @@ export default function LoginPage() {
       
       dispatch(setCredentials({ 
         token: result.tokens.accessToken, 
+        refreshToken: result.tokens.refreshToken,
         user: result.user as any,
       }));
-
-      localStorage.setItem('refreshToken', result.tokens.refreshToken);
       
       const role = result.user.role ? result.user.role.toUpperCase() : '';
 

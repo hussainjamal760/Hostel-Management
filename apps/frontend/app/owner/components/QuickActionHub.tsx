@@ -53,7 +53,7 @@ export default function QuickActionHub() {
                         className={`flex flex-col items-center justify-center p-4 rounded-xl transition-all ${action.bg}`}
                     >
                         <action.icon size={24} className={`mb-2 ${action.color}`} />
-                        <span className="text-xs font-semibold text-brand-text dark:text-dark-text/80">
+                        <span className="text-xs font-semibold text-gray-900">
                             {action.label}
                         </span>
                     </button>

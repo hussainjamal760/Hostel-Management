@@ -19,6 +19,7 @@ import {
   HiOutlineMenu,
   HiX,
   HiOutlineChartBar,
+  HiHome,
 } from 'react-icons/hi';
 
 interface AdminLayoutProps {
@@ -144,13 +145,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <p className="text-xs text-[#fcf2e9]/60 truncate">{mounted ? user?.email : ''}</p>
               </div>
             </div>
+            <div className='flex'>
+
+             <Link
+             href={'/'}
+             className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-green-400 hover:bg-green-500/10 transition-colors font-medium"
+             >
+              <span>Home</span>
+            </Link>
             <button
               onClick={handleLogout}
               className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors font-medium"
-            >
-              <HiOutlineLogout size={20} />
+              >
               <span>Logout</span>
             </button>
+              </div>
           </div>
         </div>
       </aside>
