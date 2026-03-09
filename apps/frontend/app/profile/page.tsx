@@ -31,6 +31,49 @@ import { motion } from 'framer-motion'
 import Footer from '../components/Footer';
 import Link from 'next/link';
 
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'PENDING':
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-500/10 text-amber-500 border border-amber-500/20 italic">
+          <HiOutlineClock size={12} />
+          Review In Progress
+        </span>
+      );
+    case 'APPROVED':
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-brand-primary/10 text-brand-primary border border-brand-primary/20 italic">
+          <HiOutlineCheck size={12} />
+          Verified
+        </span>
+      );
+    case 'REJECTED':
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20 italic">
+          <HiOutlineX size={12} />
+          Disapproved
+        </span>
+      );
+    default:
+      return null;
+  }
+};
+
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+const getAvatarUrl = (avatar: any) => {
+  if (!avatar) return null;
+  if (typeof avatar === 'string') return avatar;
+  return avatar.url;
+};
+
 export default function ProfilePage() {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
@@ -58,49 +101,6 @@ export default function ProfilePage() {
   };
 
   if (!isAuthenticated) return null;
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-500/10 text-amber-500 border border-amber-500/20 italic">
-            <HiOutlineClock size={12} />
-            Review In Progress
-          </span>
-        );
-      case 'APPROVED':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-brand-primary/10 text-brand-primary border border-brand-primary/20 italic">
-            <HiOutlineCheck size={12} />
-            Verified
-          </span>
-        );
-      case 'REJECTED':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20 italic">
-            <HiOutlineX size={12} />
-            Disapproved
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const getAvatarUrl = (avatar: any) => {
-    if (!avatar) return null;
-    if (typeof avatar === 'string') return avatar;
-    return avatar.url;
-  };
 
   return (
     <div className="min-h-screen bg-[#0a0502] text-white font-sans selection:bg-white/20 selection:text-white">
