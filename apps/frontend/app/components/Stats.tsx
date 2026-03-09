@@ -4,8 +4,8 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const stats = [
-  { id: 1, name: "Active Hostels", value: "500+" },
-  { id: 2, name: "Happy Residents", value: "50k+" },
+  { id: 1, name: "Active Hostels", value: "10+" },
+  { id: 2, name: "Happy Residents", value: "1k+" },
   { id: 3, name: "Platform Uptime", value: "99.9%" },
   { id: 4, name: "Global Support", value: "24/7" },
 ];
