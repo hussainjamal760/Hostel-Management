@@ -16,16 +16,16 @@ export class AuthController {
   login = asyncHandler(async (req: Request, res: Response) => {
     const result = await authService.login(req.body);
     res.cookie('token', result.tokens.accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 15 * 60 * 1000 });
-    res.cookie('refreshToken', result.tokens.refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie('refreshToken', result.tokens.refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 30 * 24 * 60 * 60 * 1000 });
     ApiResponse.success(res, result, 'Login successful');
   });
 
   refresh = asyncHandler(async (req: Request, res: Response) => {
     const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
-    const tokens = await authService.refreshToken(refreshToken);
-    res.cookie('token', tokens.accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 15 * 60 * 1000 });
-    res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
-    ApiResponse.success(res, tokens, 'Tokens refreshed');
+    const result = await authService.refreshToken(refreshToken);
+    res.cookie('token', result.tokens.accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 15 * 60 * 1000 });
+    res.cookie('refreshToken', result.tokens.refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 30 * 24 * 60 * 60 * 1000 });
+    ApiResponse.success(res, result, 'Tokens refreshed');
   });
 
   logout = asyncHandler(async (req: Request, res: Response) => {

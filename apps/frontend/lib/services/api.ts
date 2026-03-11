@@ -33,12 +33,13 @@ const baseQueryWithReauth: BaseQueryFn<
 
     if (refreshResult.data) {
       const { data } = refreshResult.data as any;
-      const user = (api.getState() as RootState).auth.user;
+      // Rehydrate user from the backend response first (handles page reload scenario)
+      const user = data?.user || (api.getState() as RootState).auth.user;
       
-      if (user) {
+      if (user && data?.tokens) {
         api.dispatch(setCredentials({ 
-          token: data.accessToken, 
-          refreshToken: data.refreshToken, 
+          token: data.tokens.accessToken, 
+          refreshToken: data.tokens.refreshToken, 
           user 
         }));
         

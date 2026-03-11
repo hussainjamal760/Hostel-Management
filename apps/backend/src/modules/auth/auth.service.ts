@@ -133,7 +133,19 @@ export class AuthService {
       user.refreshToken = tokens.refreshToken;
       await user.save();
 
-      return tokens;
+      return {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          hostelId: user.hostelId,
+          isFirstLogin: user.isFirstLogin,
+          phone: user.phone,
+          avatar: user.avatar,
+        },
+        tokens,
+      };
     } catch (error) {
       throw ApiError.unauthorized('Invalid or expired refresh token');
     }
