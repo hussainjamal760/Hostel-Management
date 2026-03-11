@@ -4,8 +4,9 @@ import { RootState } from '../store';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1',
+  credentials: 'include',
   prepareHeaders: (headers: Headers, { getState }) => {
-    const token = (getState() as RootState).auth.token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+    const token = (getState() as RootState).auth.token;
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
@@ -21,34 +22,27 @@ const baseQueryWithReauth: BaseQueryFn<
   let result = await baseQuery(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
-    const refreshToken = (api.getState() as RootState).auth.refreshToken || (typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null);
+    const refreshResult = await baseQuery(
+      {
+        url: '/auth/refresh',
+        method: 'POST',
+      },
+      api,
+      extraOptions
+    );
 
-    if (refreshToken) {
-      const refreshResult = await baseQuery(
-        {
-          url: '/auth/refresh',
-          method: 'POST',
-          body: { refreshToken },
-        },
-        api,
-        extraOptions
-      );
-
-      if (refreshResult.data) {
-        const { data } = refreshResult.data as any;
-        const user = (api.getState() as RootState).auth.user;
+    if (refreshResult.data) {
+      const { data } = refreshResult.data as any;
+      const user = (api.getState() as RootState).auth.user;
+      
+      if (user) {
+        api.dispatch(setCredentials({ 
+          token: data.accessToken, 
+          refreshToken: data.refreshToken, 
+          user 
+        }));
         
-        if (user) {
-          api.dispatch(setCredentials({ 
-            token: data.accessToken, 
-            refreshToken: data.refreshToken, 
-            user 
-          }));
-          
-          result = await baseQuery(args, api, extraOptions);
-        } else {
-          api.dispatch(logout());
-        }
+        result = await baseQuery(args, api, extraOptions);
       } else {
         api.dispatch(logout());
       }
@@ -59,9 +53,24 @@ const baseQueryWithReauth: BaseQueryFn<
   return result;
 };
 
-export const baseApi = createApi({
+const createBaseApi = () => createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
   tagTypes: ['User', 'Hostel', 'Room', 'Student', 'Payment', 'Complaint', 'Notification', 'Manager', 'AdminPayment', 'Expense', 'HostelStats'],
   endpoints: () => ({}),
 });
+
+type BaseApiType = ReturnType<typeof createBaseApi>;
+
+let apiInstance: BaseApiType;
+
+if (process.env.NODE_ENV === 'production') {
+  apiInstance = createBaseApi();
+} else {
+  if (!(global as any).baseApiInstance) {
+    (global as any).baseApiInstance = createBaseApi();
+  }
+  apiInstance = (global as any).baseApiInstance;
+}
+
+export const baseApi = apiInstance;

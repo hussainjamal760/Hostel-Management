@@ -20,10 +20,10 @@ const getInitialUser = (): IUserPublic | null => {
 };
 
 const initialState: AuthState = {
-  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
-  refreshToken: typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null,
+  token: null,
+  refreshToken: null,
   user: getInitialUser(),
-  isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('token') : false,
+  isAuthenticated: !!getInitialUser(),
 };
 
 const authSlice = createSlice({
@@ -37,12 +37,10 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.user = action.payload.user;
       state.isAuthenticated = true;
-      localStorage.setItem('token', action.payload.token);
       localStorage.setItem('user', JSON.stringify(action.payload.user));
       
       if (action.payload.refreshToken) {
         state.refreshToken = action.payload.refreshToken;
-        localStorage.setItem('refreshToken', action.payload.refreshToken);
       }
     },
     updateUser: (state, action: PayloadAction<IUserPublic>) => {
@@ -54,8 +52,6 @@ const authSlice = createSlice({
       state.refreshToken = null;
       state.user = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
     },
   },

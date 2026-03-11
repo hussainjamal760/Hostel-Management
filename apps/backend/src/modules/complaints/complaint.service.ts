@@ -117,19 +117,38 @@ export class ComplaintService {
     return complaint;
   }
 
-  async updateComplaint(id: string, data: UpdateComplaintInput) {
-    const complaint = await Complaint.findByIdAndUpdate(id, data, { new: true });
+  async updateComplaint(id: string, data: UpdateComplaintInput, userId: string, role: string) {
+    const complaint = await Complaint.findById(id);
     if (!complaint) {
       throw ApiError.notFound('Complaint not found');
     }
+
+    if (role === 'STUDENT') {
+      const student = await Student.findOne({ userId: new Types.ObjectId(userId) });
+      if (!student || complaint.studentId.toString() !== student._id.toString()) {
+        throw ApiError.forbidden('You are not authorized to update this complaint');
+      }
+    }
+
+    Object.assign(complaint, data);
+    await complaint.save();
     return complaint;
   }
 
-  async deleteComplaint(id: string) {
-    const complaint = await Complaint.findByIdAndDelete(id);
+  async deleteComplaint(id: string, userId: string, role: string) {
+    const complaint = await Complaint.findById(id);
     if (!complaint) {
       throw ApiError.notFound('Complaint not found');
     }
+
+    if (role === 'STUDENT') {
+      const student = await Student.findOne({ userId: new Types.ObjectId(userId) });
+      if (!student || complaint.studentId.toString() !== student._id.toString()) {
+        throw ApiError.forbidden('You are not authorized to delete this complaint');
+      }
+    }
+
+    await complaint.deleteOne();
     return complaint;
   }
 }

@@ -10,7 +10,12 @@ export class ComplaintController {
   });
 
   getAllComplaints = asyncHandler(async (req: Request, res: Response) => {
-    const query: any = { ...req.query };
+    const query: any = {};
+    if (typeof req.query.status === 'string') query.status = req.query.status;
+    if (typeof req.query.category === 'string') query.category = req.query.category;
+    if (typeof req.query.priority === 'string') query.priority = req.query.priority;
+    if (typeof req.query.page === 'string') query.page = Number(req.query.page);
+    if (typeof req.query.limit === 'string') query.limit = Number(req.query.limit);
     
     if (req.user?.role === 'MANAGER' || req.user?.role === 'OWNER') {
         if (!req.user.hostelId && req.user.role === 'MANAGER') {
@@ -55,12 +60,25 @@ export class ComplaintController {
   });
 
   updateComplaint = asyncHandler(async (req: Request, res: Response) => {
-    const result = await complaintService.updateComplaint(req.params.id, req.body);
+    const allowedUpdates: any = {};
+    const fields = ['title', 'description', 'category', 'priority', 'status', 'resolution', 'assignedTo'];
+    fields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        allowedUpdates[field] = req.body[field];
+      }
+    });
+
+    const result = await complaintService.updateComplaint(
+      req.params.id, 
+      allowedUpdates,
+      req.user!.id,
+      req.user!.role
+    );
     ApiResponse.success(res, result, 'Complaint updated successfully');
   });
 
   deleteComplaint = asyncHandler(async (req: Request, res: Response) => {
-    await complaintService.deleteComplaint(req.params.id);
+    await complaintService.deleteComplaint(req.params.id, req.user!.id, req.user!.role);
     ApiResponse.success(res, null, 'Complaint deleted successfully');
   });
 }

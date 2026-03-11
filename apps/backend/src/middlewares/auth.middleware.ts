@@ -14,15 +14,10 @@ declare global {
 export const authenticate = (req: Request, _res: Response, next: NextFunction): void => {
   try {
     const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw ApiError.unauthorized('No token provided');
-    }
-
-    const token = authHeader.split(' ')[1];
+    const token = req.cookies?.token || (authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null);
 
     if (!token) {
-      throw ApiError.unauthorized('Invalid token format');
+      throw ApiError.unauthorized('No token provided');
     }
 
     const decoded = verifyAccessToken(token);
@@ -43,13 +38,11 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction): 
 export const optionalAuth = (req: Request, _res: Response, next: NextFunction): void => {
   try {
     const authHeader = req.headers.authorization;
+    const token = req.cookies?.token || (authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null);
 
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1];
-      if (token) {
-        const decoded = verifyAccessToken(token);
-        req.user = decoded;
-      }
+    if (token) {
+      const decoded = verifyAccessToken(token);
+      req.user = decoded;
     }
 
     next();

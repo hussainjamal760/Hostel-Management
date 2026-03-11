@@ -38,8 +38,6 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
         token: result.tokens.accessToken,
         user: result.user as any,
       }));
-
-      localStorage.setItem('refreshToken', result.tokens.refreshToken);
       
       toast.success(`Welcome back, ${result.user.name}!`);
       
@@ -90,10 +88,10 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
   return (
     <>
       <div 
-        className="fixed inset-0 z-[99998] bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-99998 bg-black/50 backdrop-blur-sm"
         onClick={() => setOpen(false)}
       />
-      <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-99999 flex items-center justify-center p-4">
         <div 
           className="w-full max-w-md bg-[#fcf2e9] dark:bg-[#1a0f0a] rounded-3xl shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
