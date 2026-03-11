@@ -5,7 +5,9 @@ import { INotificationCreate } from '@hostelite/shared-types';
 
 export class NotificationController {
   getMyNotifications = asyncHandler(async (req: Request, res: Response) => {
-    const query: any = { ...req.query };
+    const query: any = {};
+    if (typeof req.query.page === 'string') query.page = Number(req.query.page);
+    if (typeof req.query.limit === 'string') query.limit = Number(req.query.limit);
     
     if (req.query.isRead === 'true') query.isRead = true;
     if (req.query.isRead === 'false') query.isRead = false;

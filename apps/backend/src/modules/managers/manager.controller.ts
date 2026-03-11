@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { ApiResponse } from '../../utils/ApiResponse';
 import { managerService } from './manager.service';
-import { CreateManagerInput, UpdateManagerInput } from '@hostelite/shared-validators';
+import { CreateManagerInput } from '@hostelite/shared-validators';
 
 class ManagerController {
   createManager = asyncHandler(async (req: Request, res: Response) => {
@@ -38,9 +38,16 @@ class ManagerController {
   updateManager = asyncHandler(async (req: Request, res: Response) => {
     const ownerId = req.user!.id;
     const { id } = req.params;
-    const input: UpdateManagerInput = req.body;
     
-    const manager = await managerService.updateManager(id, input, ownerId);
+    const allowedUpdates: any = {};
+    const safeFields = ['name', 'phone', 'hostelId', 'isActive'];
+    safeFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        allowedUpdates[field] = req.body[field];
+      }
+    });
+    
+    const manager = await managerService.updateManager(id, allowedUpdates, ownerId);
     return ApiResponse.success(res, manager, 'Manager updated successfully');
   });
 

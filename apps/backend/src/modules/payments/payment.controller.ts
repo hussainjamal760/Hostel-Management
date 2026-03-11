@@ -21,6 +21,14 @@ export class PaymentController {
     console.log('GetAllPayments - User:', { role, userHostelId, userId });
     console.log('GetAllPayments - Initial Query HostelId:', hostelId);
 
+    const filters: any = {};
+    if (typeof req.query.status === 'string') filters.status = req.query.status;
+    if (typeof req.query.month === 'string') filters.month = Number(req.query.month);
+    if (typeof req.query.year === 'string') filters.year = Number(req.query.year);
+    if (typeof req.query.page === 'string') filters.page = Number(req.query.page);
+    if (typeof req.query.limit === 'string') filters.limit = Number(req.query.limit);
+    if (typeof req.query.studentId === 'string') filters.studentId = req.query.studentId;
+
     if (role === 'MANAGER') {
       hostelId = userHostelId!;
       console.log('GetAllPayments - Enforced Manager HostelId:', hostelId);
@@ -29,7 +37,7 @@ export class PaymentController {
       const student = await studentService.getStudentByUserId(userId);
       if (!student) throw ApiError.notFound('Student profile not found');
 
-      req.query.studentId = student._id.toString();
+      filters.studentId = student._id.toString();
       hostelId = student.hostelId.toString();
     }
 
@@ -37,7 +45,7 @@ export class PaymentController {
       throw ApiError.badRequest('Hostel ID is required');
     }
 
-    const result = await paymentService.getAllPayments(hostelId, req.query);
+    const result = await paymentService.getAllPayments(hostelId, filters);
     console.log(`GetAllPayments - Found ${result.payments.length} payments for hostel ${hostelId}`);
     ApiResponse.paginated(res, result.payments, result.pagination, 'Payments fetched successfully');
   });
@@ -53,7 +61,14 @@ export class PaymentController {
   });
 
   updatePayment = asyncHandler(async (req: Request, res: Response) => {
-    const result = await paymentService.updatePayment(req.params.id, req.body);
+    const allowedUpdates: any = {};
+    const safeFields = ['amount', 'status', 'dueDate', 'description', 'month', 'year'];
+    safeFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        allowedUpdates[field] = req.body[field];
+      }
+    });
+    const result = await paymentService.updatePayment(req.params.id, allowedUpdates);
     ApiResponse.success(res, result, 'Payment updated successfully');
   });
 

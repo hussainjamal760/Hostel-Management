@@ -49,7 +49,13 @@ export class RoomController {
        throw ApiError.badRequest('Hostel ID is required');
     }
 
-    const result = await roomService.getAllRooms(hostelId, req.query);
+    const filters: any = {};
+    if (typeof req.query.status === 'string') filters.status = req.query.status;
+    if (typeof req.query.type === 'string') filters.type = req.query.type;
+    if (typeof req.query.page === 'string') filters.page = Number(req.query.page);
+    if (typeof req.query.limit === 'string') filters.limit = Number(req.query.limit);
+
+    const result = await roomService.getAllRooms(hostelId, filters);
     ApiResponse.paginated(res, result.rooms, result.pagination, 'Rooms fetched successfully');
   });
 
@@ -64,9 +70,17 @@ export class RoomController {
   });
 
   updateRoom = asyncHandler(async (req: Request, res: Response) => {
+    const allowedUpdates: any = {};
+    const safeFields = ['roomNumber', 'capacity', 'type', 'status', 'amenities'];
+    safeFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        allowedUpdates[field] = req.body[field];
+      }
+    });
+
     const result = await roomService.updateRoom(
       req.params.id,
-      req.body,
+      allowedUpdates,
       req.user!._id,
       req.user!.role as Role,
       req.user!.hostelId

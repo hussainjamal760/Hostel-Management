@@ -37,7 +37,14 @@ class ExpenseController {
   });
 
   getAll = asyncHandler(async (req: Request, res: Response) => {
-    const expenses = await expenseService.getExpenses(req.query);
+    const filters: any = {};
+    if (typeof req.query.hostelId === 'string') filters.hostelId = req.query.hostelId;
+    if (typeof req.query.status === 'string') filters.status = req.query.status;
+    if (typeof req.query.category === 'string') filters.category = req.query.category;
+    if (typeof req.query.page === 'string') filters.page = Number(req.query.page);
+    if (typeof req.query.limit === 'string') filters.limit = Number(req.query.limit);
+
+    const expenses = await expenseService.getExpenses(filters);
     ApiResponse.paginated(res, expenses.data, expenses.pagination, 'Expenses fetched successfully');
   });
 
