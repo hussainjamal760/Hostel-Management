@@ -20,8 +20,13 @@ export class StudentController {
   });
 
   getAllStudents = asyncHandler(async (req: Request, res: Response) => {
-    let hostelId = req.query.hostelId as string;
-    const query: any = { ...req.query };
+    let hostelId = typeof req.query.hostelId === 'string' ? req.query.hostelId : '';
+    const query: any = {};
+    if (typeof req.query.roomId === 'string') query.roomId = req.query.roomId;
+    if (typeof req.query.search === 'string') query.search = req.query.search;
+    if (typeof req.query.feeStatus === 'string') query.feeStatus = req.query.feeStatus;
+    if (typeof req.query.page === 'string') query.page = Number(req.query.page);
+    if (typeof req.query.limit === 'string') query.limit = Number(req.query.limit);
 
     if (req.user?.role === 'MANAGER') {
       hostelId = req.user.hostelId!;
@@ -53,9 +58,17 @@ export class StudentController {
   });
 
   updateStudent = asyncHandler(async (req: Request, res: Response) => {
+    const allowedUpdates: any = {};
+    const safeFields = ['name', 'phone', 'emergencyContact', 'address', 'roomId'];
+    safeFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        allowedUpdates[field] = req.body[field];
+      }
+    });
+
     const result = await studentService.updateStudent(
       req.params.id,
-      req.body,
+      allowedUpdates,
       req.user?.hostelId,
       req.user?.role as Role
     );

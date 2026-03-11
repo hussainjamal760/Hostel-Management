@@ -14,9 +14,11 @@ export class HostelController {
   });
 
   getAllHostels = asyncHandler(async (req: Request, res: Response) => {
-    const filters: any = {
-      ...req.query,
-    };
+    const filters: any = {};
+    if (typeof req.query.search === 'string') filters.search = req.query.search;
+    if (typeof req.query.status === 'string') filters.status = req.query.status;
+    if (typeof req.query.page === 'string') filters.page = Number(req.query.page);
+    if (typeof req.query.limit === 'string') filters.limit = Number(req.query.limit);
 
     if (req.user?.role === 'OWNER') {
       filters.ownerId = req.user.id;
@@ -45,9 +47,17 @@ export class HostelController {
   });
 
   updateHostel = asyncHandler(async (req: Request, res: Response) => {
+    const allowedUpdates: any = {};
+    const safeFields = ['name', 'address', 'phone', 'email', 'capacity', 'amenities', 'status'];
+    safeFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        allowedUpdates[field] = req.body[field];
+      }
+    });
+
     const result = await hostelService.updateHostel(
       req.params.id,
-      req.body,
+      allowedUpdates,
       req.user!.id,
       req.user!.role as Role
     );
@@ -68,9 +78,9 @@ export class HostelController {
     const result = await hostelService.getMonthlyReport(
       req.user!.id,
       req.user!.role,
-      month ? parseInt(month as string) : undefined,
-      year ? parseInt(year as string) : undefined,
-      hostelId as string
+      typeof month === 'string' ? parseInt(month) : undefined,
+      typeof year === 'string' ? parseInt(year) : undefined,
+      typeof hostelId === 'string' ? hostelId : undefined
     );
     ApiResponse.success(res, result, 'Report generated successfully');
   });

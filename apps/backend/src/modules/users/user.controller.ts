@@ -14,9 +14,11 @@ export class UserController {
   });
 
   getAllUsers = asyncHandler(async (req: Request, res: Response) => {
-    const filters: any = {
-      ...req.query,
-    };
+    const filters: any = {};
+    if (typeof req.query.role === 'string') filters.role = req.query.role;
+    if (typeof req.query.search === 'string') filters.search = req.query.search;
+    if (typeof req.query.page === 'string') filters.page = Number(req.query.page);
+    if (typeof req.query.limit === 'string') filters.limit = Number(req.query.limit);
     
     const result = await userService.getAllUsers(filters);
 
@@ -33,7 +35,14 @@ export class UserController {
   });
 
   updateMe = asyncHandler(async (req: Request, res: Response) => {
-    const user = await userService.updateUser(req.user!.id, req.body);
+    const allowedUpdates: any = {};
+    const fields = ['name', 'phone', 'avatar'];
+    fields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        allowedUpdates[field] = req.body[field];
+      }
+    });
+    const user = await userService.updateUser(req.user!.id, allowedUpdates);
     ApiResponse.success(res, user, 'Profile updated successfully');
   });
 
@@ -43,7 +52,19 @@ export class UserController {
   });
 
   updateUser = asyncHandler(async (req: Request, res: Response) => {
-    const user = await userService.updateUser(req.params.id, req.body);
+    const allowedUpdates: any = {};
+    const fields = ['name', 'phone', 'avatar', 'isActive'];
+    // Allow role and hostelId updates only if explicit administrative endpoint functionality requires it, 
+    // but ideally restricted by validation layers. For general admin patch, we whitelist known safe fields.
+    if (req.body.role) allowedUpdates.role = req.body.role;
+    if (req.body.hostelId) allowedUpdates.hostelId = req.body.hostelId;
+    fields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        allowedUpdates[field] = req.body[field];
+      }
+    });
+
+    const user = await userService.updateUser(req.params.id, allowedUpdates);
     ApiResponse.success(res, user, 'User updated successfully');
   });
 
