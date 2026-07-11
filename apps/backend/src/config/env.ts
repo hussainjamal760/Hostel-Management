@@ -22,8 +22,12 @@ const env = cleanEnv(process.env, {
   CLOUDINARY_API_KEY: str(),
   CLOUDINARY_API_SECRET: str(),
 
-  RESEND_API_KEY: str(),
-  FROM_EMAIL: str({ default: 'Hostel Management <onboarding@resend.dev>' }),
+  // Google Cloud Console OAuth2 (Gmail)
+  SMTP_USER: str(),
+  GOOGLE_CLIENT_ID: str(),
+  GOOGLE_CLIENT_SECRET: str(),
+  GOOGLE_REFRESH_TOKEN: str(),
+  FROM_EMAIL: str({ default: '' }),
 
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: num({ default: 900000 }), // 15 minutes

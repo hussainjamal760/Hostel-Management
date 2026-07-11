@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { PASSWORD_CONFIG } from '@hostelite/shared-constants';
 
 export const hashPassword = async (password: string): Promise<string> => {

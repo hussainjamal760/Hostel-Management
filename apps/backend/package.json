@@ -18,7 +18,7 @@
     "@hostelite/shared-validators": "*",
     "@types/nodemailer": "^7.0.5",
     "axios": "^1.13.2",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -37,7 +37,7 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",

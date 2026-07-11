@@ -5,6 +5,7 @@ import {
   generateTokens,
   verifyRefreshToken,
   ApiError,
+  mailService,
 } from '../../utils';
 import { logger } from '../../config';
 import {
@@ -23,6 +24,10 @@ export class AuthService {
 
     const hashedPassword = await hashPassword(data.password);
 
+    // Generate 6-digit verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
     const user = new User({
       name: data.name,
       email: data.email,
@@ -30,14 +35,19 @@ export class AuthService {
       password: hashedPassword,
       role: 'CLIENT', 
       isFirstLogin: false, 
-      isEmailVerified: true,
+      isEmailVerified: false,
       isActive: true,
       username: data.email,
+      verificationCode,
+      verificationCodeExpiresAt,
     });
 
     await user.save();
 
-    return { message: 'Signup successful. You can now login.' };
+    // Send verification email
+    await mailService.sendVerificationEmail(data.email, verificationCode);
+
+    return { message: 'Verification code sent to email' };
   }
 
   async verifyEmail(data: VerifyEmailInput) {

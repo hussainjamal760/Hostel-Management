@@ -1,13 +1,30 @@
-import axios from 'axios';
+import nodemailer from 'nodemailer';
 import { env, logger } from '../config';
 
 class MailService {
-  private apiKey: string;
+  private transporter: nodemailer.Transporter;
   private fromEmail: string;
 
   constructor() {
-    this.apiKey = env.RESEND_API_KEY;
-    this.fromEmail = env.FROM_EMAIL;
+    this.fromEmail = env.FROM_EMAIL || env.SMTP_USER;
+
+    logger.info('Initializing MailService with Google OAuth2 (Google Cloud Console)');
+    logger.info(`OAuth2 Config - user: "${env.SMTP_USER}", clientId starts with: "${env.GOOGLE_CLIENT_ID.substring(0, 15)}...", refreshToken starts with: "${env.GOOGLE_REFRESH_TOKEN.substring(0, 10)}..."`);
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: env.SMTP_USER,
+        clientId: env.GOOGLE_CLIENT_ID,
+        clientSecret: env.GOOGLE_CLIENT_SECRET,
+        refreshToken: env.GOOGLE_REFRESH_TOKEN,
+      },
+    });
+
+    // Verify connection on startup
+    this.transporter.verify()
+      .then(() => logger.info('Mail transporter verified successfully - ready to send emails'))
+      .catch((err) => logger.error(`Mail transporter verification FAILED: ${err.message}`));
   }
 
   async sendVerificationEmail(to: string, code: string) {
@@ -41,31 +58,18 @@ class MailService {
   }
 
   private async send(options: { to: string; subject: string; html: string; text?: string }) {
-    logger.info(`Resend debug - from: "${this.fromEmail}", apiKey starts with: "${this.apiKey.substring(0, 8)}..."`);
+    logger.info(`Sending mail - from: "${this.fromEmail}", to: "${options.to}", subject: "${options.subject}"`);
     try {
-      const response = await axios.post(
-        'https://api.resend.com/emails',
-        {
-          from: this.fromEmail,
-          to: [options.to],
-          subject: options.subject,
-          html: options.html,
-          text: options.text,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          timeout: 10000,
-        }
-      );
-
-      return response.data;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response) {
-        logger.error(`Resend API error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
-      }
+      const info = await this.transporter.sendMail({
+        from: this.fromEmail,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+      });
+      return info;
+    } catch (error) {
+      logger.error(`Error sending email: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
       throw error;
     }
   }
