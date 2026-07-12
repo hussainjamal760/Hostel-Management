@@ -409,13 +409,13 @@ export default function Home() {
 
           <div className="relative bg-surface-container-high rounded-[32px] p-8 md:p-12 min-h-[400px] md:min-h-[600px] ambient-shadow flex items-center justify-center">
             <div className={`transition-all duration-500 absolute w-[calc(100%-4rem)] md:w-[calc(100%-6rem)] ${activeTab === 'analytics' ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-              <img className="w-full rounded-2xl shadow-xl" alt="Analytics Dashboard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVImpw-0ACV3gDXT8ySo7RzVbJ8C7aaAQsONQs3a8_rwJG9RZPckRmJrBdVhBJRwdvZSRta4TosP0T064Y-VkVOTYACRcoP68YNmQ0orcgg0ehMG0n82DLiShxaGg3ZnaJ0jJEOmM9mNfQahkHVhMrU0WoFmOv3uX-ajZo8W1cbXRtWHRdHlUJXBPGCOHMlChG7gU5ZXmKjtp1OpAF7VAcTr0eTFqCCCf8wtRfZo8PT0gDhK3FW-AxeSb4bxozQE_nOQB26oA5uq0W" />
+              <img className="w-full rounded-2xl shadow-xl object-cover h-[500px]" alt="Analytics Dashboard" src="/analytics.png" />
             </div>
             <div className={`transition-all duration-500 absolute w-[calc(100%-4rem)] md:w-[calc(100%-6rem)] ${activeTab === 'inventory' ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-              <img className="w-full rounded-2xl shadow-xl" alt="Inventory Management" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXMDJ6swo_2xE4LvpvgDow9aPl1ti0daLSQ2TQ-If0fXQuv1s8P6yLKHFb2WuupllrLIkKfNfsgG2nNLuLRH_joZ7wiwm8st5Q6mne7mkYEEdgeFXGFmF4tA9kZNfctvVVkRXicUrdetftRhqBjB5ncmYauoAyPnmNyCf-yMVD6savRIOJFmFPmlMGzR0s-RZGFCCoTs8oR_mhQCVE9ck5NrYkYlFF7tYB5nyWfxINPcN3qPr-pYLKBAkUTLTqsg9niQEoet545VDR" />
+              <img className="w-full rounded-2xl shadow-xl object-cover h-[500px]" alt="Inventory Management" src="/inventory.png" />
             </div>
             <div className={`transition-all duration-500 absolute w-[calc(100%-4rem)] md:w-[calc(100%-6rem)] ${activeTab === 'residents' ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-              <img className="w-full rounded-2xl shadow-xl" alt="Resident Directory" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHVo5u2iLOE_-xXLtyRn_dkBfpzRO1n0vA6JW7A6k-RLqNsF6klLHxhBTJdExxE8-GJx6qK7DJzkTmrxsRFyf8CGgfyGNLAtAGWusPwm2OoDVbaMCVRyH4k4RM-DICwgkmohkSL_qYmUHTM3dMpQidYUET0Vjjglpineu07450Ubui-UNYxoNAK9dQQhFJVoG8gdGL01XLWW-8zzZNX1PWe-UWk3z3qATfHw0heqTIBBAo1imy8z_Of1FUEVlU_1kKIys-oDCjD6x-" />
+              <img className="w-full rounded-2xl shadow-xl object-cover h-[500px]" alt="Resident Directory" src="/communications.png" />
             </div>
           </div>
         </div>
@@ -440,52 +440,56 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section className="py-32 reveal" id="pricing">
-        <div className="max-w-7xl mx-auto px-6 md:px-16">
-          <h2 className="text-4xl font-bold text-primary text-center mb-16">Simple, Scalable Pricing</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="glass-card p-10 rounded-2xl flex flex-col items-center text-center">
-              <h3 className="font-bold text-sm uppercase tracking-widest text-on-surface-variant mb-4">Starter</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-bold text-primary">$49</span>
-                <span className="text-on-surface-variant">/mo</span>
+      <section className="py-32 bg-[#fafafa] reveal border-t border-gray-100" id="pricing">
+        <div className="max-w-5xl mx-auto px-6 md:px-16">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl md:text-6xl font-light text-[#111] mb-6 tracking-tight">
+              Simple, <span className="font-extrabold tracking-tighter">Scalable Pricing</span>
+            </h2>
+            <p className="text-lg text-gray-500 max-w-2xl mx-auto font-light">Start for free, then pay a tiny fraction only for the value you get. No hidden fees.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Free Plan */}
+            <div className="bg-white border border-gray-200 p-12 rounded-[32px] flex flex-col justify-between hover:border-gray-300 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-black text-white text-xs font-bold px-4 py-2 rounded-bl-2xl uppercase tracking-widest">
+                Start Here
               </div>
-              <ul className="space-y-4 mb-10 text-on-surface-variant">
-                <li>Up to 50 residents</li>
-                <li>Basic room allocation</li>
-                <li>Email support</li>
-              </ul>
-              <button className="w-full border-2 border-primary text-primary py-3 rounded-full font-bold text-sm uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-all duration-300">Choose Starter</button>
+              <div>
+                <h3 className="font-bold text-xl text-[#111] mb-2 tracking-tight">Launch Offer</h3>
+                <p className="text-gray-500 text-sm font-light mb-8">Perfect to experience the full power of Hostelite risk-free.</p>
+                <div className="mb-8 flex items-baseline gap-2">
+                  <span className="text-6xl font-light text-[#111] tracking-tighter">Free</span>
+                  <span className="text-gray-500 font-light">for 2 months</span>
+                </div>
+                <ul className="space-y-4 mb-10 text-gray-700 text-sm font-light">
+                  <li className="flex items-center gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Unlimited Hostels</li>
+                  <li className="flex items-center gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> Unlimited Students</li>
+                  <li className="flex items-center gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> All Premium Features</li>
+                  <li className="flex items-center gap-3"><span className="material-symbols-outlined text-green-500 text-lg">check_circle</span> 24/7 Priority Support</li>
+                </ul>
+              </div>
+              <button className="w-full border border-black text-black py-4 rounded-full font-bold text-sm uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300">Start Free Trial</button>
             </div>
 
-            <div className="bg-primary p-10 rounded-2xl flex flex-col items-center text-center text-on-primary scale-105 shadow-2xl relative">
-              <div className="absolute -top-4 bg-tertiary-container text-on-tertiary-container px-4 py-1 rounded-full text-xs font-bold uppercase">Most Popular</div>
-              <h3 className="font-bold text-sm uppercase tracking-widest opacity-80 mb-4">Professional</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">$129</span>
-                <span className="opacity-80">/mo</span>
+            {/* Paid Plan */}
+            <div className="bg-[#111] border border-[#222] p-12 rounded-[32px] flex flex-col justify-between hover:shadow-2xl transition-all duration-500 group relative overflow-hidden text-white">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <h3 className="font-bold text-xl text-white mb-2 tracking-tight">Growth Plan</h3>
+                <p className="text-gray-400 text-sm font-light mb-8">Automatically applied after your 2-month free trial ends.</p>
+                <div className="mb-8 flex items-baseline gap-2">
+                  <span className="text-6xl font-light text-white tracking-tighter">100</span>
+                  <span className="text-gray-400 font-light">PKR / student</span>
+                </div>
+                <ul className="space-y-4 mb-10 text-gray-300 text-sm font-light">
+                  <li className="flex items-center gap-3"><span className="material-symbols-outlined text-green-400 text-lg">check_circle</span> Only pay for registered students</li>
+                  <li className="flex items-center gap-3"><span className="material-symbols-outlined text-green-400 text-lg">check_circle</span> Unlimited Hostels</li>
+                  <li className="flex items-center gap-3"><span className="material-symbols-outlined text-green-400 text-lg">check_circle</span> All Premium Features</li>
+                  <li className="flex items-center gap-3"><span className="material-symbols-outlined text-green-400 text-lg">check_circle</span> Cancel Anytime</li>
+                </ul>
               </div>
-              <ul className="space-y-4 mb-10 opacity-90">
-                <li>Up to 250 residents</li>
-                <li>Automated invoicing</li>
-                <li>Maintenance desk</li>
-                <li>Mess management</li>
-              </ul>
-              <button className="w-full bg-on-primary text-primary py-3 rounded-full font-bold text-sm uppercase tracking-widest hover:scale-105 transition-all duration-300">Choose Professional</button>
-            </div>
-
-            <div className="glass-card p-10 rounded-2xl flex flex-col items-center text-center">
-              <h3 className="font-bold text-sm uppercase tracking-widest text-on-surface-variant mb-4">Enterprise</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-bold text-primary">Custom</span>
-              </div>
-              <ul className="space-y-4 mb-10 text-on-surface-variant">
-                <li>Unlimited residents</li>
-                <li>Dedicated account manager</li>
-                <li>API integration</li>
-                <li>Custom reports</li>
-              </ul>
-              <button className="w-full border-2 border-primary text-primary py-3 rounded-full font-bold text-sm uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-all duration-300">Contact Sales</button>
+              <button className="w-full bg-white text-black py-4 rounded-full font-bold text-sm uppercase tracking-widest hover:scale-105 transition-all duration-300 relative z-10">Upgrade Later</button>
             </div>
           </div>
         </div>
