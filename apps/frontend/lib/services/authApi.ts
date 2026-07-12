@@ -82,6 +82,9 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
+    getMe: builder.query<ApiResponse<{ user: AuthData['user'] }>, void>({
+      query: () => '/auth/me',
+    }),
   }),
 });
 
@@ -91,4 +94,5 @@ export const {
   useVerifyEmailMutation,
   useLogoutMutation,
   useChangePasswordMutation,
+  useGetMeQuery,
 } = authApi;

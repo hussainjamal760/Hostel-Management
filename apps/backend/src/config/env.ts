@@ -16,6 +16,8 @@ const env = cleanEnv(process.env, {
   JWT_REFRESH_SECRET: str(),
   JWT_ACCESS_EXPIRY: str({ default: '15m' }),
   JWT_REFRESH_EXPIRY: str({ default: '30d' }),
+  COOKIE_ACCESS_MAX_AGE_MS: num({ default: 15 * 60 * 1000 }), // 15m
+  COOKIE_REFRESH_MAX_AGE_MS: num({ default: 30 * 24 * 60 * 60 * 1000 }), // 30d
 
   // Cloudinary
   CLOUDINARY_CLOUD_NAME: str(),

@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import { setCredentials, logout } from '../features/authSlice';
 import { RootState } from '../store';
+import { Mutex } from 'async-mutex';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1',
@@ -14,41 +15,54 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
+const mutex = new Mutex();
+
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
+  await mutex.waitForUnlock();
   let result = await baseQuery(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
-    const refreshResult = await baseQuery(
-      {
-        url: '/auth/refresh',
-        method: 'POST',
-      },
-      api,
-      extraOptions
-    );
+    if (!mutex.isLocked()) {
+      const release = await mutex.acquire();
+      try {
+        const refreshResult = await baseQuery(
+          {
+            url: '/auth/refresh',
+            method: 'POST',
+          },
+          api,
+          extraOptions
+        );
 
-    if (refreshResult.data) {
-      const { data } = refreshResult.data as any;
-      // Rehydrate user from the backend response first (handles page reload scenario)
-      const user = data?.user || (api.getState() as RootState).auth.user;
-      
-      if (user && data?.tokens) {
-        api.dispatch(setCredentials({ 
-          token: data.tokens.accessToken, 
-          refreshToken: data.tokens.refreshToken, 
-          user 
-        }));
-        
-        result = await baseQuery(args, api, extraOptions);
-      } else {
-        api.dispatch(logout());
+        if (refreshResult.data) {
+          const { data } = refreshResult.data as any;
+          // Rehydrate user from the backend response first (handles page reload scenario)
+          const user = data?.user || (api.getState() as RootState).auth.user;
+          
+          if (user && data?.tokens) {
+            api.dispatch(setCredentials({ 
+              token: data.tokens.accessToken, 
+              refreshToken: data.tokens.refreshToken, 
+              user 
+            }));
+            
+            result = await baseQuery(args, api, extraOptions);
+          } else {
+            api.dispatch(logout());
+          }
+        } else {
+          api.dispatch(logout());
+        }
+      } finally {
+        release();
       }
     } else {
-      api.dispatch(logout());
+      await mutex.waitForUnlock();
+      result = await baseQuery(args, api, extraOptions);
     }
   }
   return result;

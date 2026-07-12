@@ -74,7 +74,7 @@ export class AuthService {
     const user = await User.findOne({ 
       $or: [{ email: identifier }, { username: identifier }] 
     })
-      .select('+password +refreshToken')
+      .select('+password')
       .exec();
 
     if (!user) {
@@ -101,7 +101,7 @@ export class AuthService {
       hostelId: user.hostelId?.toString(),
     });
 
-    user.refreshToken = tokens.refreshToken;
+    user.hashedRefreshToken = await hashPassword(tokens.refreshToken);
     user.lastLoginAt = new Date();
     await user.save();
 
@@ -124,9 +124,14 @@ export class AuthService {
     try {
       const decoded = verifyRefreshToken(refreshToken);
 
-      const user = await User.findById(decoded.id).select('+refreshToken').exec();
+      const user = await User.findById(decoded.id).select('+hashedRefreshToken').exec();
 
-      if (!user || user.refreshToken !== refreshToken) {
+      if (!user || !user.hashedRefreshToken) {
+        throw ApiError.unauthorized('Invalid refresh token');
+      }
+
+      const isRefreshTokenValid = await comparePassword(refreshToken, user.hashedRefreshToken);
+      if (!isRefreshTokenValid) {
         throw ApiError.unauthorized('Invalid refresh token');
       }
 
@@ -140,7 +145,7 @@ export class AuthService {
         hostelId: user.hostelId?.toString(),
       });
 
-      user.refreshToken = tokens.refreshToken;
+      user.hashedRefreshToken = await hashPassword(tokens.refreshToken);
       await user.save();
 
       return {
@@ -162,7 +167,7 @@ export class AuthService {
   }
 
   async logout(userId: string) {
-    await User.findByIdAndUpdate(userId, { refreshToken: null });
+    await User.findByIdAndUpdate(userId, { hashedRefreshToken: null });
   }
 
   async changePassword(userId: string, data: ChangePasswordInput) {
@@ -184,10 +189,18 @@ export class AuthService {
 
     user.password = await hashPassword(data.newPassword);
     user.isFirstLogin = false;
-    user.refreshToken = undefined;
+    user.hashedRefreshToken = undefined;
     await user.save();
 
     return { message: 'Password changed successfully. Please login again.' };
+  }
+
+  async getMe(userId: string) {
+    const user = await User.findById(userId).exec();
+    if (!user) {
+      throw ApiError.notFound('User not found');
+    }
+    return user;
   }
 }
 

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { asyncHandler, ApiResponse } from '../../utils';
+import { asyncHandler, ApiResponse, ApiError } from '../../utils';
 import authService from './auth.service';
+import { env } from '../../config';
 
 export class AuthController {
   signup = asyncHandler(async (req: Request, res: Response) => {
@@ -15,16 +16,19 @@ export class AuthController {
 
   login = asyncHandler(async (req: Request, res: Response) => {
     const result = await authService.login(req.body);
-    res.cookie('token', result.tokens.accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 15 * 60 * 1000 });
-    res.cookie('refreshToken', result.tokens.refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 30 * 24 * 60 * 60 * 1000 });
+    res.cookie('token', result.tokens.accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: env.COOKIE_ACCESS_MAX_AGE_MS });
+    res.cookie('refreshToken', result.tokens.refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: env.COOKIE_REFRESH_MAX_AGE_MS });
     ApiResponse.success(res, result, 'Login successful');
   });
 
   refresh = asyncHandler(async (req: Request, res: Response) => {
-    const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) {
+      throw ApiError.unauthorized('No refresh token provided');
+    }
     const result = await authService.refreshToken(refreshToken);
-    res.cookie('token', result.tokens.accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 15 * 60 * 1000 });
-    res.cookie('refreshToken', result.tokens.refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 30 * 24 * 60 * 60 * 1000 });
+    res.cookie('token', result.tokens.accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: env.COOKIE_ACCESS_MAX_AGE_MS });
+    res.cookie('refreshToken', result.tokens.refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: env.COOKIE_REFRESH_MAX_AGE_MS });
     ApiResponse.success(res, result, 'Tokens refreshed');
   });
 
@@ -38,6 +42,11 @@ export class AuthController {
   changePassword = asyncHandler(async (req: Request, res: Response) => {
     const result = await authService.changePassword(req.user!.id, req.body);
     ApiResponse.success(res, result, 'Password changed successfully');
+  });
+
+  me = asyncHandler(async (req: Request, res: Response) => {
+    const user = await authService.getMe(req.user!.id);
+    ApiResponse.success(res, { user }, 'User details retrieved');
   });
 }
 

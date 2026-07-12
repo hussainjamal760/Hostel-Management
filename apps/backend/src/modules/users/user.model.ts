@@ -9,6 +9,7 @@ export interface IUserDocument extends Omit<IUser, '_id'>, Document {
   isEmailVerified: boolean;
   verificationCode?: string;
   verificationCodeExpiresAt?: Date;
+  hashedRefreshToken?: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -89,7 +90,7 @@ const userSchema = new Schema<IUserDocument>(
     lastLoginAt: {
       type: Date,
     },
-    refreshToken: {
+    hashedRefreshToken: {
       type: String,
       select: false,
     },
@@ -106,7 +107,7 @@ const userSchema = new Schema<IUserDocument>(
     toJSON: {
       transform(_doc, ret) {
         delete (ret as any).password;
-        delete (ret as any).refreshToken;
+        delete (ret as any).hashedRefreshToken;
         delete (ret as any).__v;
         return ret;
       },

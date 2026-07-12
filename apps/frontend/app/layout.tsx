@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import StoreProvider from "./StoreProvider";
+import AuthInitializer from "@/components/auth/AuthInitializer";
 import "./globals.css";
 
 const inter = Inter({
@@ -31,35 +32,37 @@ export default function RootLayout({
         className={`${inter.variable} ${outfit.variable} font-outfit antialiased`}
       >
         <StoreProvider>
-          <Toaster 
-            position="top-center"
-            containerStyle={{
-              zIndex: 999999,
-            }}
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#2c1b13',
-                color: '#fcf2e9',
-                borderRadius: '12px',
-                padding: '16px',
+          <AuthInitializer>
+            <Toaster 
+              position="top-center"
+              containerStyle={{
                 zIndex: 999999,
-              },
-              success: {
-                iconTheme: {
-                  primary: '#22c55e',
-                  secondary: '#fcf2e9',
+              }}
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#2c1b13',
+                  color: '#fcf2e9',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  zIndex: 999999,
                 },
-              },
-              error: {
-                iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fcf2e9',
+                success: {
+                  iconTheme: {
+                    primary: '#22c55e',
+                    secondary: '#fcf2e9',
+                  },
                 },
-              },
-            }}
-          />
-          {children}
+                error: {
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#fcf2e9',
+                  },
+                },
+              }}
+            />
+            {children}
+          </AuthInitializer>
         </StoreProvider>
       </body>
     </html>
