@@ -72,7 +72,7 @@ export default function AdminReportsPage() {
       head: [['Metric', 'Value']],
       body: summaryData,
       theme: 'grid',
-      headStyles: { fillColor: [66, 66, 66] }
+      headStyles: { fillColor: [92, 64, 51] } // Deep Walnut Brown
     });
     
     // Students List
@@ -92,171 +92,212 @@ export default function AdminReportsPage() {
       head: [['Student Name', 'Contact', 'Hostel', 'Room', 'Status', 'Amount']],
       body: tableData || [],
       theme: 'striped',
-      headStyles: { fillColor: [59, 130, 246] }
+      headStyles: { fillColor: [122, 92, 77] } // Secondary Brown
     });
 
     doc.save(`admin_report_${selectedMonth}_${selectedYear}.pdf`);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
-        <div>
-           <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Admin Reports</h1>
-           <p className="text-gray-500">System-wide financial reports</p>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-           <div className="flex items-center px-2 border-r border-gray-200 dark:border-gray-700">
-             <HiOfficeBuilding className="text-gray-400 mr-2" />
-             <select 
-               className="bg-transparent border-none focus:ring-0 text-sm w-40"
-               value={selectedHostel}
-               onChange={(e) => setSelectedHostel(e.target.value)}
-             >
-               <option value="ALL">All Hostels</option>
-               {hostels.map((h: any) => (
-                 <option key={h._id} value={h._id}>{h.name}</option>
-               ))}
-             </select>
-           </div>
+    <>
+      <div className="max-w-7xl mx-auto space-y-6 w-full">
+        {/* Header Controls */}
+        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 print:hidden w-full">
+          <div>
+            <h1 className="text-3xl font-bold mb-2 text-[#5C4033] tracking-tight">Financial Reports</h1>
+            <p className="text-[#7A5C4D]">System-wide financial summary and payment records.</p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-4 w-full xl:w-auto">
+            {/* Filters Box */}
+            <div className="flex flex-wrap items-center bg-[#ffffff] p-2 rounded-xl border border-[#d4c3bd] shadow-sm flex-1 xl:flex-none">
+              <div className="flex items-center px-3 border-r border-[#f2ded6]">
+                <HiOfficeBuilding className="text-[#7A5C4D] mr-2 text-lg" />
+                <select 
+                  className="bg-transparent border-none focus:ring-0 text-[#5C4033] font-bold text-sm outline-none cursor-pointer pr-4"
+                  value={selectedHostel}
+                  onChange={(e) => setSelectedHostel(e.target.value)}
+                >
+                  <option value="ALL">All Hostels</option>
+                  {hostels.map((h: any) => (
+                    <option key={h._id} value={h._id}>{h.name}</option>
+                  ))}
+                </select>
+              </div>
 
-           <HiFilter className="text-gray-400 ml-2" />
-           <select 
-             className="bg-transparent border-none focus:ring-0 text-sm"
-             value={selectedMonth}
-             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-           >
-             {months.map(m => (
-               <option key={m.value} value={m.value}>{m.label}</option>
-             ))}
-           </select>
-           <select 
-             className="bg-transparent border-none focus:ring-0 text-sm"
-             value={selectedYear}
-             onChange={(e) => setSelectedYear(Number(e.target.value))}
-           >
-             {[2024, 2025, 2026, 2027].map(y => (
-               <option key={y} value={y}>{y}</option>
-             ))}
-           </select>
-        </div>
-        
-        <div className="flex gap-2">
-            <button 
-              onClick={handleDownloadPDF}
-              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <HiDownload className="text-lg" />
-              <span>PDF</span>
-            </button>
-            <button 
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors"
-            >
-              <HiPrinter className="text-lg" />
-              <span>Print</span>
-            </button>
-        </div>
-      </div>
+              <div className="flex items-center px-3">
+                <HiFilter className="text-[#7A5C4D] mr-2 text-lg" />
+                <select 
+                  className="bg-transparent border-none focus:ring-0 text-[#5C4033] font-bold text-sm outline-none cursor-pointer pr-4"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                >
+                  {months.map(m => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
+                </select>
+              </div>
 
-      {isLoading || isFetching ? (
-         <div className="p-12 flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
-         </div>
-      ) : (
-        <div ref={printRef} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden print:shadow-none print:border-none">
-           {/* Report Header (Visible in Print) */}
-           <div className="p-8 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 print:bg-white text-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wide">
+              <div className="flex items-center px-3 border-l border-[#f2ded6]">
+                <select 
+                  className="bg-transparent border-none focus:ring-0 text-[#5C4033] font-bold text-sm outline-none cursor-pointer pr-4"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(Number(e.target.value))}
+                >
+                  {[2024, 2025, 2026, 2027].map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3 shrink-0">
+              <button 
+                onClick={handleDownloadPDF}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-[#ffffff] border border-[#d4c3bd] text-[#5C4033] rounded-xl hover:bg-[#F8F5F0] font-bold transition-colors shadow-sm"
+              >
+                <HiDownload className="text-xl" />
+                <span className="hidden sm:inline">Export PDF</span>
+              </button>
+              <button 
+                onClick={handlePrint}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-[#5C4033] text-white rounded-xl hover:bg-[#432a1e] font-bold transition-all shadow-md hover:-translate-y-0.5"
+              >
+                <HiPrinter className="text-xl" />
+                <span className="hidden sm:inline">Print Report</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Report Content */}
+        {isLoading || isFetching ? (
+          <div className="p-12 flex justify-center w-full">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#5C4033]"></div>
+          </div>
+        ) : (
+          <div ref={printRef} className="bg-[#ffffff] rounded-2xl shadow-sm border border-[#d4c3bd] overflow-hidden print:shadow-none print:border-none w-full">
+            {/* Report Header (Visible in Print) */}
+            <div className="p-8 border-b border-[#f2ded6] bg-[#F8F5F0] print:bg-white text-center">
+              <h2 className="text-3xl font-extrabold text-[#5C4033] uppercase tracking-widest mb-2">
                 {months.find(m => m.value === selectedMonth)?.label} {selectedYear} Report
               </h2>
-              <p className="text-lg text-brand-primary font-semibold mt-1">
-                {selectedHostel === 'ALL' ? 'All Hostels' : hostels.find((h: any) => h._id === selectedHostel)?.name}
-              </p>
-              <p className="text-gray-500 mt-2 text-sm">Generated on {new Date().toLocaleDateString()}</p>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 text-left">
-                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 print:border-gray-300">
-                    <p className="text-xs text-gray-500 uppercase font-semibold">Total Revenue</p>
-                    <p className="text-xl font-bold text-green-600">PKR {report?.summary?.totalRevenue?.toLocaleString() || 0}</p>
-                 </div>
-                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 print:border-gray-300">
-                    <p className="text-xs text-gray-500 uppercase font-semibold">Total Pending</p>
-                    <p className="text-xl font-bold text-red-500">PKR {report?.summary?.totalPending?.toLocaleString() || 0}</p>
-                 </div>
-                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 print:border-gray-300">
-                    <p className="text-xs text-gray-500 uppercase font-semibold">Collected Count</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{report?.summary?.collectedCount || 0}</p>
-                 </div>
-                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 print:border-gray-300">
-                    <p className="text-xs text-gray-500 uppercase font-semibold">Total Students</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{report?.meta?.totalStudents || 0}</p>
-                 </div>
+              <div className="inline-block px-4 py-1.5 bg-[#ffffff] border border-[#d4c3bd] rounded-full text-[#7A5C4D] font-bold mb-8">
+                {selectedHostel === 'ALL' ? 'All Hostels Overview' : hostels.find((h: any) => h._id === selectedHostel)?.name}
               </div>
-           </div>
-           
-           {/* Detailed Table */}
-           <div className="p-0 overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left w-full">
+                <div className="bg-[#ffffff] p-5 rounded-2xl border border-[#d4c3bd] shadow-sm print:border-gray-300">
+                  <div className="w-10 h-10 bg-[#e6f4ea] text-[#1e4620] rounded-full flex items-center justify-center mb-3">
+                    <span className="material-symbols-outlined text-lg">payments</span>
+                  </div>
+                  <p className="text-xs text-[#7A5C4D] uppercase font-bold tracking-wider mb-1">Total Revenue</p>
+                  <p className="text-2xl font-black text-[#1e4620]">PKR {report?.summary?.totalRevenue?.toLocaleString() || 0}</p>
+                </div>
+
+                <div className="bg-[#ffffff] p-5 rounded-2xl border border-[#d4c3bd] shadow-sm print:border-gray-300">
+                  <div className="w-10 h-10 bg-[#ffdad6] text-[#ba1a1a] rounded-full flex items-center justify-center mb-3">
+                    <span className="material-symbols-outlined text-lg">warning</span>
+                  </div>
+                  <p className="text-xs text-[#7A5C4D] uppercase font-bold tracking-wider mb-1">Total Pending</p>
+                  <p className="text-2xl font-black text-[#ba1a1a]">PKR {report?.summary?.totalPending?.toLocaleString() || 0}</p>
+                </div>
+
+                <div className="bg-[#ffffff] p-5 rounded-2xl border border-[#d4c3bd] shadow-sm print:border-gray-300">
+                  <div className="w-10 h-10 bg-[#eaddd7] text-[#432a1e] rounded-full flex items-center justify-center mb-3">
+                    <span className="material-symbols-outlined text-lg">receipt_long</span>
+                  </div>
+                  <p className="text-xs text-[#7A5C4D] uppercase font-bold tracking-wider mb-1">Collected Count</p>
+                  <p className="text-2xl font-black text-[#5C4033]">{report?.summary?.collectedCount || 0}</p>
+                </div>
+
+                <div className="bg-[#ffffff] p-5 rounded-2xl border border-[#d4c3bd] shadow-sm print:border-gray-300">
+                  <div className="w-10 h-10 bg-[#f2ded6] text-[#5c4033] rounded-full flex items-center justify-center mb-3">
+                    <span className="material-symbols-outlined text-lg">group</span>
+                  </div>
+                  <p className="text-xs text-[#7A5C4D] uppercase font-bold tracking-wider mb-1">Total Students</p>
+                  <p className="text-2xl font-black text-[#5C4033]">{report?.meta?.totalStudents || 0}</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Detailed Table */}
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-[#F8F5F0] border-b border-[#d4c3bd]">
                   <tr>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white">Student Name</th>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white">Contact</th>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white">Hostel</th>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white">Room</th>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white">Status</th>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white text-right">Amount</th>
+                    <th className="px-6 py-5 text-xs font-bold text-[#7A5C4D] uppercase tracking-wider">Student Name</th>
+                    <th className="px-6 py-5 text-xs font-bold text-[#7A5C4D] uppercase tracking-wider">Contact</th>
+                    <th className="px-6 py-5 text-xs font-bold text-[#7A5C4D] uppercase tracking-wider">Hostel</th>
+                    <th className="px-6 py-5 text-xs font-bold text-[#7A5C4D] uppercase tracking-wider">Room</th>
+                    <th className="px-6 py-5 text-xs font-bold text-[#7A5C4D] uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-5 text-xs font-bold text-[#7A5C4D] uppercase tracking-wider text-right">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody className="divide-y divide-[#f2ded6] bg-[#ffffff]">
                   {report?.students?.length > 0 ? (
-                    report.students.map((student: any) => (
-                      <tr key={student.studentId} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{student.name}</td>
-                        <td className="px-6 py-4 text-gray-500 truncate">{student.contactNumber}</td>
-                        <td className="px-6 py-4 text-gray-500">{student.hostelName || '-'}</td>
-                        <td className="px-6 py-4 text-gray-500">{student.roomNumber || '-'}</td>
-                        <td className="px-6 py-4">
-                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                             ${student.status === 'COMPLETED' 
-                               ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
-                               : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                             }`}>
-                             {student.status}
-                           </span>
+                    report.students.map((student: any, idx: number) => (
+                      <tr key={`${student.studentId}-${idx}`} className="hover:bg-[#fcfaf8] transition-colors">
+                        <td className="px-6 py-4 font-bold text-[#5C4033] whitespace-nowrap">{student.name}</td>
+                        <td className="px-6 py-4 text-[#7A5C4D] whitespace-nowrap">{student.contactNumber || '-'}</td>
+                        <td className="px-6 py-4 text-[#7A5C4D] whitespace-nowrap">{student.hostelName || '-'}</td>
+                        <td className="px-6 py-4 text-[#7A5C4D] whitespace-nowrap">{student.roomNumber || '-'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {student.status === 'COMPLETED' ? (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-[#e6f4ea] text-[#1e4620] border border-[#ceead6]">
+                              Paid
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase bg-[#ffdad6] text-[#ba1a1a] border border-[#ffb4ab]">
+                              Unpaid
+                            </span>
+                          )}
                         </td>
-                        <td className="px-6 py-4 text-right font-medium text-gray-900 dark:text-white">
-                           {student.status === 'COMPLETED' ? (
-                             <span className="text-green-600">PKR {student.paidAmount.toLocaleString()}</span>
-                           ) : (
-                             <span className="text-red-500">PKR {student.dueAmount.toLocaleString()}</span>
-                           )}
+                        <td className="px-6 py-4 text-right font-black whitespace-nowrap">
+                          {student.status === 'COMPLETED' ? (
+                            <span className="text-[#1e4620]">PKR {student.paidAmount?.toLocaleString() || 0}</span>
+                          ) : (
+                            <span className="text-[#ba1a1a]">PKR {student.dueAmount?.toLocaleString() || 0}</span>
+                          )}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                        No records found for this month.
+                      <td colSpan={6} className="px-6 py-16 text-center">
+                        <div className="w-16 h-16 bg-[#F8F5F0] text-[#7A5C4D] rounded-full flex items-center justify-center mx-auto mb-4">
+                          <span className="material-symbols-outlined text-3xl">inbox</span>
+                        </div>
+                        <p className="text-lg font-bold text-[#5C4033]">No records found</p>
+                        <p className="text-[#7A5C4D]">No financial records exist for the selected criteria.</p>
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
-           </div>
-        </div>
-      )}
+            </div>
+            
+            <div className="p-4 bg-[#F8F5F0] border-t border-[#d4c3bd] text-center text-xs text-[#7A5C4D] font-medium print:block">
+              Report automatically generated by Hostelite Admin System
+            </div>
+          </div>
+        )}
+      </div>
       
       {/* Print Styles */}
       <style dangerouslySetInnerHTML={{
         __html: `
         @media print {
-          @page { margin: 20mm; }
-          body { -webkit-print-color-adjust: exact; }
-          nav, aside, footer, button { display: none !important; }
+          @page { margin: 15mm; }
+          body { -webkit-print-color-adjust: exact; background-color: white; }
+          nav, aside, footer, button, select { display: none !important; }
+          .print\\:hidden { display: none !important; }
+          .print\\:shadow-none { box-shadow: none !important; }
+          .print\\:border-none { border: none !important; }
+          .print\\:bg-white { background-color: white !important; }
         }
       `}} />
-    </div>
+    </>
   );
 }
