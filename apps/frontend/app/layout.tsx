@@ -1,19 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import StoreProvider from "./StoreProvider";
 import AuthInitializer from "@/components/auth/AuthInitializer";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
-});
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "900"],
 });
 
 export const metadata: Metadata = {
@@ -28,8 +22,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+      </head>
       <body
-        className={`${inter.variable} ${outfit.variable} font-outfit antialiased`}
+        className={`${manrope.variable} font-sans antialiased`}
       >
         <StoreProvider>
           <AuthInitializer>
