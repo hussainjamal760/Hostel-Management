@@ -14,17 +14,12 @@ interface AdminLayoutProps {
 
 const menuItems = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: 'dashboard' },
+  { name: 'Hostels', href: '/admin/hostels', icon: 'apartment' },
   { name: 'Students', href: '/admin/users', icon: 'group' },
-  { name: 'Rooms', href: '/admin/rooms', icon: 'bed' },
-  { name: 'Bookings', href: '/admin/bookings', icon: 'event_available' },
+  { name: 'Owner Requests', href: '/admin/owner-requests', icon: 'assignment_ind' },
   { name: 'Payments', href: '/admin/payments', icon: 'payments' },
-  { name: 'Expenses', href: '/admin/expenses', icon: 'receipt_long' },
   { name: 'Complaints', href: '/admin/complaints', icon: 'report_problem' },
-  { name: 'Maintenance', href: '/admin/maintenance', icon: 'build' },
-  { name: 'Staff', href: '/admin/staff', icon: 'badge' },
-  { name: 'Visitors', href: '/admin/visitors', icon: 'person_add' },
   { name: 'Reports', href: '/admin/reports', icon: 'analytics' },
-  { name: 'Settings', href: '/admin/settings', icon: 'settings' },
 ];
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
@@ -106,12 +101,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </nav>
 
         <div className="px-6 mt-auto pt-6 border-t border-outline-variant/30">
-          <div className="p-4 bg-surface-container rounded-xl border border-outline-variant">
-            <p className="font-label-md text-label-md text-primary font-bold">Hostelite Pro</p>
-            <p className="text-xs text-on-surface-variant mb-3">Enterprise Plan Active</p>
+          <div className="p-4 bg-surface-container rounded-xl border border-outline-variant text-center">
+            <p className="font-label-md text-label-md text-primary font-bold tracking-widest uppercase">Admin Portal</p>
+            <p className="text-xs text-on-surface-variant mb-4">Full System Access</p>
             <button
               onClick={handleLogout}
-              className="w-full bg-primary text-on-primary py-2 rounded-lg font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors mb-2"
+              className="w-full bg-primary text-on-primary py-2.5 rounded-lg font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors shadow-sm"
             >
               Logout
             </button>

@@ -33,10 +33,21 @@ const authSlice = createSlice({
       if (action.payload.refreshToken) {
         state.refreshToken = action.payload.refreshToken;
       }
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', state.token);
+        if (state.refreshToken) {
+            localStorage.setItem('refreshToken', state.refreshToken);
+        }
+        localStorage.setItem('user', JSON.stringify(state.user));
+      }
     },
     updateUser: (state, action: PayloadAction<IUserPublic>) => {
       state.user = action.payload;
       state.isAuthenticated = true;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user', JSON.stringify(state.user));
+      }
     },
     setInitialized: (state) => {
       state.isInitialized = true;
@@ -46,6 +57,11 @@ const authSlice = createSlice({
       state.refreshToken = null;
       state.user = null;
       state.isAuthenticated = false;
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+      }
     },
   },
 });

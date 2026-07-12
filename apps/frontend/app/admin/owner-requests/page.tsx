@@ -134,10 +134,10 @@ export default function OwnerRequestsPage() {
               setStatusFilter(status);
               setPage(1);
             }}
-            className={`px-4 py-2 rounded-xl font-medium transition-colors ${
+            className={`px-5 py-2 rounded-xl font-bold transition-all shadow-sm ${
               statusFilter === status
-                ? 'bg-brand-primary dark:bg-dark-primary text-white dark:text-dark-bg'
-                : 'bg-white dark:bg-dark-card/50 text-brand-text dark:text-dark-text border border-brand-card/30 dark:border-dark-card/30'
+                ? 'bg-[#5C4033] text-white hover:bg-[#432a1e] border-transparent'
+                : 'bg-[#ffffff] border border-[#d4c3bd] text-[#7A5C4D] hover:bg-[#F8F5F0]'
             }`}
           >
             {status || 'All'}
@@ -167,7 +167,7 @@ export default function OwnerRequestsPage() {
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                   {/* User info */}
                   <div className="flex items-center gap-3 flex-1">
-                    <div className="w-12 h-12 rounded-xl bg-brand-primary dark:bg-dark-primary flex items-center justify-center text-white dark:text-dark-bg font-bold">
+                    <div className="w-12 h-12 rounded-xl bg-[#5C4033] flex items-center justify-center text-white font-bold">
                       {request.userId?.name?.charAt(0) || 'U'}
                     </div>
                     <div>
@@ -246,8 +246,8 @@ export default function OwnerRequestsPage() {
 
               <div className="p-6 space-y-6">
                 {/* User Info */}
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-brand-bg dark:bg-dark-card/50">
-                  <div className="w-16 h-16 rounded-xl bg-brand-primary dark:bg-dark-primary flex items-center justify-center text-white dark:text-dark-bg text-2xl font-bold">
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-[#fefaf8] border border-[#f2ded6]">
+                  <div className="w-16 h-16 rounded-xl bg-[#5C4033] flex items-center justify-center text-white text-2xl font-bold shadow-md">
                     {selectedRequest.userId?.name?.charAt(0) || 'U'}
                   </div>
                   <div>
