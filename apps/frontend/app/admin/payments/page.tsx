@@ -1,75 +1,100 @@
 'use client';
 
-import { useState } from 'react';
-import { useGetAllPaymentsQuery, useTriggerMonthlyDuesMutation, useVerifyPaymentMutation } from '@/lib/services/paymentApi';
+import React, { useState } from 'react';
+import { useTriggerMonthlyDuesMutation } from '@/lib/services/paymentApi';
 import { toast } from 'react-hot-toast';
-import { HiCheck, HiX, HiExternalLink, HiSearch, HiExclamationCircle, HiCollection, HiLightningBolt, HiOfficeBuilding } from 'react-icons/hi';
 
 export default function AdminPaymentsPage() {
-  const [isGenerating, setIsGenerating] = useState(false);
   const [triggerMonthlyDues] = useTriggerMonthlyDuesMutation();
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleGenerateInvoices = async () => {
-      const confirmMsg = "Are you sure you want to generate monthly dues for ALL active students in ALL active hostels? This will create UNPAID invoices for the current month.";
-      if (!confirm(confirmMsg)) return;
-
-      setIsGenerating(true);
-      try {
-          const today = new Date();
-          await triggerMonthlyDues({
-              month: today.getMonth() + 1, // 1-12
-              year: today.getFullYear()
-          }).unwrap();
-          
-          toast.success('Invoices generated successfully for all active hostels!');
-      } catch (error: any) {
-          toast.error(error?.data?.message || 'Failed to trigger invoice generation');
-      } finally {
-          setIsGenerating(false);
-      }
+  const handleConfirmAction = async () => {
+    setIsModalOpen(false);
+    setIsGenerating(true);
+    try {
+      const today = new Date();
+      await triggerMonthlyDues({
+        month: today.getMonth() + 1,
+        year: today.getFullYear()
+      }).unwrap();
+      
+      toast.success('Invoices generated successfully for all active hostels!');
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Failed to trigger invoice generation');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 dark:border-gray-700 pb-6">
+    <>
+      <div className="max-w-4xl mx-auto space-y-6 w-full">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Global Payments Administration</h1>
-          <p className="text-gray-500 dark:text-gray-400">Manage system-wide billing and invoices</p>
+          <h2 className="text-3xl font-bold text-[#5C4033] mb-2">Billing Control</h2>
+          <p className="text-[#7A5C4D]">Manually trigger the monthly billing cycle if the automated system fails.</p>
         </div>
-        
-        <button
-            onClick={handleGenerateInvoices}
-            disabled={isGenerating}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all transform hover:-translate-y-0.5 ${
-                isGenerating 
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-indigo-500/30'
-            }`}
-        >
-            {isGenerating ? (
-                <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    Generating...
-                </>
-            ) : (
-                <>
-                    <HiLightningBolt className="text-xl" />
-                    Generate Monthly Invoices
-                </>
-            )}
-        </button>
+
+        <div className="bg-[#F8F5F0] border border-[#d4c3bd] rounded-2xl p-6 md:p-8 w-full">
+          <div className="flex flex-col md:flex-row gap-6 items-start w-full">
+            <div className="w-16 h-16 bg-[#eaddd7] text-[#432a1e] rounded-2xl flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-3xl">request_quote</span>
+            </div>
+            
+            <div className="flex-1 min-w-0 w-full">
+              <h3 className="text-xl font-bold text-[#5C4033] mb-3">Dispatch Global Payments</h3>
+              <p className="text-[#7A5C4D] leading-relaxed mb-6 w-full">
+                This action will forcefully generate monthly dues for all active students across all active hostels. Use this manual trigger only if the automated beginning-of-month billing system fails to execute.
+              </p>
+
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                disabled={isGenerating}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-[#5C4033] text-white hover:bg-[#432a1e] transition-colors disabled:opacity-50"
+              >
+                {isGenerating ? 'Generating Invoices...' : 'Trigger Invoices Now'}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-8 bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col md:flex-row gap-3 items-start md:items-center w-full">
+            <span className="material-symbols-outlined text-red-600 shrink-0">warning</span>
+            <p className="text-red-800 text-sm font-medium w-full">
+              Important: Clicking the button above creates actual financial records (UNPAID invoices). Ensure no duplicate jobs have already run.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold text-yellow-800 mb-2">Automated Billing Control</h3>
-          <p className="text-yellow-700">
-              The "Generate Monthly Invoices" button above will manually trigger the billing cycle for the current month.
-              <br />
-              This affects <strong>ALL Active Hostels</strong> and their active students. 
-              <br />
-              Please ensure all student data is up-to-date before running this action.
-          </p>
-      </div>
-    </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60">
+          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-lg shadow-2xl relative">
+            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mb-6 border border-red-100">
+              <span className="material-symbols-outlined text-3xl">warning</span>
+            </div>
+            
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Confirm Dispatch</h3>
+            <p className="text-gray-600 mb-8 w-full">
+              Are you sure you want to generate monthly dues for ALL active students? This will instantly create UNPAID invoices for the current month.
+            </p>
+
+            <div className="flex justify-end gap-3 w-full">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="px-5 py-2.5 rounded-xl font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleConfirmAction}
+                className="px-5 py-2.5 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors"
+              >
+                Yes, Generate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

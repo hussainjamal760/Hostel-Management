@@ -64,18 +64,6 @@
   --font-manrope: "Manrope", sans-serif;
   --font-sans: var(--font-manrope), var(--font-outfit), var(--font-inter), system-ui, sans-serif;
 
-  /* Spacing */
-  --spacing-base: 8px;
-  --spacing-xs: 4px;
-  --spacing-sm: 12px;
-  --spacing-md: 24px;
-  --spacing-lg: 48px;
-  --spacing-xl: 80px;
-  --spacing-container-max: 1440px;
-  --spacing-gutter: 24px;
-  --spacing-margin-mobile: 16px;
-  --spacing-margin-desktop: 40px;
-
   /* Border Radius */
   --radius-sm: 0.25rem;
   --radius: 0.5rem;
