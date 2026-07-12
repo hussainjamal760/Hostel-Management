@@ -29,10 +29,19 @@ const baseQueryWithReauth: BaseQueryFn<
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
       try {
+        const state = api.getState() as RootState;
+        const currentRefreshToken = state.auth.refreshToken;
+
+        if (!currentRefreshToken) {
+          api.dispatch(logout());
+          return result;
+        }
+
         const refreshResult = await baseQuery(
           {
             url: '/auth/refresh',
             method: 'POST',
+            body: { refreshToken: currentRefreshToken },
           },
           api,
           extraOptions
