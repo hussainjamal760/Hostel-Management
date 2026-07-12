@@ -14,6 +14,7 @@ import {
   VerifyEmailInput,
   ChangePasswordInput,
 } from '@hostelite/shared-validators';
+import { PendingUser } from './pendingUser.model';
 
 export class AuthService {
   async signup(data: SignupInput) {
@@ -26,23 +27,20 @@ export class AuthService {
 
     // Generate 6-digit verification code
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const verificationCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    const user = new User({
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      password: hashedPassword,
-      role: 'CLIENT', 
-      isFirstLogin: false, 
-      isEmailVerified: false,
-      isActive: true,
-      username: data.email,
-      verificationCode,
-      verificationCodeExpiresAt,
-    });
-
-    await user.save();
+    // Upsert pending user
+    await PendingUser.findOneAndUpdate(
+      { email: data.email.toLowerCase() },
+      {
+        name: data.name,
+        email: data.email.toLowerCase(),
+        phone: data.phone,
+        passwordHash: hashedPassword,
+        verificationCode,
+        createdAt: new Date(),
+      },
+      { upsert: true, new: true }
+    );
 
     // Send verification email
     await mailService.sendVerificationEmail(data.email, verificationCode);
@@ -51,20 +49,35 @@ export class AuthService {
   }
 
   async verifyEmail(data: VerifyEmailInput) {
-    const user = await User.findOne({ 
+    const pendingUser = await PendingUser.findOne({ 
       email: data.email.toLowerCase(),
-      verificationCode: data.code,
-      verificationCodeExpiresAt: { $gt: new Date() }
-    }).select('+verificationCode +verificationCodeExpiresAt');
+      verificationCode: data.code
+    });
 
-    if (!user) {
+    if (!pendingUser) {
       throw ApiError.badRequest('Invalid or expired verification code');
     }
 
-    user.isEmailVerified = true;
-    user.verificationCode = undefined;
-    user.verificationCodeExpiresAt = undefined;
+    const existingUser = await User.findOne({ email: pendingUser.email });
+    if (existingUser) {
+      await PendingUser.deleteOne({ _id: pendingUser._id });
+      throw ApiError.badRequest('User already registered');
+    }
+
+    const user = new User({
+      name: pendingUser.name,
+      email: pendingUser.email,
+      phone: pendingUser.phone,
+      password: pendingUser.passwordHash,
+      role: 'OWNER', 
+      isFirstLogin: false, 
+      isEmailVerified: true,
+      isActive: true,
+      username: pendingUser.email,
+    });
+
     await user.save();
+    await PendingUser.deleteOne({ _id: pendingUser._id });
 
     return { message: 'Email verified successfully. You can now login.' };
   }

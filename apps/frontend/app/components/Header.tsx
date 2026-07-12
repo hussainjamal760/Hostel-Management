@@ -6,8 +6,9 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { HiOutlineMenuAlt3, HiX } from "react-icons/hi";
 import { navItems } from "../utils/navItems";
-import { useSelector } from "react-redux";
-import { setServers } from "node:dns/promises";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "@/lib/features/authSlice";
+import { useRouter } from "next/navigation";
 
 const getInitials = (name: string | undefined | null) => {
   if (!name) return "U";
@@ -19,7 +20,24 @@ const Header = () => {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
+  const dispatch = useDispatch();
+  const router = useRouter();
   const pathname = usePathname();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push('/login');
+  };
+
+  const getDashboardUrl = (role: string | undefined) => {
+    if (!role) return '/owner/hostel';
+    const r = role.toUpperCase();
+    if (r === 'ADMIN') return '/admin/dashboard';
+    if (r === 'MANAGER') return '/manager/dashboard';
+    if (r === 'OWNER') return '/owner/dashboard';
+    if (r === 'STUDENT') return '/student/dashboard';
+    return '/owner/hostel';
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -41,9 +59,9 @@ const Header = () => {
         <header
           className={`pointer-events-auto flex items-center justify-between px-5 py-3 rounded-full transition-all duration-700 
           ${active
-            ? "w-full max-w-[1200px] bg-black/60 backdrop-blur-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-            : "w-full max-w-[1400px] bg-transparent"
-          }`}
+              ? "w-full max-w-[1200px] bg-black/60 backdrop-blur-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+              : "w-full max-w-[1400px] bg-transparent"
+            }`}
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
@@ -76,19 +94,34 @@ const Header = () => {
           <div className="flex items-center gap-4">
             <div className="hidden md:block">
               {mounted && user ? (
-                <Link href="/profile" className="block transition-transform hover:scale-110">
-                  {user.avatar?.url ? (
-                    <Image src={user.avatar.url} alt="user" width={32} height={32} className="rounded-full border border-white/20" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-bold text-white">
+                <div className="relative group">
+                  <div className="cursor-pointer block transition-transform hover:scale-110">
+                    <div className="w-9 h-9 rounded-full bg-brand-primary/20 border border-brand-primary/30 flex items-center justify-center text-xs font-bold text-brand-primary">
                       {getInitials(user.name)}
                     </div>
-                  )}
-                </Link>
+                  </div>
+                  {/* Dropdown menu */}
+                  <div className="absolute right-0 mt-2 w-48 py-2 bg-black/90 backdrop-blur-md rounded-xl shadow-xl border border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <Link href={getDashboardUrl(user.role)} className="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors">
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
               ) : (
-                <Link href="/login" className="px-5 py-2 rounded-full bg-white text-black text-[12px] font-bold uppercase tracking-wider transition-all hover:bg-brand-primary hover:text-black hover:scale-105">
-                  Sign In
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Link href="/login" className="px-5 py-2 rounded-full text-white/80 hover:text-white text-[12px] font-bold uppercase tracking-wider transition-all">
+                    Sign In
+                  </Link>
+                  <Link href="/signup" className="px-5 py-2 rounded-full bg-brand-primary text-black text-[12px] font-bold uppercase tracking-wider transition-all hover:scale-105 shadow-[0_0_15px_rgba(255,107,0,0.4)]">
+                    List Hostel
+                  </Link>
+                </div>
               )}
             </div>
             <button
@@ -153,26 +186,27 @@ const Header = () => {
         {/* Mobile Auth */}
         <div className="px-6 py-6">
           {mounted && user ? (
-            <Link href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all" onClick={() => setOpen(false)}>
-              {user.avatar?.url ? (
-                <Image src={user.avatar.url} alt="user" width={36} height={36} className="rounded-full border border-white/20" />
-              ) : (
+            <div className="flex flex-col gap-3">
+              <Link href={getDashboardUrl(user.role)} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all" onClick={() => setOpen(false)}>
                 <div className="w-9 h-9 rounded-full bg-brand-primary/20 border border-brand-primary/30 flex items-center justify-center text-xs font-bold text-brand-primary">
                   {getInitials(user.name)}
                 </div>
-              )}
-              <div className="flex flex-col">
-                <span className="text-white text-sm font-semibold leading-tight">{user.name || "Profile"}</span>
-                <span className="text-white/40 text-xs">View profile</span>
-              </div>
-            </Link>
+                <div className="flex flex-col">
+                  <span className="text-white text-sm font-semibold leading-tight">{user.name || "User"}</span>
+                  <span className="text-white/40 text-xs">Dashboard</span>
+                </div>
+              </Link>
+              <button onClick={() => { handleLogout(); setOpen(false); }} className="w-full text-left px-4 py-3 rounded-xl border border-red-500/30 text-red-400 text-sm font-bold uppercase tracking-wider hover:bg-red-500/10 transition-colors">
+                Logout
+              </button>
+            </div>
           ) : (
             <div className="flex flex-col gap-3">
               <Link href="/login" className="w-full text-center py-3 rounded-xl bg-brand-primary text-black text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-opacity" onClick={() => setOpen(false)}>
                 Sign In
               </Link>
-              <Link href="/signup" className="w-full text-center py-3 rounded-xl border border-white/20 text-white text-sm font-bold uppercase tracking-wider hover:bg-white/5 transition-colors" onClick={() => setOpen(false)}>
-                Sign Up
+              <Link href="/signup" className="w-full text-center py-3 rounded-xl border border-brand-primary text-brand-primary text-sm font-bold uppercase tracking-wider hover:bg-brand-primary/10 transition-colors" onClick={() => setOpen(false)}>
+                List Hostel
               </Link>
             </div>
           )}

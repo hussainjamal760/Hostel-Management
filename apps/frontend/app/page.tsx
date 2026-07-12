@@ -3,10 +3,40 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '@/lib/features/authSlice';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState('analytics');
+  
+  const { user } = useSelector((state: any) => state.auth);
+  const [mounted, setMounted] = useState(false);
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  useEffect(() => { setMounted(true); }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push('/login');
+  };
+
+  const getDashboardUrl = (role: string | undefined) => {
+    if (!role) return '/owner/hostel';
+    const r = role.toUpperCase();
+    if (r === 'ADMIN') return '/admin/dashboard';
+    if (r === 'MANAGER') return '/manager/dashboard';
+    if (r === 'OWNER') return '/owner/dashboard';
+    if (r === 'STUDENT') return '/student/dashboard';
+    return '/owner/hostel';
+  };
+
+  const getInitials = (name: string | undefined | null) => {
+    if (!name) return "U";
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -136,9 +166,30 @@ export default function Home() {
             <a className="font-label-md text-label-md font-semibold text-gray-800 hover:text-[#111] transition-colors hover:scale-105" href="#about">About</a>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="bg-[#111] text-white px-8 py-3 rounded-full font-label-md text-label-md font-bold hover:scale-105 transition-transform duration-300 ease-in-out-expo hover:bg-black/80 shadow-xl border border-white/10">
-              Login Portal
-            </Link>
+            {mounted && user ? (
+              <div className="relative group">
+                <div className="cursor-pointer block transition-transform hover:scale-110">
+                  <div className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center text-sm font-bold text-white shadow-lg">
+                    {getInitials(user.name)}
+                  </div>
+                </div>
+                <div className="absolute right-0 mt-3 w-48 py-2 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <Link href={getDashboardUrl(user.role)} className="block px-4 py-2 text-sm font-semibold text-gray-800 hover:text-black hover:bg-black/5 transition-colors">
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-sm font-bold text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Link href="/login" className="bg-[#111] text-white px-8 py-3 rounded-full font-label-md text-label-md font-bold hover:scale-105 transition-transform duration-300 ease-in-out-expo hover:bg-black/80 shadow-xl border border-white/10">
+                Login Portal
+              </Link>
+            )}
           </div>
         </div>
       </nav>

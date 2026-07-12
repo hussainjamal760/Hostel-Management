@@ -59,23 +59,24 @@ const Login: React.FC<LoginProps> = ({ open, setOpen, setRoute }) => {
               break;
           case 'OWNER':
               toast.success(`Welcome back, ${result.user.name}!`);
-              router.push('/owner/dashboard');
+              if (!result.user.hostelId) {
+                router.push('/owner/hostel');
+              } else {
+                router.push('/owner/dashboard');
+              }
               break;
           case 'STUDENT':
               toast.success(`Welcome back, ${result.user.name}!`);
               router.push('/student/dashboard');
               break;
-          case 'CLIENT':
-              toast.success(`Welcome back, ${result.user.name}!`);
-              router.push('/profile');
-              break;
+
           case 'ADMIN':
               router.push('/admin/dashboard');
               break;
           default:
-              console.warn('Unknown role, redirecting to profile:', role);
-              toast('Redirecting to Profile (Unknown Role)');
-              router.push('/profile');
+          console.warn('Unknown role, redirecting to owner setup:', role);
+          toast('Redirecting to Owner Setup');
+          router.push('/owner/hostel');
       }
     } catch (error: any) {
       const message = error?.data?.message || error?.message || "Login failed";

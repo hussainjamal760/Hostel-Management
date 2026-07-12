@@ -17,13 +17,22 @@ export default function SignupPage() {
   
   const [signup, { isLoading }] = useSignupMutation();
   const router = useRouter();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/dashboard');
+      if (!user?.role) {
+        router.push('/owner/hostel');
+        return;
+      }
+      const role = user.role.toUpperCase();
+      if (role === 'ADMIN') router.push('/admin/dashboard');
+      else if (role === 'MANAGER') router.push('/manager/dashboard');
+      else if (role === 'OWNER') router.push('/owner/dashboard');
+      else if (role === 'STUDENT') router.push('/student/dashboard');
+      else router.push('/owner/hostel');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, user, router]);
 
   const validateForm = () => {
     if (!name.trim()) {
