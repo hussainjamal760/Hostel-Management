@@ -254,61 +254,88 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="py-32 reveal" id="features">
+      <section className="py-32 bg-white reveal" id="features">
         <div className="max-w-7xl mx-auto px-6 md:px-16">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl font-bold text-primary mb-4">Precision Management Tools</h2>
-            <p className="text-lg text-on-surface-variant max-w-2xl mx-auto">Elevate your administrative efficiency with features built for the modern warden and owner.</p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+            <div className="max-w-2xl">
+              <h2 className="text-5xl md:text-6xl font-light text-[#111] mb-6 tracking-tight">
+                Precision<br/>
+                <span className="font-extrabold tracking-tighter">Management Tools</span>
+              </h2>
+            </div>
+            <p className="text-lg text-gray-500 max-w-md font-light leading-relaxed">
+              Elevate your administrative efficiency with features built for the modern warden and owner, blending luxury with operational perfection.
+            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="glass-card p-8 rounded-2xl hover:scale-[1.02] transition-all duration-500 ambient-shadow">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 text-primary">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>bedroom_parent</span>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            {/* Room Management */}
+            <div className="group border border-gray-200 p-10 rounded-[32px] hover:bg-[#fafafa] hover:border-gray-300 transition-all duration-500 cursor-pointer flex flex-col justify-between min-h-[320px] shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 group-hover:text-black group-hover:border-black transition-all duration-500">
+                <span className="material-symbols-outlined text-2xl font-light">bedroom_parent</span>
               </div>
-              <h3 className="text-2xl font-bold text-primary mb-3">Room Management</h3>
-              <p className="text-on-surface-variant">Real-time floor maps, occupancy tracking, and intelligent room allocation at your fingertips.</p>
-              <p className="text-on-surface-variant">Real-time floor maps, occupancy tracking, and intelligent room allocation at your fingertips.</p>
+              <div>
+                <h3 className="text-2xl font-bold text-[#111] mb-4 tracking-tight">Room Management</h3>
+                <p className="text-gray-500 text-sm leading-relaxed font-light">Real-time floor maps, occupancy tracking, and intelligent room allocation at your fingertips.</p>
+              </div>
             </div>
 
-            <div className="glass-card p-8 rounded-2xl hover:scale-[1.02] transition-all duration-500 ambient-shadow">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 text-primary">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
+            {/* Student Management */}
+            <div className="group border border-gray-200 p-10 rounded-[32px] hover:bg-[#fafafa] hover:border-gray-300 transition-all duration-500 cursor-pointer flex flex-col justify-between min-h-[320px] shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 group-hover:text-black group-hover:border-black transition-all duration-500">
+                <span className="material-symbols-outlined text-2xl font-light">groups</span>
               </div>
-              <h3 className="text-2xl font-bold text-primary mb-3">Student Management</h3>
-              <p className="text-on-surface-variant">Detailed profiles, attendance logs, and automated communication for every resident.</p>
+              <div>
+                <h3 className="text-2xl font-bold text-[#111] mb-4 tracking-tight">Student Management</h3>
+                <p className="text-gray-500 text-sm leading-relaxed font-light">Detailed profiles, attendance logs, and automated communication for every resident.</p>
+              </div>
             </div>
 
-            <div className="glass-card p-8 rounded-2xl hover:scale-[1.02] transition-all duration-500 ambient-shadow">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 text-primary">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
+            {/* Online Payments - Highlighted */}
+            <div className="group border border-gray-200 p-10 rounded-[32px] hover:bg-[#111] hover:border-[#111] transition-all duration-500 cursor-pointer flex flex-col justify-between min-h-[320px] shadow-sm hover:shadow-2xl">
+              <div className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 group-hover:text-white group-hover:border-white/30 transition-all duration-500">
+                <span className="material-symbols-outlined text-2xl font-light">payments</span>
               </div>
-              <h3 className="text-2xl font-bold text-primary mb-3">Online Payments</h3>
-              <p className="text-on-surface-variant">Secure fee collection, automated invoicing, and digital receipts for hassle-free accounting.</p>
+              <div>
+                <h3 className="text-2xl font-bold text-[#111] group-hover:text-white mb-4 tracking-tight transition-colors duration-500">Online Payments</h3>
+                <p className="text-gray-500 group-hover:text-gray-300 text-sm leading-relaxed font-light transition-colors duration-500">Secure fee collection, automated invoicing, and digital receipts for hassle-free accounting.</p>
+              </div>
             </div>
 
-            <div className="glass-card p-8 rounded-2xl hover:scale-[1.02] transition-all duration-500 ambient-shadow">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 text-primary">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>build</span>
+            {/* Maintenance Desk */}
+            <div className="group border border-gray-200 p-10 rounded-[32px] hover:bg-[#fafafa] hover:border-gray-300 transition-all duration-500 cursor-pointer flex flex-col justify-between min-h-[320px] shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 group-hover:text-black group-hover:border-black transition-all duration-500">
+                <span className="material-symbols-outlined text-2xl font-light">build</span>
               </div>
-              <h3 className="text-2xl font-bold text-primary mb-3">Maintenance Desk</h3>
-              <p className="text-on-surface-variant">Streamlined ticketing system for repairs and housekeeping requests with status updates.</p>
+              <div>
+                <h3 className="text-2xl font-bold text-[#111] mb-4 tracking-tight">Maintenance Desk</h3>
+                <p className="text-gray-500 text-sm leading-relaxed font-light">Streamlined ticketing system for repairs and housekeeping requests with status updates.</p>
+              </div>
             </div>
 
-            <div className="glass-card p-8 rounded-2xl hover:scale-[1.02] transition-all duration-500 ambient-shadow">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 text-primary">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>restaurant</span>
+            {/* Mess Management */}
+            <div className="group border border-gray-200 p-10 rounded-[32px] hover:bg-[#fafafa] hover:border-gray-300 transition-all duration-500 cursor-pointer flex flex-col justify-between min-h-[320px] shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 group-hover:text-black group-hover:border-black transition-all duration-500">
+                <span className="material-symbols-outlined text-2xl font-light">restaurant</span>
               </div>
-              <h3 className="text-2xl font-bold text-primary mb-3">Mess Management</h3>
-              <p className="text-on-surface-variant">Digitized meal coupons, menu planning, and waste tracking for optimized dining services.</p>
+              <div>
+                <h3 className="text-2xl font-bold text-[#111] mb-4 tracking-tight">Mess Management</h3>
+                <p className="text-gray-500 text-sm leading-relaxed font-light">Digitized meal coupons, menu planning, and waste tracking for optimized dining services.</p>
+              </div>
             </div>
 
-            <div className="glass-card p-8 rounded-2xl hover:scale-[1.02] transition-all duration-500 ambient-shadow">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 text-primary">
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
+            {/* Advanced Reports */}
+            <div className="group border border-gray-200 p-10 rounded-[32px] hover:bg-[#fafafa] hover:border-gray-300 transition-all duration-500 cursor-pointer flex flex-col justify-between min-h-[320px] shadow-sm hover:shadow-md">
+              <div className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 group-hover:text-black group-hover:border-black transition-all duration-500">
+                <span className="material-symbols-outlined text-2xl font-light">analytics</span>
               </div>
-              <h3 className="text-2xl font-bold text-primary mb-3">Advanced Reports</h3>
-              <p className="text-on-surface-variant">Insightful analytics on revenue, occupancy, and operational efficiency for data-driven growth.</p>
+              <div>
+                <h3 className="text-2xl font-bold text-[#111] mb-4 tracking-tight">Advanced Reports</h3>
+                <p className="text-gray-500 text-sm leading-relaxed font-light">Insightful analytics on revenue, occupancy, and operational efficiency for data-driven growth.</p>
+              </div>
             </div>
+
           </div>
         </div>
       </section>
