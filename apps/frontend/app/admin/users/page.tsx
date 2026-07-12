@@ -1,432 +1,199 @@
 'use client';
 
-import { useState } from 'react';
-import { useGetAllUsersQuery, useUpdateUserMutation, useDeleteUserMutation, useBulkDeleteUsersMutation, useLazyGetAllUsersQuery } from '@/lib/services/userApi';
-import { HiSearch, HiUserGroup, HiAcademicCap, HiOfficeBuilding, HiBriefcase, HiTrash, HiDownload, HiBan, HiCheckCircle, HiDocumentText } from 'react-icons/hi';
-import { toast } from 'react-hot-toast';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import React, { useState } from 'react';
+import { useGetAllUsersQuery } from '@/lib/services/userApi';
 
 export default function AdminUsersPage() {
-  const [activeTab, setActiveTab] = useState<'ALL' | 'STUDENT' | 'OWNER' | 'MANAGER'>('ALL');
-  const [search, setSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
   const [page, setPage] = useState(1);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [isExporting, setIsExporting] = useState(false);
+  const limit = 10;
 
-  const { data, isLoading } = useGetAllUsersQuery({
-    role: activeTab === 'ALL' ? undefined : activeTab,
-    search: search === '' ? undefined : search,
+  const { data: usersResponse, isLoading, error } = useGetAllUsersQuery({
+    search: searchTerm,
+    role: roleFilter,
     page,
-    limit: 10
+    limit,
   });
 
-  const [triggerGetAllUsers] = useLazyGetAllUsersQuery();
-  const [updateUser] = useUpdateUserMutation();
-  const [deleteUser] = useDeleteUserMutation();
-  const [bulkDelete] = useBulkDeleteUsersMutation();
-
-  const users = data?.data || [];
-  const pagination = data?.pagination;
-
-  const fetchAllUsersForExport = async () => {
-      try {
-          setIsExporting(true);
-          const result = await triggerGetAllUsers({
-             role: activeTab === 'ALL' ? undefined : activeTab,
-             search: search === '' ? undefined : search,
-             page: 1,
-             limit: 10000 // Fetch all for export
-          }).unwrap();
-          return result.data;
-      } catch (error) {
-          toast.error('Failed to fetch data for export');
-          return [];
-      } finally {
-          setIsExporting(false);
-      }
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setPage(1);
   };
 
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.checked) {
-          setSelectedUsers(users.map((u: any) => u._id));
-      } else {
-          setSelectedUsers([]);
-      }
+  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRoleFilter(e.target.value);
+    setPage(1);
   };
-
-  const handleSelectUser = (id: string) => {
-      setSelectedUsers(prev => 
-        prev.includes(id) ? prev.filter(uid => uid !== id) : [...prev, id]
-      );
-  };
-
-  const handleBulkDelete = async () => {
-      if (!confirm(`Are you sure you want to delete ${selectedUsers.length} users?`)) return;
-      try {
-          await bulkDelete(selectedUsers).unwrap();
-          toast.success('Users deleted successfully');
-          setSelectedUsers([]);
-      } catch (err) {
-          toast.error('Failed to delete users');
-      }
-  };
-
-  const handleStatusChange = async (id: string, currentStatus: boolean) => {
-      try {
-          await updateUser({ id, data: { isActive: !currentStatus } as any }).unwrap(); 
-          toast.success(`User ${!currentStatus ? 'activated' : 'deactivated'}`);
-      } catch (err) {
-          toast.error('Failed to update status');
-      }
-  };
-
-  const handleExportCSV = async () => {
-      const allUsers = await fetchAllUsersForExport();
-      if (!allUsers.length) return;
-      
-      const headers = ['Name', 'Email', 'Role', 'Phone', 'Status', 'Hostel', 'Details'];
-      const rows = allUsers.map((u: any) => [
-          u.name, 
-          u.email, 
-          u.role, 
-          u.phone, 
-          u.isActive ? 'Active' : 'Inactive',
-          u.profile?.hostelId?.name || '-',
-          u.role === 'STUDENT' ? `Room ${u.profile?.roomId?.roomNumber || '-'}` : (u.role === 'OWNER' ? `${u.stats?.totalHostels || 0} Hostels` : '-')
-      ]);
-
-      const csvContent = "data:text/csv;charset=utf-8," 
-          + headers.join(",") + "\n" 
-          + rows.map((e: any) => e.join(",")).join("\n");
-      
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `users_export_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-  };
-
-  const handleExportPDF = async () => {
-      const allUsers = await fetchAllUsersForExport();
-      if (!allUsers.length) return;
-
-      const doc = new jsPDF();
-      
-      // Title
-      doc.setFontSize(18);
-      doc.text('User List', 14, 22);
-      doc.setFontSize(10);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
-      doc.text(`Total Users: ${allUsers.length}`, 14, 35);
-
-      const tableColumn = ["Name", "Email", "Role", "Phone", "Status", "Hostel Info"];
-      const tableRows: any[] = [];
-
-      allUsers.forEach((user: any) => {
-          const hostelInfo = user.profile?.hostelId?.name 
-            ? `${user.profile.hostelId.name} (${user.profile?.address?.city || ''})`
-            : user.role === 'OWNER' ? `${user.stats?.totalHostels || 0} Hostels` : '-';
-
-          const rowData = [
-              user.name,
-              user.email,
-              user.role,
-              user.phone,
-              user.isActive ? 'Active' : 'Inactive',
-              hostelInfo
-          ];
-          tableRows.push(rowData);
-      });
-
-      autoTable(doc, {
-          head: [tableColumn],
-          body: tableRows,
-          startY: 40,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [44, 27, 19] } // #2c1b13
-      });
-
-      doc.save(`users_export_${new Date().toISOString().split('T')[0]}.pdf`);
-  };
-
-  const tabs = [
-    { id: 'ALL', label: 'All Users', icon: HiUserGroup },
-    { id: 'STUDENT', label: 'Students', icon: HiAcademicCap },
-    { id: 'OWNER', label: 'Owners', icon: HiOfficeBuilding },
-    { id: 'MANAGER', label: 'Managers', icon: HiBriefcase },
-  ] as const;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">User Management</h1>
-          <p className="text-gray-500 dark:text-gray-400">View and manage all system users</p>
-        </div>
-        
-        <div className="flex items-center gap-2">
-            {selectedUsers.length > 0 && (
-                <button 
-                    onClick={handleBulkDelete}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 transition-colors"
-                >
-                    <HiTrash /> Delete ({selectedUsers.length})
-                </button>
-            )}
-            
-            <div className="flex bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <button 
-                    onClick={handleExportCSV}
-                    disabled={isExporting}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-r border-gray-200 dark:border-gray-700 disabled:opacity-50"
-                    title="Export CSV"
-                >
-                    <HiDownload /> CSV
-                </button>
-                <button 
-                    onClick={handleExportPDF}
-                    disabled={isExporting}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-                    title="Export PDF"
-                >
-                    <HiDocumentText /> PDF
-                </button>
-            </div>
-        </div>
-      </div>
-
-      {/* Tabs & Search */}
-      <div className="flex flex-col md:flex-row gap-4 border-b border-gray-200 dark:border-gray-700 pb-4 justify-between items-end">
-        <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => { setActiveTab(tab.id as any); setPage(1); setSelectedUsers([]); }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
-                activeTab === tab.id
-                  ? 'bg-[#2c1b13] text-white'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-              }`}
-            >
-              <tab.icon /> {tab.label}
+    <>
+      {/* Header Section */}
+      <section className="mb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h2 className="font-display-lg text-display-lg text-primary tracking-tight mb-2">User Management</h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+              Manage system access, roles, and review individual profiles across the platform.
+            </p>
+          </div>
+          <div className="flex gap-4">
+            <button className="flex items-center gap-2 px-6 py-3 border border-secondary text-secondary rounded-xl font-label-md text-label-md hover:bg-surface-container-low transition-all">
+              <span className="material-symbols-outlined">download</span>
+              Export CSV
             </button>
-          ))}
+            <button className="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:opacity-90 transition-all shadow-md">
+              <span className="material-symbols-outlined">person_add</span>
+              Add User
+            </button>
+          </div>
         </div>
+      </section>
 
-        <div className="relative w-full md:w-64">
-           <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-           <input
-             type="text"
-             placeholder="Search users..."
-             value={search}
-             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-             className="w-full pl-10 pr-4 py-2 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-[#2c1b13]"
-           />
+      {/* Filters & Actions */}
+      <section className="bg-surface-container-lowest border border-outline-variant p-6 rounded-t-xl flex flex-col md:flex-row gap-4 justify-between items-center mt-6">
+        <div className="flex w-full md:w-auto gap-4 flex-col md:flex-row">
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+            <input 
+              type="text" 
+              placeholder="Search users..." 
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="pl-10 pr-4 py-3 border border-outline-variant rounded-xl bg-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full md:w-80 transition-all"
+            />
+          </div>
+          <select 
+            value={roleFilter}
+            onChange={handleRoleChange}
+            className="px-4 py-3 border border-outline-variant rounded-xl bg-surface text-on-surface-variant focus:outline-none focus:border-primary transition-all"
+          >
+            <option value="">All Roles</option>
+            <option value="ADMIN">Admin</option>
+            <option value="OWNER">Owner</option>
+            <option value="MANAGER">Manager</option>
+            <option value="STUDENT">Student</option>
+          </select>
         </div>
-      </div>
-
-      {/* Content */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-        {isLoading ? (
-            <div className="p-8 text-center text-gray-500">Loading users...</div>
-        ) : users.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">No users found.</div>
-        ) : (
-            <div className="overflow-x-auto min-h-[400px]">
-                <table className="w-full text-left border-collapse">
-                    <thead className="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase text-gray-500 font-semibold">
-                        <tr>
-                            <th className="px-6 py-4 w-10">
-                                <input 
-                                    type="checkbox" 
-                                    onChange={handleSelectAll}
-                                    checked={users.length > 0 && selectedUsers.length === users.length}
-                                    className="rounded border-gray-300 text-[#2c1b13] focus:ring-[#2c1b13]"
-                                />
-                            </th>
-                            <th className="px-6 py-4">User Info</th>
-                            <th className="px-6 py-4">Role</th>
-                            
-                            {activeTab === 'STUDENT' && (
-                                <>
-                                    <th className="px-6 py-4">CNIC / Mobile</th>
-                                    <th className="px-6 py-4">Hostel & Room</th>
-                                    <th className="px-6 py-4">Rent</th>
-                                </>
-                            )}
-                            
-                            {activeTab === 'OWNER' && (
-                                <>
-                                    <th className="px-6 py-4">Contact</th>
-                                    <th className="px-6 py-4">Total Hostels</th>
-                                </>
-                            )}
-                            
-                            {activeTab === 'MANAGER' && (
-                                <>
-                                    <th className="px-6 py-4">CNIC / Mobile</th>
-                                    <th className="px-6 py-4">Assigned Hostel</th>
-                                    <th className="px-6 py-4">Salary</th>
-                                </>
-                            )}
-                            
-                            {activeTab === 'ALL' && <th className="px-6 py-4">Details</th>}
-                            
-                            <th className="px-6 py-4 text-center">Status</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                        {users.map((user: any) => (
-                            <tr key={user._id} className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors ${selectedUsers.includes(user._id) ? 'bg-orange-50 dark:bg-orange-900/10' : ''}`}>
-                                <td className="px-6 py-4">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={selectedUsers.includes(user._id)}
-                                        onChange={() => handleSelectUser(user._id)}
-                                        className="rounded border-gray-300 text-[#2c1b13] focus:ring-[#2c1b13]"
-                                    />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-sm">
-                                            {user.name.charAt(0).toUpperCase()}
-                                        </div>
-                                        <div>
-                                            <div className="font-medium text-gray-900 dark:text-white">{user.name}</div>
-                                            <div className="text-xs text-gray-500">{user.email}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className={`text-xs font-bold px-2 py-1 rounded ${
-                                        user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' :
-                                        user.role === 'OWNER' ? 'bg-blue-100 text-blue-700' :
-                                        user.role === 'MANAGER' ? 'bg-amber-100 text-amber-700' :
-                                        'bg-green-100 text-green-700'
-                                    }`}>
-                                        {user.role}
-                                    </span>
-                                </td>
-
-                                {/* STUDENT SPECIFIC */}
-                                {activeTab === 'STUDENT' && (
-                                    <>
-                                        <td className="px-6 py-4 text-sm">
-                                            <div className="text-gray-900 dark:text-white">{user.profile?.cnic || 'N/A'}</div>
-                                            <div className="text-gray-500 text-xs">{user.phone}</div>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm">
-                                            <div className="font-medium">{user.profile?.hostelId?.name || 'No Hostel'}</div>
-                                            <div className="text-xs text-gray-500">
-                                                {user.profile?.hostelId?.address?.city}
-                                                {user.profile?.roomId?.roomNumber ? ` / Room ${user.profile.roomId.roomNumber}` : ''}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 font-mono text-sm">
-                                            {user.profile?.monthlyFee ? `PKR ${user.profile.monthlyFee.toLocaleString()}` : '-'}
-                                        </td>
-                                    </>
-                                )}
-
-                                {/* OWNER SPECIFIC */}
-                                {activeTab === 'OWNER' && (
-                                    <>
-                                        <td className="px-6 py-4 text-sm">
-                                            <div className="text-gray-900 dark:text-white">{user.phone}</div>
-                                            <div className="text-xs text-gray-500">{user.profile?.address?.city || 'City N/A'}</div> 
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-bold">
-                                                {user.stats?.totalHostels || 0} Hostels
-                                            </span>
-                                        </td>
-                                    </>
-                                )}
-
-                                {/* MANAGER SPECIFIC */}
-                                {activeTab === 'MANAGER' && (
-                                    <>
-                                        <td className="px-6 py-4 text-sm">
-                                            <div className="text-gray-900 dark:text-white">{user.profile?.cnic || 'N/A'}</div>
-                                            <div className="text-gray-500 text-xs">{user.phone}</div>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm">
-                                            <div className="font-medium">{user.profile?.hostelId?.name || 'Unassigned'}</div>
-                                            <div className="text-xs text-gray-500">{user.profile?.hostelId?.address?.city}</div>
-                                        </td>
-                                        <td className="px-6 py-4 font-mono text-sm">
-                                            {user.profile?.salary ? `PKR ${user.profile.salary.toLocaleString()}` : '-'}
-                                        </td>
-                                    </>
-                                )}
-
-                                {/* ALL TABS FALLBACK DETAILS */}
-                                {activeTab === 'ALL' && (
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {user.role === 'STUDENT' && user.profile?.hostelId?.name}
-                                        {user.role === 'MANAGER' && user.profile?.hostelId?.name}
-                                        {user.role === 'OWNER' && `${user.stats?.totalHostels || 0} Hostels`}
-                                    </td>
-                                )}
-
-                                <td className="px-6 py-4 text-center">
-                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        user.isActive ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
-                                    }`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                                        {user.isActive ? 'Active' : 'Inactive'}
-                                    </span>
-                                </td>
-
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex justify-end items-center gap-2">
-                                        <button 
-                                            onClick={() => handleStatusChange(user._id, user.isActive)}
-                                            className={`text-xs px-2 py-1 rounded border transition-colors ${
-                                                user.isActive 
-                                                ? 'border-red-200 text-red-600 hover:bg-red-50' 
-                                                : 'border-green-200 text-green-600 hover:bg-green-50'
-                                            }`}
-                                        >
-                                            <div className="flex items-center gap-1">
-                                                {user.isActive ? <HiBan /> : <HiCheckCircle />}
-                                                <span>{user.isActive ? 'Ban' : 'Activate'}</span>
-                                            </div>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        )}
         
-        {/* Simple Pagination */}
-        {pagination && pagination.totalPages > 1 && (
-            <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
+        <div className="text-sm font-bold text-on-surface-variant">
+          {usersResponse?.pagination ? `Showing ${usersResponse.data.length} of ${usersResponse.pagination.total}` : 'Loading...'}
+        </div>
+      </section>
+
+      {/* Data Table */}
+      <section className="bg-surface-container-lowest border-x border-b border-outline-variant rounded-b-xl overflow-hidden flex flex-col min-h-[400px]">
+        <div className="flex-1 overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-surface-container-low border-b border-outline-variant">
+              <tr>
+                <th className="px-6 py-4 font-label-md text-label-md text-primary uppercase tracking-wider">User</th>
+                <th className="px-6 py-4 font-label-md text-label-md text-primary uppercase tracking-wider">Role</th>
+                <th className="px-6 py-4 font-label-md text-label-md text-primary uppercase tracking-wider">Contact</th>
+                <th className="px-6 py-4 font-label-md text-label-md text-primary uppercase tracking-wider text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center">
+                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-on-surface-variant font-bold">Loading users...</p>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-error font-bold bg-error-container/10">
+                    Failed to load users. Please try again later.
+                  </td>
+                </tr>
+              ) : usersResponse?.data?.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-on-surface-variant">
+                    No users found matching your criteria.
+                  </td>
+                </tr>
+              ) : (
+                usersResponse?.data?.map((user) => (
+                  <tr key={user._id} className="hover:bg-surface-container-low transition-colors group">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm shadow-sm overflow-hidden">
+                          {user.avatar ? (
+                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                          ) : (
+                            user.name.substring(0, 2).toUpperCase()
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-bold text-primary">{user.name}</p>
+                          <p className="text-xs text-on-surface-variant">{user.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${
+                        user.role === 'ADMIN' ? 'bg-primary text-white' :
+                        user.role === 'OWNER' ? 'bg-secondary text-white' :
+                        user.role === 'MANAGER' ? 'bg-primary-container text-on-primary-container' :
+                        'bg-surface-variant text-on-surface-variant'
+                      }`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">
+                      {user.phone || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-2 text-secondary hover:bg-secondary-container hover:text-on-secondary-container rounded-lg transition-colors" title="Edit User">
+                          <span className="material-symbols-outlined text-[20px]">edit</span>
+                        </button>
+                        <button className="p-2 text-error hover:bg-error-container hover:text-on-error-container rounded-lg transition-colors" title="Delete User">
+                          <span className="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {usersResponse?.pagination && usersResponse.pagination.totalPages > 1 && (
+          <div className="p-6 border-t border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+            <button 
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={!usersResponse.pagination.hasPrev}
+              className="px-4 py-2 border border-outline-variant rounded-lg font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-container-low transition-colors"
+            >
+              Previous
+            </button>
+            <div className="text-sm font-bold text-on-surface-variant flex gap-2">
+              {[...Array(usersResponse.pagination.totalPages)].map((_, i) => (
                 <button 
-                  disabled={!pagination.hasPrev}
-                  onClick={() => setPage(page - 1)}
-                  className="px-3 py-1 border rounded text-sm disabled:opacity-50 hover:bg-gray-50"
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                    page === i + 1 ? 'bg-primary text-white' : 'bg-surface-container hover:bg-surface-container-low text-on-surface-variant'
+                  }`}
                 >
-                    Previous
+                  {i + 1}
                 </button>
-                <div className="text-sm text-gray-500">Page {pagination.page} of {pagination.totalPages}</div>
-                <button
-                  disabled={!pagination.hasNext}
-                  onClick={() => setPage(page + 1)}
-                  className="px-3 py-1 border rounded text-sm disabled:opacity-50 hover:bg-gray-50"
-                >
-                    Next
-                </button>
+              ))}
             </div>
+            <button 
+              onClick={() => setPage(p => p + 1)}
+              disabled={!usersResponse.pagination.hasNext}
+              className="px-4 py-2 border border-outline-variant rounded-lg font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-container-low transition-colors"
+            >
+              Next
+            </button>
+          </div>
         )}
-      </div>
-    </div>
+      </section>
+    </>
   );
 }
