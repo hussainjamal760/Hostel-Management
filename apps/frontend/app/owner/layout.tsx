@@ -1,44 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { logout } from '@/lib/features/authSlice';
 import { useGetOwnerHostelsQuery } from '@/lib/services/hostelApi';
 import { toast } from 'react-hot-toast';
-import {
-  HiOutlineHome,
-  HiOutlineUsers,
-  HiOutlineOfficeBuilding,
-  HiOutlineClipboardList,
-  HiOutlineBell,
-  HiOutlineLogout,
-  HiOutlineMenu,
-  HiX,
-  HiOutlineChartBar,
-  HiOutlineUserAdd,
-  HiOutlineUserGroup,
-  HiReceiptTax
-} from 'react-icons/hi';
 
 interface OwnerLayoutProps {
   children: React.ReactNode;
 }
 
 const menuItems = [
-  { name: 'Dashboard', href: '/owner/dashboard', icon: HiOutlineHome },
-  { name: 'My Hostel', href: '/owner/hostel', icon: HiOutlineOfficeBuilding },
-  { name: 'Manage Managers', href: '/owner/managers', icon: HiOutlineUsers },
-  { name: 'All Students', href: '/owner/students', icon: HiOutlineUsers },
-  { name: 'Complaints', href: '/owner/complaints', icon: HiOutlineClipboardList },
-  { name: 'Expenses', href: '/owner/expenses', icon: HiReceiptTax },
-  { name: 'Reports', href: '/owner/reports', icon: HiOutlineChartBar },
-  { name: 'Settings', href: '/owner/settings', icon: HiOutlineOfficeBuilding }
+  { name: 'Dashboard', href: '/owner/dashboard', icon: 'dashboard' },
+  { name: 'My Hostel', href: '/owner/hostel', icon: 'apartment' },
+  { name: 'Manage Managers', href: '/owner/managers', icon: 'manage_accounts' },
+  { name: 'All Students', href: '/owner/students', icon: 'group' },
+  { name: 'Complaints', href: '/owner/complaints', icon: 'report_problem' },
+  { name: 'Expenses', href: '/owner/expenses', icon: 'receipt_long' },
+  { name: 'Reports', href: '/owner/reports', icon: 'analytics' },
+  { name: 'Settings', href: '/owner/settings', icon: 'settings' }
 ];
 
 export default function OwnerLayout({ children }: OwnerLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -49,6 +37,10 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
   
   const hasApprovedHostel = hostels.some(h => h.status === 'APPROVED');
   const isHostelPage = pathname === '/owner/hostel';
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -66,147 +58,159 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-brand-bg dark:bg-dark-bg overflow-hidden">
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#2c1b13] dark:bg-[#1a0f0a] transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+    <div className="bg-surface text-on-surface antialiased overflow-x-hidden min-h-screen">
+      {/* Mobile sidebar backdrop */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+          sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      {/* SIDEBAR */}
+      <aside
+        className={`h-screen w-72 fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-6 z-50 transform transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+        } ${desktopCollapsed ? 'md:-translate-x-full' : 'md:translate-x-0'}`}
       >
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-6 border-b border-[#fcf2e9]/10">
-            <Link href="/owner/dashboard" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#fcf2e9] flex items-center justify-center">
-                <span className="text-[#2c1b13] font-bold text-xl">H</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-lg text-[#fcf2e9]">HOSTELITE</span>
-                <span className="text-xs text-[#fcf2e9]/60">Owner Panel</span>
-              </div>
-            </Link>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-lg hover:bg-[#fcf2e9]/10 transition-colors"
-            >
-              <HiX size={24} className="text-[#fcf2e9]" />
-            </button>
+        <div className="px-6 mb-10 flex justify-between items-center">
+          <div>
+            <h1 className="font-headline-md text-headline-md font-bold text-primary">Hostelite</h1>
+            <p className="font-body-sm text-body-sm text-on-surface-variant opacity-70">Premium HMS</p>
           </div>
+          {/* Mobile close button */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+          {/* Desktop collapse button */}
+          <button
+            onClick={() => setDesktopCollapsed(true)}
+            className="hidden md:block p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors"
+            title="Collapse Sidebar"
+          >
+            <span className="material-symbols-outlined">menu_open</span>
+          </button>
+        </div>
 
-          <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-            {menuItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all ${
-                    isActive
-                      ? 'bg-[#fcf2e9] text-[#2c1b13]'
-                      : 'text-[#fcf2e9]/70 hover:bg-[#fcf2e9]/10 hover:text-[#fcf2e9]'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <item.icon size={20} />
-                    <span>{item.name}</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </nav>
+        <nav className="flex-1 space-y-1 overflow-y-auto px-4 custom-scrollbar">
+          {menuItems.map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 mx-4 px-4 py-3 rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? 'text-primary font-bold bg-secondary-container/60 shadow-sm'
+                    : 'text-on-surface-variant hover:bg-surface-container hover:text-primary font-medium'
+                }`}
+              >
+                <span className="material-symbols-outlined">{item.icon}</span>
+                <span className={isActive ? 'font-body-md text-body-md' : ''}>{item.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
 
-          <div className="p-4 border-t border-[#fcf2e9]/10">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-[#fcf2e9]/5">
-              <div className="w-10 h-10 rounded-full bg-[#fcf2e9] flex items-center justify-center text-[#2c1b13] font-bold text-sm">
-                {user?.name ? getInitials(user.name) : 'O'}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[#fcf2e9] truncate text-sm">{user?.name || 'Owner'}</p>
-                <p className="text-xs text-[#fcf2e9]/60 truncate">{user?.email}</p>
-              </div>
-            </div>
-           <div className='flex'>
-
-             <Link
-             href={'/'}
-             className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-green-400 hover:bg-green-500/10 transition-colors font-medium"
-             >
-              <span>Home</span>
-            </Link>
+        <div className="px-6 mt-auto pt-6 border-t border-outline-variant/30">
+          <div className="p-4 bg-surface-container rounded-xl border border-outline-variant text-center">
+            <p className="font-label-md text-label-md text-primary font-bold tracking-widest uppercase">Owner Portal</p>
+            <p className="text-xs text-on-surface-variant mb-4">Hostel Management</p>
             <button
               onClick={handleLogout}
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors font-medium"
-              >
-              <span>Logout</span>
+              className="w-full bg-primary text-on-primary py-2.5 rounded-lg font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors shadow-sm"
+            >
+              Logout
             </button>
-              </div>
           </div>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="sticky top-0 z-30 bg-brand-bg/80 dark:bg-dark-bg/80 backdrop-blur-xl border-b border-brand-card/30 dark:border-dark-card/30">
-          <div className="flex items-center justify-between px-6 py-4">
+      {/* TOP NAVIGATION */}
+      <header className={`fixed top-0 right-0 w-full z-40 bg-surface/80 backdrop-blur-md flex justify-between items-center px-6 md:px-10 h-20 shadow-sm border-b border-outline-variant transition-all duration-300 ${
+        desktopCollapsed ? 'md:w-full' : 'md:w-[calc(100%-18rem)]'
+      }`}>
+        <div className="flex items-center gap-4 flex-1">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="md:hidden text-primary p-2 hover:bg-surface-container rounded-lg transition-colors"
+          >
+            <span className="material-symbols-outlined">menu</span>
+          </button>
+          
+          {/* Desktop Menu Button - only visible when collapsed */}
+          {desktopCollapsed && (
             <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-xl hover:bg-brand-card/30 dark:hover:bg-dark-card/30 transition-colors"
+              onClick={() => setDesktopCollapsed(false)}
+              className="hidden md:block text-primary p-2 hover:bg-surface-container rounded-lg transition-colors"
+              title="Expand Sidebar"
             >
-              <HiOutlineMenu size={24} className="text-brand-text dark:text-dark-text" />
+              <span className="material-symbols-outlined">menu</span>
             </button>
-            
-            <div className="hidden lg:block">
-              <h1 className="text-xl font-bold text-brand-text dark:text-dark-text">
-                {menuItems.find((item) => item.href === pathname)?.name || 'Dashboard'}
-              </h1>
-            </div>
+          )}
+          
+          <div className="hidden sm:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant w-80">
+            <span className="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+            <input 
+              className="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-outline" 
+              placeholder="Search records..." 
+              type="text"
+            />
+          </div>
+        </div>
 
-            <div className="flex items-center gap-4">
-              <button className="relative p-2 rounded-xl hover:bg-brand-card/30 dark:hover:bg-dark-card/30 transition-colors">
-                <HiOutlineBell size={24} className="text-brand-text dark:text-dark-text" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-brand-card/30 dark:border-dark-card/30">
-                <div className="w-9 h-9 rounded-full bg-brand-primary dark:bg-dark-primary flex items-center justify-center text-white dark:text-dark-bg font-bold text-sm">
-                  {user?.name ? getInitials(user.name) : 'O'}
-                </div>
-                <div className="hidden md:block">
-                  <p className="text-sm font-semibold text-brand-text dark:text-dark-text">{user?.name}</p>
-                  <p className="text-xs text-brand-text/60 dark:text-dark-text/60">{user?.role}</p>
-                </div>
-              </div>
+        <div className="flex items-center gap-6">
+          <div className="hidden lg:flex flex-col items-end mr-2">
+            <span className="font-label-md text-label-md text-primary">{hostels[0]?.name || 'Current Hostel'}</span>
+            <span className="text-xs text-on-surface-variant">Owner Overview</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="text-on-surface-variant hover:text-primary transition-colors p-2">
+              <span className="material-symbols-outlined">notifications</span>
+            </button>
+
+            <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-secondary-container ml-2 bg-surface-container flex justify-center items-center font-bold text-primary">
+              {mounted && user?.name ? getInitials(user.name) : 'O'}
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-brand-bg dark:bg-dark-bg p-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
-            </div>
-          ) : (!hasApprovedHostel && !isHostelPage) ? (
-            <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Access Restricted</h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md">
-                Your account is currently limited. Please create a hostel and wait for admin approval to unlock all features.
-              </p>
-              <Link 
-                href="/owner/hostel"
-                className="px-6 py-3 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors shadow-lg"
-              >
-                Go to My Hostel
-              </Link>
-            </div>
-          ) : (
-            children
-          )}
-        </main>
-      </div>
+      {/* MAIN CONTENT */}
+      <main className={`pt-24 px-6 md:px-10 pb-20 transition-all duration-300 ${
+        desktopCollapsed ? 'md:ml-0' : 'md:ml-72'
+      }`}>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full pt-32">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : (!hasApprovedHostel && !isHostelPage) ? (
+          <div className="flex flex-col items-center justify-center h-[60vh] text-center pt-32">
+            <h2 className="font-headline-md text-headline-md mb-4 text-primary">Access Restricted</h2>
+            <p className="text-on-surface-variant mb-8 max-w-md font-body-md">
+              Your account is currently limited. Please create a hostel and wait for admin approval to unlock all features.
+            </p>
+            <Link 
+              href="/owner/hostel"
+              className="px-6 py-3 bg-primary text-on-primary rounded-lg hover:bg-on-primary-fixed-variant transition-colors shadow-md"
+            >
+              Go to My Hostel
+            </Link>
+          </div>
+        ) : (
+          children
+        )}
+      </main>
+
+      {/* FAB for Quick Actions */}
+      <button className="fixed bottom-10 right-10 w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:-translate-y-1 hover:shadow-primary/30 transition-all duration-300 z-50">
+        <span className="material-symbols-outlined text-3xl">add</span>
+      </button>
     </div>
   );
 }
