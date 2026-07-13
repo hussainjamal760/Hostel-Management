@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useGetStudentsQuery } from '@/lib/services/studentApi';
-import { HiSearch, HiUser, HiOfficeBuilding, HiCurrencyRupee, HiCheckCircle, HiExclamationCircle, HiPrinter } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
 
 export default function AllStudentsPage() {
@@ -20,99 +19,123 @@ export default function AllStudentsPage() {
   const students = studentsResponse?.data || [];
   const pagination = studentsResponse?.pagination;
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-PK', {
+      style: 'currency',
+      currency: 'PKR',
+      maximumFractionDigits: 0
+    }).format(amount || 0);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="space-y-8">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">All Students</h1>
-          <p className="text-gray-500 dark:text-gray-400">Manage students across all your hostels</p>
+          <h2 className="font-headline-lg text-headline-lg text-primary mb-1">Student Directory</h2>
+          <p className="text-on-surface-variant font-body-md opacity-80">View and manage students across all your properties</p>
         </div>
         
-        <div className="flex gap-2">
-            <select 
-                className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-                value={feeStatus}
-                onChange={(e) => { setFeeStatus(e.target.value); setPage(1); }}
-            >
-                <option value="ALL">All Fee Status</option>
-                <option value="PAID">Paid</option>
-                <option value="DUE">Due</option>
-                <option value="OVERDUE">Overdue</option>
-                <option value="PARTIAL">Partial</option>
-            </select>
-            
-            <div className="relative">
-                <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative group">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors pointer-events-none">search</span>
                 <input 
                     type="text" 
-                    placeholder="Search students..." 
+                    placeholder="Search by name or phone..." 
                     value={search}
                     onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                    className="pl-10 pr-4 py-2 border rounded-xl bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-[#2c1b13]"
+                    className="w-full sm:w-64 pl-12 pr-4 py-3.5 rounded-2xl border-2 border-outline-variant/50 bg-surface focus:border-primary focus:ring-0 transition-all text-primary font-body-md hover:border-outline-variant"
                 />
+            </div>
+            
+            <div className="relative group">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors pointer-events-none z-10">filter_list</span>
+                <select 
+                    className="w-full sm:w-48 pl-12 pr-10 py-3.5 rounded-2xl border-2 border-outline-variant/50 bg-surface focus:border-primary focus:ring-0 transition-all text-primary font-body-md hover:border-outline-variant appearance-none cursor-pointer"
+                    value={feeStatus}
+                    onChange={(e) => { setFeeStatus(e.target.value); setPage(1); }}
+                >
+                    <option value="ALL">All Fee Status</option>
+                    <option value="PAID">Paid Only</option>
+                    <option value="DUE">Due Only</option>
+                    <option value="OVERDUE">Overdue Only</option>
+                    <option value="PARTIAL">Partial Only</option>
+                </select>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined pointer-events-none text-on-surface-variant/70">expand_more</span>
             </div>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-[32px] shadow-[0_4px_20px_-2px_rgba(92,64,51,0.08)] overflow-hidden">
         {isLoading ? (
-          <div className="p-12 text-center text-gray-500">Loading students...</div>
+          <div className="p-16 flex flex-col items-center justify-center">
+             <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
+             <p className="text-on-surface-variant font-label-md uppercase tracking-widest">Loading student records...</p>
+          </div>
         ) : students.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
-            <p>No students found.</p>
+          <div className="p-16 text-center text-on-surface-variant flex flex-col items-center">
+            <span className="material-symbols-outlined text-[48px] text-outline-variant mb-4">person_search</span>
+            <p className="font-headline-sm text-primary mb-1">No students found</p>
+            <p className="font-body-md">Try adjusting your search or filter settings.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
-                <thead className="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase text-gray-500 font-semibold">
+                <thead className="bg-surface-container-low text-[11px] uppercase text-on-surface-variant font-label-lg tracking-widest">
                     <tr>
-                        <th className="px-6 py-4">Student Info</th>
-                        <th className="px-6 py-4">Hostel & Room</th>
-                        <th className="px-6 py-4">Fee Status</th>
-                        <th className="px-6 py-4 text-right">Dues / Paid</th>
+                        <th className="px-8 py-5 whitespace-nowrap">Student Profile</th>
+                        <th className="px-8 py-5 whitespace-nowrap">Property & Room</th>
+                        <th className="px-8 py-5 whitespace-nowrap">Fee Status</th>
+                        <th className="px-8 py-5 text-right whitespace-nowrap">Financials</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody className="divide-y divide-outline-variant/50">
                     {students.map((student: any) => (
-                        <tr key={student._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <td className="px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-sm">
-                                        {student.fullName ? student.fullName.charAt(0).toUpperCase() : <HiUser />}
+                        <tr key={student._id} className="hover:bg-surface-container-lowest transition-colors group">
+                            <td className="px-8 py-5">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-headline-sm uppercase border border-primary/20">
+                                        {student.fullName ? student.fullName.charAt(0) : <span className="material-symbols-outlined">person</span>}
                                     </div>
                                     <div>
-                                        <div className="font-medium text-gray-900 dark:text-white">{student.fullName}</div>
-                                        <div className="text-xs text-gray-500">{student.phone}</div>
+                                        <div className="font-headline-sm text-primary mb-1 group-hover:text-primary transition-colors">{student.fullName}</div>
+                                        <div className="text-xs font-label-md text-on-surface-variant tracking-wider">{student.phone}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td className="px-6 py-4">
-                                <div className="flex items-center gap-1.5 text-sm text-gray-900 dark:text-white font-medium">
-                                    <HiOfficeBuilding className="text-gray-400" />
+                            <td className="px-8 py-5">
+                                <div className="flex items-center gap-2 text-sm text-primary font-medium mb-1">
+                                    <span className="material-symbols-outlined text-[18px] text-outline-variant">domain</span>
                                     {student.hostelId?.name || 'Unknown Hostel'}
                                 </div>
-                                <div className="text-xs text-gray-500 ml-5">
-                                    Room {student.roomId?.roomNumber || 'N/A'} • {student.roomId?.roomType}
+                                <div className="text-[11px] font-label-md text-on-surface-variant uppercase tracking-widest pl-[26px]">
+                                    Room {student.roomId?.roomNumber || 'N/A'} <span className="mx-1">•</span> {student.roomId?.roomType || 'Standard'}
                                 </div>
                             </td>
-                            <td className="px-6 py-4">
-                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
-                                    student.feeStatus === 'PAID' ? 'bg-green-100 text-green-700' :
-                                    student.feeStatus === 'OVERDUE' ? 'bg-red-100 text-red-700' :
-                                    'bg-yellow-100 text-yellow-700'
+                            <td className="px-8 py-5">
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                    student.feeStatus === 'PAID' ? 'bg-green-100 text-green-700 border-green-200' :
+                                    student.feeStatus === 'OVERDUE' ? 'bg-red-100 text-red-700 border-red-200' :
+                                    student.feeStatus === 'PARTIAL' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                    'bg-orange-100 text-orange-700 border-orange-200'
                                 }`}>
-                                    {student.feeStatus === 'PAID' ? <HiCheckCircle /> : <HiExclamationCircle />}
+                                    <span className="material-symbols-outlined text-[14px]">
+                                      {student.feeStatus === 'PAID' ? 'check_circle' : 
+                                       student.feeStatus === 'OVERDUE' ? 'error' : 
+                                       student.feeStatus === 'PARTIAL' ? 'timelapse' : 'schedule'}
+                                    </span>
                                     {student.feeStatus}
                                 </span>
                             </td>
-                            <td className="px-6 py-4 text-right">
-                                <div className="text-sm font-mono font-medium text-gray-900 dark:text-white">
+                            <td className="px-8 py-5 text-right">
+                                <div className="text-sm font-mono font-bold mb-1">
                                     {student.feeStatus === 'PAID' 
-                                        ? <span className="text-green-600">Paid: {student.monthlyFee}</span>
-                                        : <span className="text-red-600">Due: {student.totalDue || student.monthlyFee}</span>
+                                        ? <span className="text-green-600">{formatCurrency(student.monthlyFee)}</span>
+                                        : <span className="text-error">{formatCurrency(student.totalDue || student.monthlyFee)}</span>
                                     }
                                 </div>
-                                <div className="text-xs text-gray-400">Rent: {student.monthlyFee}</div>
+                                <div className="text-[11px] font-label-md text-on-surface-variant uppercase tracking-widest">
+                                  Base Rent: {formatCurrency(student.monthlyFee)}
+                                </div>
                             </td>
                         </tr>
                     ))}
@@ -122,23 +145,23 @@ export default function AllStudentsPage() {
         )}
         
         {pagination && pagination.totalPages > 1 && (
-             <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
+             <div className="p-6 border-t border-outline-variant/50 bg-surface-container-low/50 flex justify-between items-center">
                 <button 
                   disabled={!pagination.hasPrev}
                   onClick={() => setPage(page - 1)}
-                  className="px-3 py-1 border rounded text-sm disabled:opacity-50 hover:bg-gray-50"
+                  className="px-4 py-2 bg-surface border border-outline-variant rounded-xl text-[11px] font-label-lg uppercase tracking-widest disabled:opacity-50 hover:bg-surface-container transition-colors flex items-center gap-1 text-primary"
                 >
-                    Previous
+                    <span className="material-symbols-outlined text-[18px]">chevron_left</span> Prev
                 </button>
-                <div className="text-sm text-gray-500">
-                    Page <span className="font-medium text-gray-900">{pagination.page}</span> of {pagination.totalPages}
+                <div className="text-sm font-label-md text-on-surface-variant uppercase tracking-widest">
+                    Page <span className="font-bold text-primary mx-1">{pagination.page}</span> of {pagination.totalPages}
                 </div>
                 <button
                   disabled={!pagination.hasNext}
                   onClick={() => setPage(page + 1)}
-                  className="px-3 py-1 border rounded text-sm disabled:opacity-50 hover:bg-gray-50"
+                  className="px-4 py-2 bg-surface border border-outline-variant rounded-xl text-[11px] font-label-lg uppercase tracking-widest disabled:opacity-50 hover:bg-surface-container transition-colors flex items-center gap-1 text-primary"
                 >
-                    Next
+                    Next <span className="material-symbols-outlined text-[18px]">chevron_right</span>
                 </button>
             </div>
         )}
