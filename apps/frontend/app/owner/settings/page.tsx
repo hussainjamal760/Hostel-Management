@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useGetOwnerHostelsQuery, useUpdateHostelMutation } from '@/lib/services/hostelApi';
-import { useTriggerMonthlyDuesMutation } from '@/lib/services/paymentApi';
 import { toast } from 'react-hot-toast';
-import { HiLightningBolt, HiLockClosed, HiCheckCircle } from 'react-icons/hi';
 
 export default function OwnerSettingsPage() {
   const { data: hostelsData, isLoading } = useGetOwnerHostelsQuery();
@@ -49,165 +47,142 @@ export default function OwnerSettingsPage() {
     }
   };
 
-  if (isLoading) return <div className="p-8">Loading...</div>;
-  if (!hostel) return <div className="p-8">No hostel found. Please create one first.</div>;
+  if (isLoading) {
+    return (
+        <div className="p-16 flex flex-col items-center justify-center bg-surface-container-lowest rounded-[32px] border border-outline-variant shadow-[0_4px_20px_-2px_rgba(92,64,51,0.08)] max-w-4xl mx-auto mt-8">
+            <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
+            <p className="text-on-surface-variant font-label-md uppercase tracking-widest">Loading Settings...</p>
+        </div>
+    );
+  }
+  
+  if (!hostel) {
+    return (
+        <div className="p-16 flex flex-col items-center justify-center bg-surface-container-lowest rounded-[32px] border border-outline-variant shadow-[0_4px_20px_-2px_rgba(92,64,51,0.08)] max-w-4xl mx-auto mt-8 text-center">
+            <span className="material-symbols-outlined text-[48px] text-error mb-4">error</span>
+            <p className="font-headline-sm text-primary mb-1">No Property Found</p>
+            <p className="text-on-surface-variant font-body-md">You need to create a property/hostel first before managing settings.</p>
+        </div>
+    );
+  }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
-        <p className="text-gray-500 dark:text-gray-400">Manage your hostel configuration</p>
-      </div>
+    <div className="max-w-4xl mx-auto space-y-10 pb-12">
       
+      {/* Header */}
+      <div>
+        <h1 className="font-headline-lg text-headline-lg text-primary mb-1">Global Settings</h1>
+        <p className="text-on-surface-variant font-body-md opacity-80">Manage property configurations and billing cycles.</p>
+      </div>
 
+      <div className="bg-surface-container-lowest rounded-[32px] shadow-[0_4px_20px_-2px_rgba(92,64,51,0.08)] border border-outline-variant overflow-hidden relative">
+        <div className="p-8 md:p-10">
+            <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                    <span className="material-symbols-outlined text-[24px]">account_balance</span>
+                </div>
+                <div>
+                    <h2 className="font-headline-sm text-primary">Manual Payment Instructions</h2>
+                    <p className="text-sm font-body-md text-on-surface-variant mt-1">
+                        Configure the bank or mobile wallet details shown to students when paying rent.
+                    </p>
+                </div>
+            </div>
 
-      <div className="bg-white dark:bg-[#1a0f0a] rounded-xl shadow-sm border border-gray-100 dark:border-[#fcf2e9]/10 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payment Methods</h2>
-        <p className="text-sm text-gray-500 mb-6">
-            These details will be shown to students on their invoice page for making manual payments.
-        </p>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Bank Name */}
+                  <div className="relative group">
+                    <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-lowest text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                        Provider / Bank Name
+                    </label>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 group-focus-within:text-primary transition-colors pointer-events-none">
+                        <span className="material-symbols-outlined text-[20px]">account_balance</span>
+                    </div>
+                    <input
+                        type="text"
+                        value={bankName}
+                        onChange={(e) => setBankName(e.target.value)}
+                        placeholder="e.g. Meezan Bank, JazzCash"
+                        className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-md hover:border-outline-variant"
+                    />
+                  </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bank Name / Provider</label>
-            <input
-              type="text"
-              value={bankName}
-              onChange={(e) => setBankName(e.target.value)}
-              placeholder="e.g. Meezan Bank, JazzCash, Easypaisa"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#fcf2e9]/20 bg-transparent dark:text-white focus:ring-2 focus:ring-[#2c1b13]"
-            />
-          </div>
+                  {/* Account Title */}
+                  <div className="relative group">
+                    <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-lowest text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                        Account Title
+                    </label>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 group-focus-within:text-primary transition-colors pointer-events-none">
+                        <span className="material-symbols-outlined text-[20px]">badge</span>
+                    </div>
+                    <input
+                        type="text"
+                        value={accountTitle}
+                        onChange={(e) => setAccountTitle(e.target.value)}
+                        placeholder="e.g. John Doe Hostels"
+                        className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-md hover:border-outline-variant"
+                    />
+                  </div>
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Title</label>
-            <input
-              type="text"
-              value={accountTitle}
-              onChange={(e) => setAccountTitle(e.target.value)}
-              placeholder="e.g. John Doe Hostels"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#fcf2e9]/20 bg-transparent dark:text-white focus:ring-2 focus:ring-[#2c1b13]"
-            />
-          </div>
+              {/* Account Number */}
+              <div className="relative group">
+                <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-lowest text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                    Account Number / IBAN
+                </label>
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 group-focus-within:text-primary transition-colors pointer-events-none">
+                    <span className="material-symbols-outlined text-[20px]">tag</span>
+                </div>
+                <input
+                    type="text"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                    placeholder="e.g. 03001234567 or PKRIBAN..."
+                    className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-md hover:border-outline-variant"
+                />
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Number / IBAN</label>
-            <input
-              type="text"
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              placeholder="e.g. 03001234567 or PKRIBAN..."
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#fcf2e9]/20 bg-transparent dark:text-white focus:ring-2 focus:ring-[#2c1b13]"
-            />
-          </div>
+              {/* Instructions */}
+              <div className="relative group">
+                <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-lowest text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                    Additional Instructions
+                </label>
+                <div className="absolute left-4 top-5 -translate-y-1/2 text-on-surface-variant/50 group-focus-within:text-primary transition-colors pointer-events-none">
+                    <span className="material-symbols-outlined text-[20px]">description</span>
+                </div>
+                <textarea
+                    value={instructions}
+                    onChange={(e) => setInstructions(e.target.value)}
+                    placeholder="e.g. Please upload a screenshot after payment. Verification takes 24 hours."
+                    rows={4}
+                    className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-md hover:border-outline-variant resize-none"
+                />
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Additional Instructions</label>
-            <textarea
-              value={instructions}
-              onChange={(e) => setInstructions(e.target.value)}
-              placeholder="e.g. Please upload screenshot after payment. Verification takes 24 hours."
-              rows={3}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#fcf2e9]/20 bg-transparent dark:text-white focus:ring-2 focus:ring-[#2c1b13]"
-            />
-          </div>
-
-          <div className="pt-4">
-            <button
-              type="submit"
-              disabled={isUpdating}
-              className="px-6 py-2 bg-[#2c1b13] dark:bg-[#fcf2e9] text-white dark:text-[#2c1b13] font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {isUpdating ? 'Saving...' : 'Save Settings'}
-            </button>
-          </div>
-        </form>
+              <div className="pt-4 border-t border-outline-variant/40 flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="px-8 py-3.5 bg-primary text-on-primary rounded-xl font-label-md uppercase tracking-widest hover:bg-primary/90 transition-all shadow-[0_4px_10px_-2px_rgba(var(--color-primary-rgb),0.4)] hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:active:translate-y-0 flex items-center gap-2"
+                >
+                  {isUpdating ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Saving...
+                      </>
+                  ) : (
+                      <>
+                        <span className="material-symbols-outlined text-[18px]">save</span>
+                        Save Configuration
+                      </>
+                  )}
+                </button>
+              </div>
+            </form>
+        </div>
       </div>
     </div>
   );
-}
-
-function MonthlyInvoiceGenerator() {
-    const [triggerMonthlyDues, { isLoading, error, isSuccess }] = useTriggerMonthlyDuesMutation();
-    
-    const date = new Date();
-    date.setMonth(date.getMonth() + 1);
-    
-    const currentMonthName = date.toLocaleString('default', { month: 'long' });
-    const currentYear = date.getFullYear();
-
-
-    const isLocked = isSuccess || (error && (error as any)?.data?.message?.includes('already exist'));
-
-    const handleGenerate = async () => {
-        if (!confirm(`Are you sure you want to generate invoices for ${currentMonthName} ${currentYear}? This action cannot be undone.`)) return;
-        
-        try {
-            const args = { month: date.getMonth() + 1, year: currentYear };
-            console.log('Sending Trigger Args:', args);
-            await triggerMonthlyDues(args).unwrap();
-            toast.success(`Invoices for ${currentMonthName} generated successfully!`);
-        } catch (err: any) {
-             if (err?.data?.message?.includes('already exist')) {
-                 toast('Invoices for this month were already generated.', { icon: '🔒' });
-             } else {
-                 toast.error('Failed to generate invoices');
-             }
-        }
-    };
-
-    return (
-        <div className="bg-gradient-to-br from-[#2c1b13] to-[#4a2e22] rounded-xl shadow-lg p-6 text-white overflow-hidden relative">
-            {/* Background Pattern */}
-            <div className="absolute top-0 right-0 p-8 opacity-10">
-                <HiLightningBolt size={120} />
-            </div>
-
-            <div className="relative z-10">
-                <div className="flex justify-between items-start">
-                    <div>
-                        <h2 className="text-xl font-bold mb-1">Monthly Invoice Generation</h2>
-                        <p className="text-white/80 text-sm mb-6 max-w-md">
-                            Generate rent invoices for all active students for <strong>{currentMonthName} {currentYear}</strong>. 
-                            This action effectively starts the billing cycle for this month.
-                        </p>
-                    </div>
-                    {isLocked && (
-                        <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2 border border-white/20">
-                            <HiCheckCircle className="text-green-400" size={20} />
-                            <span className="text-sm font-semibold">Generated</span>
-                        </div>
-                    )}
-                </div>
-
-                {isLocked ? (
-                    <button 
-                        disabled 
-                        className="w-full sm:w-auto px-6 py-3 bg-white/10 border border-white/10 text-white/50 rounded-lg font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
-                    >
-                        <HiLockClosed />
-                        Cycle Locked for {currentMonthName}
-                    </button>
-                ) : (
-                    <button
-                        onClick={handleGenerate}
-                        disabled={isLoading}
-                        className="w-full sm:w-auto px-6 py-3 bg-white text-[#2c1b13] rounded-lg font-bold hover:bg-gray-100 transition-colors shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-wait"
-                    >
-                        {isLoading ? (
-                            <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#2c1b13] border-t-transparent"></div>
-                                Generating...
-                            </>
-                        ) : (
-                            <>
-                                <HiLightningBolt />
-                                Generate Invoices for {currentMonthName}
-                            </>
-                        )}
-                    </button>
-                )}
-            </div>
-        </div>
-    );
 }
