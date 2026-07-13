@@ -6,13 +6,27 @@ interface ExpenseStatusBadgeProps {
 
 const ExpenseStatusBadge: React.FC<ExpenseStatusBadgeProps> = ({ status }) => {
   const styles = {
-    PENDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-    REJECTED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+    PENDING: {
+      colors: 'bg-orange-100 text-orange-700 border-orange-200',
+      icon: 'schedule',
+    },
+    APPROVED: {
+      colors: 'bg-green-100 text-green-700 border-green-200',
+      icon: 'check_circle',
+    },
+    REJECTED: {
+      colors: 'bg-error-container text-error border-error/20',
+      icon: 'cancel',
+    },
   };
 
+  const config = styles[status];
+
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[status]}`}>
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${config.colors}`}>
+      <span className="material-symbols-outlined text-[14px]">
+        {config.icon}
+      </span>
       {status}
     </span>
   );
