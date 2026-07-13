@@ -13,6 +13,7 @@ interface AdminLayoutProps {
 }
 
 const menuItems = [
+  { name: 'Home Website', href: '/', icon: 'home' },
   { name: 'Dashboard', href: '/admin/dashboard', icon: 'dashboard' },
   { name: 'Hostels', href: '/admin/hostels', icon: 'apartment' },
   { name: 'Students', href: '/admin/users', icon: 'group' },

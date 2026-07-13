@@ -4,6 +4,7 @@ import { ApiResponse } from './authApi';
 import { CreateComplaintInput, UpdateComplaintInput } from '@hostelite/shared-validators';
 
 export const complaintApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     getComplaints: builder.query<ApiResponse<IComplaint[]>, { status?: string; page?: number; limit?: number }>({
       query: (params) => ({

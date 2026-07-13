@@ -23,6 +23,7 @@ export interface HostelStats {
 }
 
 export const hostelApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     getOwnerHostels: builder.query<ApiResponse<IHostel[]>, void>({
       query: () => ({

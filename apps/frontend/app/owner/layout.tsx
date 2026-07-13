@@ -13,6 +13,7 @@ interface OwnerLayoutProps {
 }
 
 const menuItems = [
+  { name: 'Home Website', href: '/', icon: 'home' },
   { name: 'Dashboard', href: '/owner/dashboard', icon: 'dashboard' },
   { name: 'My Hostel', href: '/owner/hostel', icon: 'apartment' },
   { name: 'Manage Managers', href: '/owner/managers', icon: 'manage_accounts' },

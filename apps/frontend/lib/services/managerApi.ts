@@ -23,6 +23,7 @@ export interface IManager {
 }
 
 export const managerApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     getManagers: builder.query<ApiResponse<IManager[]>, { hostelId?: string } | void>({
       query: (params) => ({

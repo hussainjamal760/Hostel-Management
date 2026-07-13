@@ -1,6 +1,7 @@
 import { baseApi } from './api';
 
 export const expenseApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     createExpense: builder.mutation<any, FormData>({
         query: (formData) => ({
