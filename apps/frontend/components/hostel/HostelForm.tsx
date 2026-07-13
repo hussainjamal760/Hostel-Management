@@ -124,117 +124,196 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-          {isEditMode ? 'Edit Hostel' : 'Create New Hostel'}
-        </h2>
+    <div className="w-full relative overflow-hidden pb-12">
+      
+      {/* Decorative background gradients */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-tertiary/5 rounded-full blur-3xl -z-10 -translate-x-1/2 translate-y-1/2"></div>
+
+      <div className="flex justify-between items-center mb-10 pb-6 border-b border-outline-variant/40">
+        <div>
+          <h2 className="font-headline-lg text-primary flex items-center gap-3">
+            <span className="material-symbols-outlined text-[36px] text-primary/80">{isEditMode ? 'edit_square' : 'domain_add'}</span>
+            {isEditMode ? 'Edit Property' : 'Create New Property'}
+          </h2>
+          <p className="text-on-surface-variant font-body-md mt-2 ml-12">
+            {isEditMode ? 'Update your hostel details and location.' : 'Add a new hostel to your portfolio by filling out the details below.'}
+          </p>
+        </div>
         {onCancel && (
           <button 
             onClick={onCancel}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-highest text-on-surface-variant hover:text-primary transition-all self-start"
+            title="Cancel"
           >
-            Cancel
+            <span className="material-symbols-outlined">close</span>
           </button>
         )}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit, (errors) => console.error("Form Errors:", errors))} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Hostel Name</label>
-            <input
-              {...register('name')}
-              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-              placeholder="e.g. Sunshine Boys Hostel"
-            />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Business Phone Number</label>
-            <input
-              {...register('phoneNumber')}
-              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-              placeholder="+92 300 1234567"
-            />
-            {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber.message}</p>}
-          </div>
-        </div>
-
-        <div>
-           <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Select Location</label>
-           <p className="text-sm text-gray-500 mb-2">Click or drag the map to pinpoint the hostel location. Street address will be auto-filled.</p>
-           <MapPicker 
-             coordinates={location || { lat: 33.6844, lng: 73.0479 }} 
-             onLocationChange={(coords) => handleLocationSelect(coords.lat, coords.lng)} 
-           />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Street Address / Full Address</label>
-            <input
-              {...register('address.street')}
-              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-            />
-            {errors.address?.street && <p className="text-red-500 text-sm mt-1">{errors.address.street.message}</p>}
-          </div>
-          <div>
-             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">City</label>
-             {!isOtherCity ? (
-               <select
-                 className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                 onChange={handleCityChange}
-                 defaultValue={getDefaultCity()}
-               >
-                 <option value="" disabled>Select City</option>
-                 {CITIES.map(city => (
-                   <option key={city} value={city}>{city}</option>
-                 ))}
-                 <option value="Other">Other</option>
-               </select>
-             ) : (
-               <div className="flex gap-2">
-                  <input
-                    {...register('address.city')}
-                    placeholder="Enter city name"
-                    className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                    autoFocus
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => { setIsOtherCity(false); setValue('address.city', ''); }}
-                    className="p-3 text-red-500 hover:bg-red-50 rounded-lg"
-                    title="Cancel custom city"
-                  >
-                    ✕
-                  </button>
-               </div>
-             )}
-            {errors.address?.city && <p className="text-red-500 text-sm mt-1">{errors.address.city.message}</p>}
-          </div>
-        </div>
+      <form onSubmit={handleSubmit(onSubmit, (errors) => console.error("Form Errors:", errors))} className="space-y-10">
         
-        <div className="grid grid-cols-1 gap-6">
-           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Monthly Rent</label>
-            <input
-              type="number"
-              {...register('monthlyRent', { valueAsNumber: true })}
-              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-            />
-            {errors.monthlyRent && <p className="text-red-500 text-sm mt-1">{errors.monthlyRent.message}</p>}
+        {/* Basic Details Section */}
+        <div className="space-y-6">
+          <h3 className="font-label-lg text-on-surface-variant uppercase tracking-widest flex items-center gap-2 mb-6">
+            <span className="w-8 h-px bg-outline-variant/60"></span>
+            Basic Information
+            <span className="flex-1 h-px bg-outline-variant/60"></span>
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="relative group">
+              <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-lowest text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                Hostel Name
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors">apartment</span>
+                <input
+                  {...register('name')}
+                  className="w-full p-4 pl-12 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant"
+                  placeholder="e.g. The Heritage Grand"
+                />
+              </div>
+              {errors.name && <p className="text-error text-xs font-label-md mt-2 pl-4">{errors.name.message}</p>}
+            </div>
+
+            <div className="relative group">
+              <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-lowest text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                Business Phone
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors">call</span>
+                <input
+                  {...register('phoneNumber')}
+                  className="w-full p-4 pl-12 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant"
+                  placeholder="+92 300 1234567"
+                />
+              </div>
+              {errors.phoneNumber && <p className="text-error text-xs font-label-md mt-2 pl-4">{errors.phoneNumber.message}</p>}
+            </div>
+            
+            <div className="relative group md:col-span-2">
+              <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-lowest text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                Monthly Rent Base (PKR)
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors">payments</span>
+                <input
+                  type="number"
+                  {...register('monthlyRent', { valueAsNumber: true })}
+                  className="w-full p-4 pl-12 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant"
+                  placeholder="25000"
+                />
+              </div>
+              {errors.monthlyRent && <p className="text-error text-xs font-label-md mt-2 pl-4">{errors.monthlyRent.message}</p>}
+            </div>
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full py-4 bg-brand-primary hover:bg-brand-primary/90 text-white font-bold rounded-lg transition-colors shadow-lg disabled:opacity-50"
-        >
-          {isLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Hostel' : 'Create Hostel')}
-        </button>
+        {/* Location Section */}
+        <div className="space-y-6">
+           <h3 className="font-label-lg text-on-surface-variant uppercase tracking-widest flex items-center gap-2 mb-6">
+            <span className="w-8 h-px bg-outline-variant/60"></span>
+            Location Details
+            <span className="flex-1 h-px bg-outline-variant/60"></span>
+           </h3>
+           
+           <div className="mb-8">
+             <div className="flex items-center gap-3 mb-4">
+               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                 <span className="material-symbols-outlined">pin_drop</span>
+               </div>
+               <div>
+                 <p className="font-label-md text-primary uppercase tracking-wider">Map Coordinates</p>
+                 <p className="text-sm font-body-md text-on-surface-variant opacity-80">Drag the pin to exactly locate your property.</p>
+               </div>
+             </div>
+             <div className="rounded-2xl overflow-hidden border-2 border-outline-variant/50 shadow-sm relative">
+               <MapPicker 
+                 coordinates={location || { lat: 33.6844, lng: 73.0479 }} 
+                 onLocationChange={(coords) => handleLocationSelect(coords.lat, coords.lng)} 
+               />
+               <div className="absolute bottom-4 left-4 right-4 pointer-events-none flex justify-center">
+                 <div className="bg-surface-container-lowest/90 backdrop-blur-sm px-4 py-2 rounded-full border border-outline-variant/30 text-xs font-label-md text-primary shadow-sm">
+                   Coordinates auto-sync with address
+                 </div>
+               </div>
+             </div>
+           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="relative group md:col-span-2">
+              <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-lowest text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                Street Address
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors">signpost</span>
+                <input
+                  {...register('address.street')}
+                  className="w-full p-4 pl-12 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant"
+                  placeholder="Street No, Area, Sector"
+                />
+              </div>
+              {errors.address?.street && <p className="text-error text-xs font-label-md mt-2 pl-4">{errors.address.street.message}</p>}
+            </div>
+
+            <div className="relative group md:col-span-2">
+               <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-lowest text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                City
+               </label>
+               {!isOtherCity ? (
+                 <div className="relative">
+                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors">location_city</span>
+                   <select
+                     className="w-full p-4 pl-12 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant appearance-none"
+                     onChange={handleCityChange}
+                     defaultValue={getDefaultCity()}
+                   >
+                     <option value="" disabled>Select City</option>
+                     {CITIES.map(city => (
+                       <option key={city} value={city}>{city}</option>
+                     ))}
+                     <option value="Other">Other</option>
+                   </select>
+                   <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined pointer-events-none text-on-surface-variant">expand_more</span>
+                 </div>
+               ) : (
+                 <div className="flex gap-3">
+                    <div className="relative flex-1">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors">location_city</span>
+                      <input
+                        {...register('address.city')}
+                        placeholder="Enter custom city name"
+                        className="w-full p-4 pl-12 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant"
+                        autoFocus
+                      />
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => { setIsOtherCity(false); setValue('address.city', ''); }}
+                      className="px-4 text-error bg-error-container/20 hover:bg-error-container/40 border border-error/20 rounded-2xl transition-colors flex items-center justify-center"
+                      title="Cancel custom city"
+                    >
+                      <span className="material-symbols-outlined">close</span>
+                    </button>
+                 </div>
+               )}
+              {errors.address?.city && <p className="text-error text-xs font-label-md mt-2 pl-4">{errors.address.city.message}</p>}
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-8">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-5 bg-primary hover:bg-primary/90 text-on-primary font-label-lg tracking-widest uppercase rounded-2xl transition-all shadow-[0_8px_20px_-4px_rgba(var(--color-primary-rgb),0.4)] hover:shadow-[0_12px_24px_-6px_rgba(var(--color-primary-rgb),0.5)] hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:active:translate-y-0 flex items-center justify-center gap-3 relative overflow-hidden group"
+          >
+            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+            <span className="material-symbols-outlined text-[24px] relative z-10">{isEditMode ? 'check_circle' : 'add_business'}</span>
+            <span className="relative z-10">{isLoading ? (isEditMode ? 'Updating Property...' : 'Creating Property...') : (isEditMode ? 'Save Property Details' : 'Create Property Profile')}</span>
+          </button>
+        </div>
       </form>
     </div>
   );

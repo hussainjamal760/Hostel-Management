@@ -2,12 +2,9 @@
 
 import { useState } from 'react';
 import { useGetOwnerHostelsQuery, useDeleteHostelMutation } from '@/lib/services/hostelApi';
-import Link from 'next/link';
-import { HiOutlinePencil, HiOutlineLocationMarker, HiOutlinePhone, HiOutlineUserGroup, HiOutlineHome, HiPlus, HiOutlineTrash } from 'react-icons/hi';
-import MapPicker from '@/components/ui/MapPicker';
 import HostelForm from '@/components/hostel/HostelForm';
 import { IHostel } from '@hostelite/shared-types';
-import ConfirmationModal from '@/components/ui/ConfirmationModal';
+import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { toast } from 'react-hot-toast';
 
 export default function MyHostelPage() {
@@ -56,17 +53,25 @@ export default function MyHostelPage() {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-PK', {
+      style: 'currency',
+      currency: 'PKR',
+      maximumFractionDigits: 0
+    }).format(amount || 0);
+  };
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
+      <div className="flex items-center justify-center h-full pt-32">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (isFormOpen) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full">
         <HostelForm 
           initialValues={editingHostel} 
           isEditMode={!!editingHostel} 
@@ -80,12 +85,13 @@ export default function MyHostelPage() {
   if (hostels.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">No Hostels Found</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">You haven't set up your hostel yet.</p>
+        <h2 className="font-headline-md text-headline-md mb-4 text-primary">No Properties Found</h2>
+        <p className="text-on-surface-variant font-body-md mb-8">You haven't set up your hostel portfolio yet.</p>
         <button 
           onClick={handleAddClick}
-          className="px-6 py-3 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors shadow-lg"
+          className="px-6 py-3 bg-primary text-on-primary rounded-xl hover:bg-primary-container transition-colors shadow-lg font-label-md flex items-center gap-2 mx-auto"
         >
+          <span className="material-symbols-outlined text-[20px]">add</span>
           Create Your First Hostel
         </button>
       </div>
@@ -98,139 +104,126 @@ export default function MyHostelPage() {
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
         onConfirm={confirmDelete}
-        title="Delete Hostel"
-        message="Are you sure you want to delete this hostel? All associated room data will be archived and hidden."
-        confirmText="Delete Hostel"
+        title="Delete Property"
+        message="Are you sure you want to delete this hostel? All associated room data and records will be permanently archived and hidden."
+        confirmText="Yes, Delete Property"
         isLoading={isDeleting}
       />
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Hostels</h1>
-           <p className="text-gray-500 dark:text-gray-400">Manage your hostel details and settings</p>
-        </div>
-        <button 
-          onClick={handleAddClick}
-          className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors shadow-sm font-medium"
-        >
-          <HiPlus size={20} />
-          Add New Hostel
-        </button>
-      </div>
 
-      <div className="space-y-12">
-        {hostels.map((hostel) => (
-          <div key={hostel._id} className="border-b border-gray-200 dark:border-gray-700 pb-12 last:border-0 last:pb-0">
-             <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                   <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{hostel.name}</h2>
-                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                       hostel.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                       hostel.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                   }`}>
-                       {hostel.status === 'PENDING' ? 'Pending Approval' : (hostel.isActive ? 'Active' : 'Inactive')}
-                   </span>
-                </div>
-                <div className="flex items-center gap-3">
-                   {hostel.status === 'PENDING' ? (
-                     <span className="text-sm text-yellow-600 font-medium">Under Review by Admin</span>
-                   ) : (
-                     <>
-                       <button 
-                         className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 font-medium"
-                         onClick={() => handleEditClick(hostel)}
-                       >
-                         <HiOutlinePencil size={18} />
-                         Edit Details
-                       </button>
-                       <button
-                         className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-900/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium hover:border-red-300"
-                         onClick={() => handleDeleteClick(hostel._id)}
-                       >
-                         <HiOutlineTrash size={18} />
-                         Remove
-                       </button>
-                     </>
-                   )}
-                </div>
-             </div>
-
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 {/* Main Details */}
-                 <div className="md:col-span-2 space-y-6">
-                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                         <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-                             <HiOutlineHome className="text-brand-primary" />
-                             Basic Information
-                         </h3>
-                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                             <div>
-                                 <p className="text-sm text-gray-500 dark:text-gray-400">Hostel Code</p>
-                                 <p className="font-mono text-lg font-medium">{hostel.code}</p>
-                             </div>
-                             <div>
-                                 <p className="text-sm text-gray-500 dark:text-gray-400">Monthly Rent</p>
-                                 <p className="text-lg font-medium text-brand-primary">₨ {hostel.monthlyRent.toLocaleString()}</p>
-                             </div>
-                             <div>
-                                 <p className="text-sm text-gray-500 dark:text-gray-400">Contact Number</p>
-                                 <div className="flex items-center gap-2">
-                                     <HiOutlinePhone className="text-gray-400" />
-                                     <p className="text-lg font-medium">{hostel.phoneNumber}</p>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-
-                      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                         <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-                             <HiOutlineLocationMarker className="text-brand-primary" />
-                             Location & Address
-                         </h3>
-                         <div className="grid grid-cols-1 gap-4 mb-4">
-                             <div>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
-                                  <p className="text-lg">{hostel.address.street}</p>
-                             </div>
-                              <div>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">City</p>
-                                  <p className="text-lg">{hostel.address.city}</p>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-
-                 {/* Stats Side Panel */}
-                 <div className="space-y-6">
-                      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Capacity & Occupancy</h3>
-                          <div className="space-y-4">
-                              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                  <div className="flex items-center gap-3">
-                                      <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg">
-                                          <HiOutlineHome size={20} />
-                                      </div>
-                                      <span className="text-gray-600 dark:text-gray-300">Total Rooms</span>
-                                  </div>
-                                  <span className="font-bold text-xl">{hostel.totalRooms}</span>
-                              </div>
-                              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                  <div className="flex items-center gap-3">
-                                      <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-lg">
-                                          <HiOutlineUserGroup size={20} />
-                                      </div>
-                                      <span className="text-gray-600 dark:text-gray-300">Total Beds</span>
-                                  </div>
-                                  <span className="font-bold text-xl">{hostel.totalBeds}</span>
-                              </div>
-                          </div>
-                      </div>
-                 </div>
-             </div>
+      <div className="space-y-8">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+          <div>
+            <h2 className="font-headline-lg text-headline-lg text-primary mb-1">My Hostels</h2>
+            <p className="text-on-surface-variant font-body-md opacity-80">Manage your properties, capacity, and operational details.</p>
           </div>
-        ))}
+          <button 
+            onClick={handleAddClick}
+            className="flex items-center gap-2 px-5 py-3 bg-primary text-on-primary rounded-xl text-label-md hover:shadow-lg transition-all active:scale-95"
+          >
+            <span className="material-symbols-outlined text-[20px]">add_business</span>
+            Add New Hostel
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8">
+          {hostels.map((hostel) => (
+            <div key={hostel._id} className="bg-surface-container-lowest border border-outline-variant rounded-3xl shadow-[0_4px_20px_-2px_rgba(92,64,51,0.08)] overflow-hidden flex flex-col md:flex-row transition-all hover:shadow-lg">
+               
+               {/* Left Pane: Essential Identifiers */}
+               <div className="md:w-1/3 bg-surface-container-low p-8 border-b md:border-b-0 md:border-r border-outline-variant flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-primary/10 rounded-2xl text-primary inline-flex">
+                        <span className="material-symbols-outlined text-[32px]">apartment</span>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                           hostel.status === 'PENDING' ? 'bg-orange-100 text-orange-700' :
+                           hostel.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                           hostel.isActive ? 'bg-green-100 text-green-700' : 'bg-surface-variant text-on-surface-variant'
+                       }`}>
+                           {hostel.status === 'PENDING' ? 'Under Review' : 
+                            hostel.status === 'REJECTED' ? 'Rejected' : 
+                            (hostel.isActive ? 'Active' : 'Inactive')}
+                       </span>
+                    </div>
+                    
+                    <h3 className="font-headline-md text-primary mb-2">{hostel.name}</h3>
+                    <p className="text-sm font-label-md text-on-surface-variant uppercase tracking-widest mb-6">CODE: {hostel.code}</p>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <span className="material-symbols-outlined text-outline-variant mt-0.5 text-[20px]">location_on</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm text-on-surface-variant">
+                            {typeof hostel.address === 'object' 
+                              ? `${hostel.address?.street || ''}`
+                              : hostel.address}
+                          </span>
+                          <span className="text-sm font-bold text-primary">
+                             {typeof hostel.address === 'object' ? hostel.address?.city : ''}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-outline-variant text-[20px]">call</span>
+                        <span className="text-sm text-primary font-medium">{hostel.phoneNumber}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-8 pt-6 border-t border-outline-variant/50">
+                    <p className="text-xs text-on-surface-variant uppercase tracking-widest font-label-md mb-2">Monthly Rent Base</p>
+                    <p className="text-2xl font-bold text-primary">{formatCurrency(hostel.monthlyRent)}</p>
+                  </div>
+               </div>
+
+               {/* Right Pane: Metrics & Actions */}
+               <div className="md:w-2/3 p-8 flex flex-col justify-between">
+                  <div>
+                    <h4 className="font-label-md text-on-surface-variant uppercase tracking-wider mb-6">Capacity Overview</h4>
+                    <div className="grid grid-cols-2 gap-6 mb-8">
+                      <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 flex items-center gap-4">
+                         <div className="p-3 bg-secondary-container/30 rounded-xl text-secondary">
+                            <span className="material-symbols-outlined">meeting_room</span>
+                         </div>
+                         <div>
+                           <p className="text-xs text-on-surface-variant font-label-md uppercase tracking-wider mb-1">Total Rooms</p>
+                           <p className="text-stats-lg font-stats-lg text-primary">{hostel.totalRooms}</p>
+                         </div>
+                      </div>
+                      <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 flex items-center gap-4">
+                         <div className="p-3 bg-tertiary-container/30 rounded-xl text-tertiary">
+                            <span className="material-symbols-outlined">bed</span>
+                         </div>
+                         <div>
+                           <p className="text-xs text-on-surface-variant font-label-md uppercase tracking-wider mb-1">Total Beds</p>
+                           <p className="text-stats-lg font-stats-lg text-primary">{hostel.totalBeds}</p>
+                         </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-6 border-t border-outline-variant/30">
+                     <button 
+                       className="flex items-center gap-2 px-5 py-2.5 bg-surface border border-outline-variant rounded-xl text-primary font-label-md hover:bg-surface-container-high transition-all"
+                       onClick={() => handleEditClick(hostel)}
+                     >
+                       <span className="material-symbols-outlined text-[18px]">edit</span>
+                       Edit Details
+                     </button>
+                     <button
+                       className="flex items-center gap-2 px-5 py-2.5 bg-error-container/20 border border-error/20 text-error rounded-xl font-label-md hover:bg-error-container/40 transition-all"
+                       onClick={() => handleDeleteClick(hostel._id)}
+                     >
+                       <span className="material-symbols-outlined text-[18px]">delete</span>
+                       Archive
+                     </button>
+                  </div>
+               </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
     </>
   );
 }

@@ -13,7 +13,6 @@ interface AdminLayoutProps {
 }
 
 const menuItems = [
-  { name: 'Home Website', href: '/', icon: 'home' },
   { name: 'Dashboard', href: '/admin/dashboard', icon: 'dashboard' },
   { name: 'Hostels', href: '/admin/hostels', icon: 'apartment' },
   { name: 'Students', href: '/admin/users', icon: 'group' },
@@ -105,12 +104,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <div className="p-4 bg-surface-container rounded-xl border border-outline-variant text-center">
             <p className="font-label-md text-label-md text-primary font-bold tracking-widest uppercase">Admin Portal</p>
             <p className="text-xs text-on-surface-variant mb-4">Full System Access</p>
-            <button
-              onClick={handleLogout}
-              className="w-full bg-primary text-on-primary py-2.5 rounded-lg font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors shadow-sm"
-            >
-              Logout
-            </button>
+            <div className="flex gap-2">
+              <Link
+                href="/"
+                className="w-12 flex justify-center items-center bg-surface-container-high text-primary py-2.5 rounded-lg hover:bg-surface-container-highest transition-colors shadow-sm"
+                title="Home Website"
+              >
+                <span className="material-symbols-outlined text-[20px]">home</span>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex-1 bg-primary text-on-primary py-2.5 rounded-lg font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors shadow-sm"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </aside>
