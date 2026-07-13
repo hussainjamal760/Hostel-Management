@@ -125,26 +125,33 @@ export default function MyHostelPage() {
                 <div className="flex items-center gap-4">
                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{hostel.name}</h2>
                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                       hostel.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
                        hostel.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                    }`}>
-                       {hostel.isActive ? 'Active' : 'Inactive'}
+                       {hostel.status === 'PENDING' ? 'Pending Approval' : (hostel.isActive ? 'Active' : 'Inactive')}
                    </span>
                 </div>
                 <div className="flex items-center gap-3">
-                   <button 
-                     className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 font-medium"
-                     onClick={() => handleEditClick(hostel)}
-                   >
-                     <HiOutlinePencil size={18} />
-                     Edit Details
-                   </button>
-                   <button
-                     className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-900/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium hover:border-red-300"
-                     onClick={() => handleDeleteClick(hostel._id)}
-                   >
-                     <HiOutlineTrash size={18} />
-                     Remove
-                   </button>
+                   {hostel.status === 'PENDING' ? (
+                     <span className="text-sm text-yellow-600 font-medium">Under Review by Admin</span>
+                   ) : (
+                     <>
+                       <button 
+                         className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 font-medium"
+                         onClick={() => handleEditClick(hostel)}
+                       >
+                         <HiOutlinePencil size={18} />
+                         Edit Details
+                       </button>
+                       <button
+                         className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-900/30 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium hover:border-red-300"
+                         onClick={() => handleDeleteClick(hostel._id)}
+                       >
+                         <HiOutlineTrash size={18} />
+                         Remove
+                       </button>
+                     </>
+                   )}
                 </div>
              </div>
 

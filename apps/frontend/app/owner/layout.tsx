@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/lib/hooks';
 import { logout } from '@/lib/features/authSlice';
+import { useGetOwnerHostelsQuery } from '@/lib/services/hostelApi';
 import { toast } from 'react-hot-toast';
 import {
   HiOutlineHome,
@@ -42,6 +43,12 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+
+  const { data: hostelResponse, isLoading } = useGetOwnerHostelsQuery();
+  const hostels = hostelResponse?.data || [];
+  
+  const hasApprovedHostel = hostels.some(h => h.status === 'APPROVED');
+  const isHostelPage = pathname === '/owner/hostel';
 
   const handleLogout = () => {
     dispatch(logout());
@@ -178,7 +185,26 @@ export default function OwnerLayout({ children }: OwnerLayoutProps) {
         </header>
 
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-brand-bg dark:bg-dark-bg p-6">
-          {children}
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
+            </div>
+          ) : (!hasApprovedHostel && !isHostelPage) ? (
+            <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+              <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Access Restricted</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md">
+                Your account is currently limited. Please create a hostel and wait for admin approval to unlock all features.
+              </p>
+              <Link 
+                href="/owner/hostel"
+                className="px-6 py-3 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors shadow-lg"
+              >
+                Go to My Hostel
+              </Link>
+            </div>
+          ) : (
+            children
+          )}
         </main>
       </div>
     </div>

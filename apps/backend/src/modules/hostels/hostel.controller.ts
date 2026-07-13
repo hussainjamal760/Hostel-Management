@@ -17,6 +17,7 @@ export class HostelController {
     const filters: any = {};
     if (typeof req.query.search === 'string') filters.search = req.query.search;
     if (typeof req.query.status === 'string') filters.status = req.query.status;
+    if (req.query.isActive !== undefined) filters.isActive = req.query.isActive;
     if (typeof req.query.page === 'string') filters.page = Number(req.query.page);
     if (typeof req.query.limit === 'string') filters.limit = Number(req.query.limit);
 
@@ -48,7 +49,7 @@ export class HostelController {
 
   updateHostel = asyncHandler(async (req: Request, res: Response) => {
     const allowedUpdates: any = {};
-    const safeFields = ['name', 'address', 'phone', 'email', 'capacity', 'amenities', 'status'];
+    const safeFields = ['name', 'address', 'phone', 'email', 'capacity', 'amenities', 'status', 'isActive'];
     safeFields.forEach(field => {
       if (req.body[field] !== undefined) {
         allowedUpdates[field] = req.body[field];

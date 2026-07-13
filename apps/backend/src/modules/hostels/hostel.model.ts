@@ -78,10 +78,15 @@ const hostelSchema = new Schema<IHostelDocument>(
       default: 0,
       min: [0, 'Subscription rate cannot be negative'],
     },
-
+    status: {
+      type: String,
+      enum: ['PENDING', 'APPROVED', 'REJECTED'],
+      default: 'PENDING',
+      index: true,
+    },
     isActive: {
       type: Boolean,
-      default: true,
+      default: false,
       index: true,
     },
     paymentDetails: {

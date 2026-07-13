@@ -22,7 +22,7 @@ export interface IHostel {
   images: string[];
   monthlyRent: number;
   subscriptionRate?: number;
-
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
   isActive: boolean;
   paymentDetails?: {
     bankName: string;

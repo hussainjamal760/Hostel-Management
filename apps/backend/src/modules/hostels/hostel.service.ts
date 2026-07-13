@@ -26,6 +26,8 @@ export class HostelService {
     const hostel = await Hostel.create({
       ...data,
       ownerId,
+      status: 'PENDING',
+      isActive: false,
     });
 
     console.log('Hostel created:', hostel._id, 'ownerId:', hostel.ownerId);
@@ -54,13 +56,15 @@ export class HostelService {
     const filter: FilterQuery<IHostelDocument> = {};
     if (ownerId) filter.ownerId = new mongoose.Types.ObjectId(ownerId);
     
-    if (isActive !== undefined && isActive !== null && isActive !== ('ALL' as any)) {
+    if (isActive === 'PENDING') {
+      filter.status = 'PENDING';
+    } else if (isActive !== undefined && isActive !== null && isActive !== ('ALL' as any)) {
       if (isActive === 'true' || isActive === true) {
         filter.isActive = true;
       } else {
         filter.isActive = false;
       }
-    } else if (isActive === undefined) {
+    } else if (isActive === undefined && !ownerId) {
        filter.isActive = true; 
     }
 

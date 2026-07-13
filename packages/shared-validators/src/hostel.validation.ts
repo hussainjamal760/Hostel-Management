@@ -42,6 +42,7 @@ export const updateHostelSchema = z.object({
   monthlyRent: z.number().positive().optional(),
 
   isActive: z.boolean().optional(),
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
   paymentDetails: z.object({
     bankName: z.string().optional(),
     accountTitle: z.string().optional(),
