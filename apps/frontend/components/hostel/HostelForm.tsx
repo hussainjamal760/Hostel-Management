@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createHostelSchema, CreateHostelInput } from '@hostelite/shared-validators';
 import { toast } from 'react-hot-toast';
 import { useCreateHostelMutation, useUpdateHostelMutation } from '@/lib/services/hostelApi';
+import { useGetPaymentCardsQuery, useCreatePaymentCardMutation } from '@/lib/services/paymentCardApi';
 import MapPicker from '../ui/MapPicker';
 import { z } from 'zod';
 import { IHostel } from '@hostelite/shared-types';
@@ -24,8 +25,12 @@ interface HostelFormProps {
 export default function HostelForm({ initialValues, isEditMode = false, onSuccess, onCancel }: HostelFormProps) {
   const [createHostel, { isLoading: isCreating }] = useCreateHostelMutation();
   const [updateHostel, { isLoading: isUpdating }] = useUpdateHostelMutation();
+  const { data: cardsData } = useGetPaymentCardsQuery();
+  const [createPaymentCard] = useCreatePaymentCardMutation();
   
   const isLoading = isCreating || isUpdating;
+
+  const paymentCards = cardsData?.data || [];
 
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
     initialValues?.address?.coordinates || null
@@ -49,6 +54,12 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
       name: initialValues?.name || '',
       phoneNumber: initialValues?.phoneNumber || '',
       monthlyRent: initialValues?.monthlyRent || 0,
+      paymentDetails: {
+        bankName: initialValues?.paymentDetails?.bankName || '',
+        accountTitle: initialValues?.paymentDetails?.accountTitle || '',
+        accountNumber: initialValues?.paymentDetails?.accountNumber || '',
+        instructions: initialValues?.paymentDetails?.instructions || '',
+      },
       address: {
         street: initialValues?.address?.street || '',
         city: initialValues?.address?.city || '',
@@ -80,6 +91,16 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
           coordinates: location,
         },
       };
+
+      // Auto-save new payment method to library if it doesn't exist
+      if (data.paymentDetails?.accountNumber) {
+          const existsInLibrary = paymentCards.some(
+              (card: any) => card.accountNumber === data.paymentDetails!.accountNumber
+          );
+          if (!existsInLibrary) {
+              await createPaymentCard(data.paymentDetails).unwrap().catch(() => {});
+          }
+      }
 
       if (isEditMode && initialValues?._id) {
         await updateHostel({ id: initialValues._id, data: payload }).unwrap();
@@ -301,6 +322,125 @@ export default function HostelForm({ initialValues, isEditMode = false, onSucces
               {errors.address?.city && <p className="text-error text-xs font-label-md mt-2 pl-4">{errors.address.city.message}</p>}
             </div>
           </div>
+        </div>
+
+        {/* Payment Configuration Section */}
+        <div className="space-y-6">
+           <h3 className="font-label-lg text-on-surface-variant uppercase tracking-widest flex items-center gap-2 mb-6">
+            <span className="w-8 h-px bg-outline-variant/60"></span>
+            Payment Configuration
+            <span className="flex-1 h-px bg-outline-variant/60"></span>
+           </h3>
+
+           {paymentCards.length > 0 && (
+             <div className="mb-6">
+               <p className="text-sm font-label-md text-on-surface-variant uppercase tracking-widest mb-3">Or Select from Saved Cards:</p>
+               <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
+                 {paymentCards.map((payment: any) => (
+                   <button
+                     key={payment._id}
+                     type="button"
+                     onClick={() => {
+                       setValue('paymentDetails.bankName', payment.bankName);
+                       setValue('paymentDetails.accountTitle', payment.accountTitle);
+                       setValue('paymentDetails.accountNumber', payment.accountNumber);
+                       setValue('paymentDetails.instructions', payment.instructions);
+                       toast.success('Payment details auto-filled!');
+                     }}
+                     className="min-w-[280px] aspect-[1.6/1] snap-start flex-shrink-0 relative rounded-[20px] overflow-hidden group shadow-md hover:shadow-xl hover:-translate-y-1 transition-all text-left"
+                   >
+                     {/* Card Background */}
+                     <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-surface-container-highest to-black z-0"></div>
+                     <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-tertiary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"></div>
+                     
+                     <div className="relative z-10 h-full p-5 flex flex-col justify-between border border-white/10 rounded-[20px]">
+                       {/* Top */}
+                       <div className="flex justify-between items-start text-white/40">
+                           <span className="material-symbols-outlined text-sm rotate-90">sim_card</span>
+                           <span className="material-symbols-outlined text-sm">wifi</span>
+                       </div>
+                       
+                       {/* Middle */}
+                       <div className="w-full mt-auto mb-3">
+                           <p className="font-mono text-base text-white tracking-[0.15em] mb-1 truncate drop-shadow-md">{payment.accountNumber}</p>
+                           <p className="font-mono text-[10px] text-white/60 tracking-widest uppercase truncate">{payment.accountTitle}</p>
+                       </div>
+
+                       {/* Bottom */}
+                       <div className="w-full flex justify-between items-end border-t border-white/10 pt-3">
+                           <p className="font-bold text-sm text-white/90 truncate pr-2">{payment.bankName}</p>
+                           <div className="relative w-7 h-4 flex-shrink-0 opacity-80">
+                               <div className="absolute left-0 w-4 h-4 rounded-full bg-error/90 mix-blend-screen"></div>
+                               <div className="absolute right-0 w-4 h-4 rounded-full bg-tertiary/90 mix-blend-screen"></div>
+                           </div>
+                       </div>
+                     </div>
+                   </button>
+                 ))}
+               </div>
+             </div>
+           )}
+
+           <div className="bg-surface-container-low p-6 md:p-8 rounded-[24px] border border-outline-variant/50 space-y-6">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="relative group">
+                  <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-low text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                      Provider / Bank Name
+                  </label>
+                  <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors">account_balance</span>
+                      <input
+                          {...register('paymentDetails.bankName')}
+                          className="w-full p-4 pl-12 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant"
+                          placeholder="e.g. Meezan Bank, JazzCash"
+                      />
+                  </div>
+                </div>
+
+                <div className="relative group">
+                  <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-low text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                      Account Title
+                  </label>
+                  <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors">badge</span>
+                      <input
+                          {...register('paymentDetails.accountTitle')}
+                          className="w-full p-4 pl-12 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant"
+                          placeholder="e.g. John Doe Hostels"
+                      />
+                  </div>
+                </div>
+             </div>
+
+             <div className="relative group">
+                <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-low text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                    Account Number / IBAN
+                </label>
+                <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors">tag</span>
+                    <input
+                        {...register('paymentDetails.accountNumber')}
+                        className="w-full p-4 pl-12 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant"
+                        placeholder="e.g. 03001234567 or PKRIBAN..."
+                    />
+                </div>
+             </div>
+
+             <div className="relative group">
+                <label className="absolute -top-2.5 left-4 px-1 bg-surface-container-low text-[11px] font-bold text-on-surface-variant uppercase tracking-wider z-10 transition-colors group-focus-within:text-primary">
+                    Additional Instructions
+                </label>
+                <div className="relative">
+                    <span className="absolute left-4 top-5 -translate-y-1/2 text-on-surface-variant/50 material-symbols-outlined group-focus-within:text-primary transition-colors">description</span>
+                    <textarea
+                        {...register('paymentDetails.instructions')}
+                        rows={3}
+                        className="w-full p-4 pl-12 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant resize-none"
+                        placeholder="e.g. Please upload a screenshot after payment. Verification takes 24 hours."
+                    />
+                </div>
+             </div>
+           </div>
         </div>
 
         <div className="pt-8">

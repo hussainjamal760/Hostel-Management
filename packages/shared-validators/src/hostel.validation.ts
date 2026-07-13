@@ -30,7 +30,12 @@ export const createHostelSchema = z.object({
   address: addressSchema,
   amenities: z.array(z.string()).optional(),
   monthlyRent: z.number().positive('Monthly rent must be positive'),
-
+  paymentDetails: z.object({
+    bankName: z.string().optional(),
+    accountTitle: z.string().optional(),
+    accountNumber: z.string().optional(),
+    instructions: z.string().optional(),
+  }).optional(),
 });
 
 export const updateHostelSchema = z.object({

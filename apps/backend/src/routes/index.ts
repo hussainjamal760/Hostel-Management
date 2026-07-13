@@ -15,6 +15,7 @@ import hostelPaymentRoutes from '../modules/payments/hostel-payment.routes';
 import { API_VERSION } from '@hostelite/shared-constants';
 
 import expenseRoutes from '../modules/expenses/expense.routes';
+import paymentCardRoutes from '../modules/payment-cards/payment-card.routes';
 
 const router = Router();
 
@@ -40,5 +41,6 @@ router.use('/upload', uploadRoutes);
 router.use('/managers', managerRoutes);
 router.use('/admin-payments', hostelPaymentRoutes);
 router.use('/expenses', expenseRoutes);
+router.use('/payment-cards', paymentCardRoutes);
 
 export default router;

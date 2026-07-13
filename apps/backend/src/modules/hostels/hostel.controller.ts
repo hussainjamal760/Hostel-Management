@@ -49,7 +49,7 @@ export class HostelController {
 
   updateHostel = asyncHandler(async (req: Request, res: Response) => {
     const allowedUpdates: any = {};
-    const safeFields = ['name', 'address', 'phone', 'email', 'capacity', 'amenities', 'status', 'isActive'];
+    const safeFields = ['name', 'address', 'phoneNumber', 'monthlyRent', 'totalRooms', 'totalBeds', 'amenities', 'status', 'isActive', 'paymentDetails', 'images'];
     safeFields.forEach(field => {
       if (req.body[field] !== undefined) {
         allowedUpdates[field] = req.body[field];
