@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import { useGetManagersQuery, useDeleteManagerMutation, IManager } from '@/lib/services/managerApi';
-import { HiPlus, HiOutlinePencil, HiOutlineTrash, HiOutlineUser, HiOutlineIdentification, HiOutlineCash, HiOutlineOfficeBuilding } from 'react-icons/hi';
 import ManagerForm from '@/components/manager/ManagerForm';
 import { useGetOwnerHostelsQuery } from '@/lib/services/hostelApi';
-import ConfirmationModal from '@/components/ui/ConfirmationModal';
+import ConfirmationModal from '@/components/modals/ConfirmationModal';
 import { toast } from 'react-hot-toast';
 
 export default function ManagersPage() {
@@ -61,17 +60,25 @@ export default function ManagersPage() {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-PK', {
+      style: 'currency',
+      currency: 'PKR',
+      maximumFractionDigits: 0
+    }).format(amount || 0);
+  };
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
+      <div className="flex items-center justify-center h-full pt-32">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (isFormOpen) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full">
         <ManagerForm 
           initialValues={editingManager} 
           isEditMode={!!editingManager}
@@ -89,107 +96,124 @@ export default function ManagersPage() {
         onClose={() => setDeleteId(null)}
         onConfirm={confirmDelete}
         title="Remove Manager"
-        message="Are you sure you want to remove this manager? This action will deactivate their account and prevent login."
-        confirmText="Remove Manager"
+        message="Are you sure you want to remove this manager? This action will deactivate their account and prevent login to the portal."
+        confirmText="Yes, Remove Manager"
         isLoading={isDeleting}
       />
+      
       <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Staff Management</h1>
-           <p className="text-gray-500 dark:text-gray-400">Manage your hostel managers and staff</p>
-        </div>
-        <button 
-          onClick={handleAddClick}
-          className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors shadow-sm font-medium"
-        >
-          <HiPlus size={20} />
-          Add Manager
-        </button>
-      </div>
-
-      {managers.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-[50vh] text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border-dashed border-2 border-gray-300 dark:border-gray-700">
-          <h2 className="text-xl font-bold mb-2 text-gray-700 dark:text-gray-300">No Managers Found</h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">You haven't added any managers yet.</p>
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+          <div>
+             <h2 className="font-headline-lg text-headline-lg text-primary mb-1">Staff Management</h2>
+             <p className="text-on-surface-variant font-body-md opacity-80">Manage your hostel managers, their details, and access.</p>
+          </div>
           <button 
             onClick={handleAddClick}
-            className="px-6 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-brand-primary font-medium"
+            className="flex items-center gap-2 px-5 py-3 bg-primary text-on-primary rounded-xl text-label-md hover:shadow-lg transition-all active:scale-95"
           >
-            Add Your First Manager
+            <span className="material-symbols-outlined text-[20px]">person_add</span>
+            Add Manager
           </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {managers.map((manager) => (
-            <div key={manager._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-brand-primary/10 rounded-full flex items-center justify-center text-brand-primary font-bold text-xl">
-                      {manager.avatar ? (
-                         <img src={manager.avatar} alt={manager.name} className="w-full h-full rounded-full object-cover" />
-                      ) : (
-                         manager.name.charAt(0).toUpperCase()
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">{manager.name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                        <HiOutlineOfficeBuilding className="inline" />
-                        {getHostelName(manager.hostelId)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => handleEditClick(manager)}
-                      className="text-gray-400 hover:text-brand-primary transition-colors p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                      title="Edit Manager"
-                    >
-                      <HiOutlinePencil size={20} />
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteClick(manager._id)}
-                      className="text-gray-400 hover:text-red-500 transition-colors p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
-                      title="Delete Manager"
-                    >
-                      <HiOutlineTrash size={20} />
-                    </button>
-                  </div>
-                </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                      <HiOutlineIdentification /> CNIC
-                    </span>
-                    <span className="font-mono">{manager.cnic}</span>
+        {managers.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-[50vh] text-center bg-surface-container/30 rounded-3xl border-dashed border-2 border-outline-variant">
+            <h2 className="font-headline-md text-primary mb-2">No Managers Found</h2>
+            <p className="text-on-surface-variant font-body-md mb-6">You haven't assigned any managers to your properties yet.</p>
+            <button 
+              onClick={handleAddClick}
+              className="px-6 py-3 bg-surface border border-outline-variant rounded-xl hover:bg-surface-container-high transition-colors text-primary font-label-md flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined">add</span>
+              Add Your First Manager
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            {managers.map((manager) => (
+              <div key={manager._id} className="bg-surface-container-lowest rounded-3xl shadow-[0_4px_20px_-2px_rgba(92,64,51,0.08)] border border-outline-variant overflow-hidden hover:shadow-md transition-shadow flex flex-col">
+                <div className="p-8 flex-1">
+                  
+                  {/* Header & Avatar */}
+                  <div className="flex items-start justify-between mb-8">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary font-headline-sm uppercase overflow-hidden border border-primary/20">
+                        {manager.avatar ? (
+                           <img src={manager.avatar} alt={manager.name} className="w-full h-full object-cover" />
+                        ) : (
+                           manager.name.charAt(0)
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-headline-sm text-primary mb-1">{manager.name}</h3>
+                        <p className="text-xs font-label-md text-on-surface-variant flex items-center gap-1.5 bg-surface px-2 py-1 rounded-md border border-outline-variant/30 w-fit">
+                          <span className="material-symbols-outlined text-[14px]">domain</span>
+                          {getHostelName(manager.hostelId)}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => handleEditClick(manager)}
+                        className="text-on-surface-variant hover:text-primary transition-colors p-2 hover:bg-surface-container rounded-full"
+                        title="Edit Manager"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">edit</span>
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteClick(manager._id)}
+                        className="text-on-surface-variant hover:text-error transition-colors p-2 hover:bg-error-container/20 rounded-full"
+                        title="Delete Manager"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">delete</span>
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                       <HiOutlineCash /> Salary
-                    </span>
-                    <span className="font-medium text-green-600 dark:text-green-400">₨ {manager.salary.toLocaleString()}</span>
+
+                  {/* Details */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-outline-variant/50">
+                      <span className="material-symbols-outlined text-outline-variant">badge</span>
+                      <div className="flex-1">
+                        <p className="text-[10px] font-label-md text-on-surface-variant uppercase tracking-widest">CNIC Number</p>
+                        <p className="font-mono text-sm text-primary">{manager.cnic}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-outline-variant/50">
+                      <span className="material-symbols-outlined text-outline-variant">call</span>
+                      <div className="flex-1">
+                        <p className="text-[10px] font-label-md text-on-surface-variant uppercase tracking-widest">Phone</p>
+                        <p className="text-sm text-primary font-medium">{manager.phoneNumber}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-outline-variant/50">
+                      <span className="material-symbols-outlined text-tertiary">payments</span>
+                      <div className="flex-1">
+                        <p className="text-[10px] font-label-md text-on-surface-variant uppercase tracking-widest">Monthly Salary</p>
+                        <p className="text-sm font-bold text-tertiary">{formatCurrency(manager.salary)}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                       <HiOutlineUser /> Phone
-                    </span>
-                    <span>{manager.phoneNumber}</span>
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400 font-medium">Login ID</span>
-                    <span className="font-mono bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded text-xs font-bold text-gray-700 dark:text-gray-300">
-                      {manager.userId?.username || 'N/A'}
-                    </span>
-                  </div>
+
+                </div>
+                
+                {/* Footer Login Info */}
+                <div className="bg-surface-container-low border-t border-outline-variant/50 p-4 px-8 flex items-center justify-between">
+                  <span className="text-[11px] font-label-md text-on-surface-variant uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[14px]">login</span> Login ID
+                  </span>
+                  <span className="font-mono bg-surface-container-highest px-3 py-1 rounded-md text-xs font-bold text-primary">
+                    {manager.userId?.username || 'N/A'}
+                  </span>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
