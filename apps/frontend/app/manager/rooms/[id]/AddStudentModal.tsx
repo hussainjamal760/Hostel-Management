@@ -5,9 +5,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
-import { HiX, HiOutlineUsers, HiOutlineCheck } from 'react-icons/hi';
 import { useCreateStudentMutation } from '@/lib/services/studentApi';
-import { createStudentSchema } from '@hostelite/shared-validators'; 
 
 const formSchema = z.object({
   fullName: z.string().min(2, 'Name is required'),
@@ -96,119 +94,130 @@ export default function AddStudentModal({ open, setOpen, roomId, bedNumber, onSu
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm" onClick={handleClose} />
+      <div className="fixed inset-0 z-[100] bg-surface-container-highest/80 backdrop-blur-sm" onClick={handleClose} />
       <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
-        <div className="w-full max-w-4xl bg-white dark:bg-[#1a0f0a] rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="w-full max-w-4xl bg-surface rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto border border-outline-variant custom-scrollbar">
           {credentials ? (
-             <div className="p-8 text-center space-y-6">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-600">
-                    <HiOutlineCheck size={40} />
+             <div className="p-10 text-center space-y-6">
+                <div className="w-24 h-24 bg-primary-container rounded-full flex items-center justify-center mx-auto text-primary">
+                    <span className="material-symbols-outlined text-[48px]">check_circle</span>
                 </div>
-                <h2 className="text-3xl font-bold text-brand-text dark:text-dark-text">Success!</h2>
-                <p className="text-brand-text/60">Student account has been created. Please save these credentials.</p>
+                <h2 className="text-display-lg text-primary">Success!</h2>
+                <p className="text-body-lg text-on-surface-variant max-w-md mx-auto">Student account has been created. Please safely store these credentials.</p>
                 
-                <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 inline-block w-full max-w-md">
+                <div className="bg-surface-container-lowest p-6 rounded-2xl border border-dashed border-outline inline-block w-full max-w-md">
                     <div className="grid grid-cols-2 gap-4 text-left">
-                        <div className="text-sm text-gray-500">Username</div>
-                        <div className="font-mono font-bold text-lg select-all">{credentials.username}</div>
+                        <div className="text-label-md uppercase tracking-wider text-on-surface-variant">Username</div>
+                        <div className="font-mono font-bold text-lg text-primary select-all bg-surface-container p-2 rounded-lg text-center border border-outline-variant">{credentials.username}</div>
                         
-                        <div className="text-sm text-gray-500">Password</div>
-                        <div className="font-mono font-bold text-lg select-all">{credentials.password}</div>
+                        <div className="text-label-md uppercase tracking-wider text-on-surface-variant">Password</div>
+                        <div className="font-mono font-bold text-lg text-primary select-all bg-surface-container p-2 rounded-lg text-center border border-outline-variant">{credentials.password}</div>
                     </div>
                 </div>
                 
                 <button 
                     onClick={handleClose}
-                    className="w-full max-w-md py-3 bg-brand-primary text-white font-bold rounded-xl mt-4"
+                    className="w-full max-w-md py-4 bg-primary text-on-primary font-bold rounded-xl mt-6 hover:bg-on-primary-fixed-variant transition-colors shadow-sm text-lg"
                 >
                     Done
                 </button>
              </div>
           ) : (
           <>
-            <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between sticky top-0 bg-white dark:bg-[#1a0f0a] z-10">
+            <div className="p-6 border-b border-outline-variant flex items-center justify-between sticky top-0 bg-surface/95 backdrop-blur-md z-10">
                 <div>
-                    <h2 className="text-2xl font-bold text-brand-text dark:text-dark-text">Add Student</h2>
-                    <p className="text-sm text-brand-text/60">Assigning to Bed {bedNumber}</p>
+                    <h2 className="text-display-lg-mobile md:text-display-lg text-primary">Add Student</h2>
+                    <p className="text-body-sm text-on-surface-variant mt-1 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[16px]">bed</span>
+                        Assigning to Bed {bedNumber}
+                    </p>
                 </div>
-                <button onClick={handleClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
-                    <HiX size={24} />
+                <button onClick={handleClose} className="p-2 hover:bg-surface-container text-on-surface-variant rounded-full transition-colors">
+                    <span className="material-symbols-outlined">close</span>
                 </button>
             </div>
             
-            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-10">
                 {/* Personal Info */}
                 <section>
-                    <h3 className="text-lg font-bold text-brand-primary mb-4 flex items-center gap-2">
-                        <HiOutlineUsers /> Personal Information
+                    <h3 className="text-body-lg font-bold text-primary mb-6 flex items-center gap-2 pb-2 border-b border-outline-variant/50">
+                        <span className="material-symbols-outlined text-secondary">person</span> 
+                        Personal Information
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <Input label="Full Name" {...register('fullName')} error={errors.fullName?.message} />
-                        <Input label="Date of Birth" type="date" {...register('dateOfBirth')} error={errors.dateOfBirth?.message} />
-                        <div className="space-y-1">
-                            <label className="text-xs font-bold uppercase text-brand-text/50">Gender</label>
-                            <select {...register('gender')} className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <Input label="Full Name" icon="badge" {...register('fullName')} error={errors.fullName?.message} />
+                        <Input label="Date of Birth" icon="calendar_month" type="date" {...register('dateOfBirth')} error={errors.dateOfBirth?.message} />
+                        <div className="space-y-2">
+                            <label className="text-label-md font-bold uppercase text-on-surface-variant flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[18px]">wc</span>
+                                Gender
+                            </label>
+                            <select {...register('gender')} className="w-full px-4 py-3 rounded-xl bg-background border border-outline-variant text-primary font-bold outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                                 <option value="MALE">Male</option>
                                 <option value="FEMALE">Female</option>
                                 <option value="OTHER">Other</option>
                             </select>
                         </div>
-                        <Input label="Email" type="email" {...register('email')} error={errors.email?.message} />
-                        <Input label="Phone" {...register('phone')} error={errors.phone?.message} />
-                        <Input label="CNIC" placeholder="xxxxx-xxxxxxx-x" {...register('cnic')} error={errors.cnic?.message} />
+                        <Input label="Email" icon="mail" type="email" {...register('email')} error={errors.email?.message} />
+                        <Input label="Phone" icon="phone_iphone" {...register('phone')} error={errors.phone?.message} />
+                        <Input label="CNIC" icon="id_card" placeholder="xxxxx-xxxxxxx-x" {...register('cnic')} error={errors.cnic?.message} />
                         <div className="md:col-span-2 lg:col-span-3">
-                             <Input label="Permanent Address" {...register('permanentAddress')} error={errors.permanentAddress?.message} />
+                             <Input label="Permanent Address" icon="home_pin" {...register('permanentAddress')} error={errors.permanentAddress?.message} />
                         </div>
                     </div>
                 </section>
 
-                <hr className="border-gray-200 dark:border-gray-800" />
-
                 {/* Parent/Guardian */}
                 <section>
-                    <h3 className="text-lg font-bold text-brand-primary mb-4">Guardian Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Input label="Father's Name" {...register('fatherName')} error={errors.fatherName?.message} />
-                        <Input label="Father's Phone" {...register('fatherPhone')} error={errors.fatherPhone?.message} />
-                        <Input label="Father's CNIC" {...register('fatherCnic')} error={errors.fatherCnic?.message} />
-                    </div>
-                </section>
-
-                <hr className="border-gray-200 dark:border-gray-800" />
-                
-                <section>
-                    <h3 className="text-lg font-bold text-brand-primary mb-4">Emergency Contact</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Input label="Name" {...register('emergencyContact.name')} error={errors.emergencyContact?.name?.message} />
-                        <Input label="Relation" {...register('emergencyContact.relation')} error={errors.emergencyContact?.relation?.message} />
-                        <Input label="Phone" {...register('emergencyContact.phone')} error={errors.emergencyContact?.phone?.message} />
+                    <h3 className="text-body-lg font-bold text-primary mb-6 flex items-center gap-2 pb-2 border-b border-outline-variant/50">
+                        <span className="material-symbols-outlined text-secondary">family_restroom</span>
+                        Guardian Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Input label="Father's Name" icon="person" {...register('fatherName')} error={errors.fatherName?.message} />
+                        <Input label="Father's Phone" icon="phone" {...register('fatherPhone')} error={errors.fatherPhone?.message} />
+                        <Input label="Father's CNIC" icon="id_card" {...register('fatherCnic')} error={errors.fatherCnic?.message} />
                     </div>
                 </section>
                 
-                 <hr className="border-gray-200 dark:border-gray-800" />
-
                 <section>
-                    <h3 className="text-lg font-bold text-brand-primary mb-4">Admission & Fees</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <Input label="Agreement Date" type="date" {...register('agreementDate')} error={errors.agreementDate?.message} />
-                        <Input label="Monthly Fee" type="number" {...register('monthlyFee', { valueAsNumber: true })} error={errors.monthlyFee?.message} />
-                        <Input label="Security Deposit" type="number" {...register('securityDeposit', { valueAsNumber: true })} error={errors.securityDeposit?.message} />
+                    <h3 className="text-body-lg font-bold text-primary mb-6 flex items-center gap-2 pb-2 border-b border-outline-variant/50">
+                        <span className="material-symbols-outlined text-secondary">emergency</span>
+                        Emergency Contact
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Input label="Name" icon="person_alert" {...register('emergencyContact.name')} error={errors.emergencyContact?.name?.message} />
+                        <Input label="Relation" icon="hub" {...register('emergencyContact.relation')} error={errors.emergencyContact?.relation?.message} />
+                        <Input label="Phone" icon="contact_phone" {...register('emergencyContact.phone')} error={errors.emergencyContact?.phone?.message} />
                     </div>
                 </section>
 
-                <div className="flex justify-end gap-3 pt-6">
+                <section>
+                    <h3 className="text-body-lg font-bold text-primary mb-6 flex items-center gap-2 pb-2 border-b border-outline-variant/50">
+                        <span className="material-symbols-outlined text-secondary">payments</span>
+                        Admission & Fees
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Input label="Agreement Date" icon="calendar_today" type="date" {...register('agreementDate')} error={errors.agreementDate?.message} />
+                        <Input label="Monthly Fee" icon="attach_money" type="number" {...register('monthlyFee', { valueAsNumber: true })} error={errors.monthlyFee?.message} />
+                        <Input label="Security Deposit" icon="account_balance" type="number" {...register('securityDeposit', { valueAsNumber: true })} error={errors.securityDeposit?.message} />
+                    </div>
+                </section>
+
+                <div className="flex justify-end gap-4 pt-8 mt-8 border-t border-outline-variant">
                     <button 
                         type="button" 
                         onClick={handleClose}
-                        className="px-6 py-3 rounded-xl font-bold bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        className="px-8 py-3 rounded-xl font-bold bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors"
                     >
                         Cancel
                     </button>
                     <button 
                         type="submit"
                         disabled={isLoading}
-                        className="px-8 py-3 rounded-xl font-bold bg-brand-primary text-white hover:brightness-110 transition-all shadow-lg shadow-brand-primary/20 disabled:opacity-50"
+                        className="px-8 py-3 rounded-xl font-bold bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
                     >
+                        <span className="material-symbols-outlined">{isLoading ? 'hourglass_top' : 'person_add'}</span>
                         {isLoading ? 'Creating...' : 'Create Student'}
                     </button>
                 </div>
@@ -221,16 +230,19 @@ export default function AddStudentModal({ open, setOpen, roomId, bedNumber, onSu
   );
 }
 
-const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { label: string, error?: string }>(
-  ({ label, error, className, ...props }, ref) => (
-    <div className="space-y-1 w-full">
-        <label className="text-xs font-bold uppercase text-brand-text/50 dark:text-dark-text/50">{label}</label>
+const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { label: string, icon?: string, error?: string }>(
+  ({ label, icon, error, className, ...props }, ref) => (
+    <div className="space-y-2 w-full">
+        <label className="text-label-md font-bold uppercase text-on-surface-variant flex items-center gap-2">
+            {icon && <span className="material-symbols-outlined text-[18px]">{icon}</span>}
+            {label}
+        </label>
         <input 
             ref={ref}
-            className={`w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border transition-all outline-none focus:ring-2 focus:ring-brand-primary ${error ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'} ${className}`}
+            className={`w-full px-4 py-3 rounded-xl bg-background border transition-all outline-none focus:ring-2 focus:ring-primary focus:border-primary text-primary font-bold ${error ? 'border-error ring-error/20' : 'border-outline-variant hover:border-outline'} ${className}`}
             {...props}
         />
-        {error && <p className="text-xs text-red-500">{error}</p>}
+        {error && <p className="text-xs text-error flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">error</span>{error}</p>}
     </div>
   )
 );

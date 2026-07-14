@@ -2,7 +2,6 @@
 
 import React, { useState, useRef } from 'react';
 import { useGetMonthlyReportQuery } from '@/lib/services/hostelApi';
-import { HiPrinter, HiDownload, HiFilter } from 'react-icons/hi';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -88,127 +87,175 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
+    <div className="space-y-8">
+      {/* Header and Actions */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 print:hidden">
         <div>
-           <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Monthly Reports</h1>
-           <p className="text-gray-500">Generate and print financial reports</p>
+           <h1 className="text-display-lg-mobile md:text-display-lg text-primary flex items-center gap-3">
+               <span className="material-symbols-outlined text-[36px] text-secondary">analytics</span>
+               Monthly Reports
+           </h1>
+           <p className="text-body-lg text-on-surface-variant mt-1">Generate and print financial reports</p>
         </div>
         
-        <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-           <HiFilter className="text-gray-400" />
-           <select 
-             className="bg-transparent border-none focus:ring-0 text-sm"
-             value={selectedMonth}
-             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-           >
-             {months.map(m => (
-               <option key={m.value} value={m.value}>{m.label}</option>
-             ))}
-           </select>
-           <select 
-             className="bg-transparent border-none focus:ring-0 text-sm"
-             value={selectedYear}
-             onChange={(e) => setSelectedYear(Number(e.target.value))}
-           >
-             {[2024, 2025, 2026, 2027].map(y => (
-               <option key={y} value={y}>{y}</option>
-             ))}
-           </select>
-        </div>
-        
-        <div className="flex gap-2">
-            <button 
-              onClick={handleDownloadPDF}
-              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <HiDownload className="text-lg" />
-              <span>PDF</span>
-            </button>
-            <button 
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors"
-            >
-              <HiPrinter className="text-lg" />
-              <span>Print</span>
-            </button>
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+            <div className="flex items-center gap-3 bg-surface p-1.5 rounded-2xl shadow-sm border border-outline-variant w-full sm:w-auto">
+               <span className="material-symbols-outlined text-on-surface-variant pl-2">filter_alt</span>
+               
+               <div className="relative flex-1 sm:w-32">
+                   <select 
+                     className="w-full pl-3 pr-8 py-2 bg-transparent text-primary font-bold outline-none appearance-none cursor-pointer"
+                     value={selectedMonth}
+                     onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                   >
+                     {months.map(m => (
+                       <option key={m.value} value={m.value}>{m.label}</option>
+                     ))}
+                   </select>
+                   <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+               </div>
+               
+               <div className="w-[1px] h-8 bg-outline-variant/50"></div>
+               
+               <div className="relative flex-1 sm:w-28">
+                   <select 
+                     className="w-full pl-3 pr-8 py-2 bg-transparent text-primary font-bold outline-none appearance-none cursor-pointer"
+                     value={selectedYear}
+                     onChange={(e) => setSelectedYear(Number(e.target.value))}
+                   >
+                     {[2024, 2025, 2026, 2027].map(y => (
+                       <option key={y} value={y}>{y}</option>
+                     ))}
+                   </select>
+                   <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+               </div>
+            </div>
+            
+            <div className="flex gap-3 w-full sm:w-auto">
+                <button 
+                  onClick={handleDownloadPDF}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-surface border border-outline-variant rounded-2xl text-primary font-bold hover:bg-surface-container-low transition-colors shadow-sm"
+                >
+                  <span className="material-symbols-outlined">download</span>
+                  PDF
+                </button>
+                <button 
+                  onClick={handlePrint}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-primary text-on-primary font-bold rounded-2xl hover:bg-on-primary-fixed-variant transition-colors shadow-sm"
+                >
+                  <span className="material-symbols-outlined">print</span>
+                  Print
+                </button>
+            </div>
         </div>
       </div>
 
       {isLoading || isFetching ? (
-         <div className="p-12 flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
+         <div className="p-16 text-center flex flex-col items-center bg-surface rounded-3xl border border-outline-variant shadow-sm">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-primary mb-4"></div>
+            <p className="text-body-lg text-on-surface-variant font-medium">Loading report data...</p>
          </div>
       ) : (
-        <div ref={printRef} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden print:shadow-none print:border-none">
-           <div className="p-8 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 print:bg-white text-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wide">
+        <div ref={printRef} className="bg-surface rounded-3xl shadow-sm border border-outline-variant overflow-hidden print:shadow-none print:border-none">
+           <div className="p-8 border-b border-outline-variant bg-surface-container-lowest print:bg-white text-center">
+              <h2 className="text-display-md text-primary uppercase tracking-wider flex items-center justify-center gap-3">
+                <span className="material-symbols-outlined text-[32px] text-secondary">summarize</span>
                 {months.find(m => m.value === selectedMonth)?.label} {selectedYear} Report
               </h2>
-              <p className="text-gray-500 mt-2 text-sm">Generated on {new Date().toLocaleDateString()}</p>
+              <p className="text-on-surface-variant mt-2 text-body-md font-medium flex items-center justify-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px]">schedule</span>
+                  Generated on {new Date().toLocaleDateString()}
+              </p>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 text-left">
-                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 print:border-gray-300">
-                    <p className="text-xs text-gray-500 uppercase font-semibold">Total Revenue</p>
-                    <p className="text-xl font-bold text-green-600">PKR {report?.summary?.totalRevenue?.toLocaleString() || 0}</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10 text-left">
+                 <div className="bg-background p-6 rounded-2xl border border-outline-variant shadow-sm flex flex-col justify-center print:border-gray-300 relative overflow-hidden group">
+                    <div className="absolute right-0 top-0 w-16 h-16 bg-primary/5 rounded-bl-full flex items-center justify-center transition-transform group-hover:scale-110">
+                        <span className="material-symbols-outlined text-primary mb-2 ml-2">payments</span>
+                    </div>
+                    <p className="text-label-md text-on-surface-variant uppercase tracking-wider font-bold mb-2">Total Revenue</p>
+                    <p className="text-display-sm font-bold text-green-600">PKR {report?.summary?.totalRevenue?.toLocaleString() || 0}</p>
                  </div>
-                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 print:border-gray-300">
-                    <p className="text-xs text-gray-500 uppercase font-semibold">Total Pending</p>
-                    <p className="text-xl font-bold text-red-500">PKR {report?.summary?.totalPending?.toLocaleString() || 0}</p>
+                 <div className="bg-background p-6 rounded-2xl border border-outline-variant shadow-sm flex flex-col justify-center print:border-gray-300 relative overflow-hidden group">
+                    <div className="absolute right-0 top-0 w-16 h-16 bg-error/5 rounded-bl-full flex items-center justify-center transition-transform group-hover:scale-110">
+                        <span className="material-symbols-outlined text-error mb-2 ml-2">money_off</span>
+                    </div>
+                    <p className="text-label-md text-on-surface-variant uppercase tracking-wider font-bold mb-2">Total Pending</p>
+                    <p className="text-display-sm font-bold text-error">PKR {report?.summary?.totalPending?.toLocaleString() || 0}</p>
                  </div>
-                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 print:border-gray-300">
-                    <p className="text-xs text-gray-500 uppercase font-semibold">Collected Count</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{report?.summary?.collectedCount || 0}</p>
+                 <div className="bg-background p-6 rounded-2xl border border-outline-variant shadow-sm flex flex-col justify-center print:border-gray-300 relative overflow-hidden group">
+                    <div className="absolute right-0 top-0 w-16 h-16 bg-secondary/5 rounded-bl-full flex items-center justify-center transition-transform group-hover:scale-110">
+                        <span className="material-symbols-outlined text-secondary mb-2 ml-2">task_alt</span>
+                    </div>
+                    <p className="text-label-md text-on-surface-variant uppercase tracking-wider font-bold mb-2">Collected Count</p>
+                    <p className="text-display-sm font-bold text-primary">{report?.summary?.collectedCount || 0}</p>
                  </div>
-                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 print:border-gray-300">
-                    <p className="text-xs text-gray-500 uppercase font-semibold">Total Students</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{report?.meta?.totalStudents || 0}</p>
+                 <div className="bg-background p-6 rounded-2xl border border-outline-variant shadow-sm flex flex-col justify-center print:border-gray-300 relative overflow-hidden group">
+                    <div className="absolute right-0 top-0 w-16 h-16 bg-primary/5 rounded-bl-full flex items-center justify-center transition-transform group-hover:scale-110">
+                        <span className="material-symbols-outlined text-primary mb-2 ml-2">group</span>
+                    </div>
+                    <p className="text-label-md text-on-surface-variant uppercase tracking-wider font-bold mb-2">Total Students</p>
+                    <p className="text-display-sm font-bold text-primary">{report?.meta?.totalStudents || 0}</p>
                  </div>
               </div>
            </div>
            
            <div className="p-0 overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-surface-container-lowest border-b border-outline-variant">
                   <tr>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white">Student Name</th>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white">Contact</th>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white">Hostel</th>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white">Room</th>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white">Status</th>
-                    <th className="px-6 py-4 font-semibold text-gray-900 dark:text-white text-right">Amount</th>
+                    <th className="px-6 py-5 text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Student Name</th>
+                    <th className="px-6 py-5 text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Contact</th>
+                    <th className="px-6 py-5 text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Hostel</th>
+                    <th className="px-6 py-5 text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Room</th>
+                    <th className="px-6 py-5 text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+                    <th className="px-6 py-5 text-label-md font-bold uppercase tracking-wider text-on-surface-variant text-right">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody className="divide-y divide-outline-variant/50">
                   {report?.students?.length > 0 ? (
                     report.students.map((student: any) => (
-                      <tr key={student.studentId} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{student.name}</td>
-                        <td className="px-6 py-4 text-gray-500 truncate">{student.contactNumber}</td>
-                        <td className="px-6 py-4 text-gray-500">{student.hostelName || '-'}</td>
-                        <td className="px-6 py-4 text-gray-500">{student.roomNumber || '-'}</td>
+                      <tr key={student.studentId} className="hover:bg-surface-container-lowest transition-colors group">
+                        <td className="px-6 py-4 font-bold text-primary text-body-lg group-hover:text-secondary transition-colors">{student.name}</td>
+                        <td className="px-6 py-4 text-body-md text-on-surface-variant font-medium flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[16px]">phone</span>
+                            {student.contactNumber || '-'}
+                        </td>
+                        <td className="px-6 py-4 text-body-md text-on-surface-variant font-medium">{student.hostelName || '-'}</td>
                         <td className="px-6 py-4">
-                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            <span className="font-bold text-on-surface flex items-center gap-1.5 bg-surface-container-highest/20 px-3 py-1 rounded-lg w-fit">
+                                <span className="material-symbols-outlined text-[16px] text-secondary">meeting_room</span>
+                                {student.roomNumber || '-'}
+                            </span>
+                        </td>
+                        <td className="px-6 py-4">
+                           <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-label-sm font-bold uppercase tracking-wider border
                              ${student.status === 'COMPLETED' 
-                               ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
-                               : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                               ? 'bg-green-100 text-green-700 border-green-200' 
+                               : 'bg-error-container text-error border-error/20'
                              }`}>
+                             <span className="material-symbols-outlined text-[16px]">
+                                 {student.status === 'COMPLETED' ? 'check_circle' : 'error'}
+                             </span>
                              {student.status}
                            </span>
                         </td>
-                        <td className="px-6 py-4 text-right font-medium text-gray-900 dark:text-white">
+                        <td className="px-6 py-4 text-right font-bold text-body-lg">
                            {student.status === 'COMPLETED' ? (
-                             <span className="text-green-600">PKR {student.paidAmount.toLocaleString()}</span>
+                             <span className="text-green-600 bg-green-50 px-3 py-1.5 rounded-xl">PKR {student.paidAmount.toLocaleString()}</span>
                            ) : (
-                             <span className="text-red-500">PKR {student.dueAmount.toLocaleString()}</span>
+                             <span className="text-error bg-error-container/50 px-3 py-1.5 rounded-xl">PKR {student.dueAmount.toLocaleString()}</span>
                            )}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                        No records found for this month.
+                      <td colSpan={6} className="p-16 text-center flex flex-col items-center">
+                          <div className="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center mb-6 text-on-surface-variant">
+                              <span className="material-symbols-outlined text-[40px]">search_off</span>
+                          </div>
+                          <h3 className="text-display-sm text-primary mb-2">No Records Found</h3>
+                          <p className="text-body-lg text-on-surface-variant">There are no financial records for {months.find(m => m.value === selectedMonth)?.label} {selectedYear}.</p>
                       </td>
                     </tr>
                   )}

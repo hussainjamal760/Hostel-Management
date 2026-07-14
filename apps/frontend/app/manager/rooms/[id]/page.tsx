@@ -4,7 +4,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { useGetRoomQuery, useDeleteRoomMutation } from '@/lib/services/roomApi';
 import { useGetStudentsQuery } from '@/lib/services/studentApi';
 import { useAppSelector } from '@/lib/hooks';
-import { HiArrowLeft, HiOutlineUserAdd, HiUser } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
 import { useState } from 'react';
 import AddStudentModal from './AddStudentModal';
@@ -66,18 +65,21 @@ export default function RoomDetailsPage() {
   if (isLoading) {
     return (
         <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
     );
   }
 
   if (error || !room) {
     return (
-        <div className="text-center py-12">
-            <h3 className="text-xl font-bold text-red-500">Error loading room</h3>
+        <div className="text-center py-16 flex flex-col items-center">
+            <div className="w-20 h-20 bg-error-container text-error rounded-full flex items-center justify-center mb-6">
+                <span className="material-symbols-outlined text-[40px]">error</span>
+            </div>
+            <h3 className="text-body-lg font-bold text-error mb-2">Error loading room</h3>
             <button 
                 onClick={() => router.back()}
-                className="mt-4 text-brand-primary hover:underline"
+                className="mt-4 px-6 py-2 bg-surface border border-outline-variant rounded-xl hover:bg-surface-container transition-colors font-medium text-on-surface"
             >
                 Go Back
             </button>
@@ -86,60 +88,89 @@ export default function RoomDetailsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <button 
-            onClick={() => router.back()}
-            className="p-2 rounded-full hover:bg-brand-primary/10 transition-colors"
-        >
-            <HiArrowLeft size={24} className="text-brand-text dark:text-dark-text" />
-        </button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-brand-text dark:text-dark-text">
-            Room {room.roomNumber}
-          </h1>
-          <p className="text-sm text-brand-text/60 dark:text-dark-text/60">
-            {room.floor === 0 ? 'Ground Floor' : `Floor ${room.floor}`} • {room.roomType}
-          </p>
+    <>
+      {/* Header section */}
+      <section className="mb-8">
+        <div className="flex items-center gap-4 mb-2">
+            <button 
+                onClick={() => router.back()}
+                className="p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant flex items-center justify-center"
+            >
+                <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <div className="flex-1">
+              <h1 className="text-display-lg-mobile md:text-display-lg text-primary flex items-center gap-3">
+                Room {room.roomNumber}
+                <span className="text-label-md bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full uppercase font-bold tracking-wider align-middle">
+                    {room.roomType}
+                </span>
+              </h1>
+              <p className="text-body-md text-on-surface-variant mt-1 flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">layers</span>
+                {room.floor === 0 ? 'Ground Floor' : `Floor ${room.floor}`}
+              </p>
+            </div>
+            <button 
+                onClick={handleDeleteRoomClick}
+                className="px-5 py-2.5 bg-error-container/50 text-error hover:bg-error-container rounded-xl font-bold transition-colors flex items-center gap-2"
+            >
+                <span className="material-symbols-outlined text-[20px]">delete</span>
+                Delete Room
+            </button>
         </div>
-        <button 
-            onClick={handleDeleteRoomClick}
-            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-bold transition-colors"
-        >
-            Delete Room
-        </button>
-      </div>
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Room Details Sidebar */}
         <div className="lg:col-span-1 space-y-6">
-            <div className="p-6 bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-brand-primary/5">
-                <h3 className="font-semibold text-brand-text dark:text-dark-text mb-4">Details</h3>
+            <div className="p-6 bg-surface rounded-2xl shadow-sm border border-outline-variant hover:border-secondary transition-colors group">
+                <h3 className="text-body-lg font-bold text-primary mb-6 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-secondary">info</span>
+                    Room Details
+                </h3>
                 <div className="space-y-4">
-                    <div className="flex justify-between">
-                        <span className="text-brand-text/60 dark:text-dark-text/60">Type</span>
-                        <span className="font-medium text-brand-text dark:text-dark-text">{room.roomType}</span>
+                    <div className="flex justify-between items-center p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/50">
+                        <span className="text-label-md text-on-surface-variant uppercase tracking-wider flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[18px]">category</span> Type
+                        </span>
+                        <span className="font-bold text-primary">{room.roomType}</span>
                     </div>
-                    <div className="flex justify-between">
-                        <span className="text-brand-text/60 dark:text-dark-text/60">Floor</span>
-                        <span className="font-medium text-brand-text dark:text-dark-text">{room.floor}</span>
+                    <div className="flex justify-between items-center p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/50">
+                        <span className="text-label-md text-on-surface-variant uppercase tracking-wider flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[18px]">layers</span> Floor
+                        </span>
+                        <span className="font-bold text-primary">{room.floor}</span>
                     </div>
-                    <div className="flex justify-between">
-                        <span className="text-brand-text/60 dark:text-dark-text/60">Total Beds</span>
-                        <span className="font-medium text-brand-text dark:text-dark-text">{room.totalBeds}</span>
+                    <div className="flex justify-between items-center p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/50">
+                        <span className="text-label-md text-on-surface-variant uppercase tracking-wider flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[18px]">bed</span> Total Beds
+                        </span>
+                        <span className="font-bold text-primary">{room.totalBeds}</span>
                     </div>
-                     <div className="flex justify-between">
-                        <span className="text-brand-text/60 dark:text-dark-text/60">Occupied</span>
-                        <span className={`font-medium ${room.occupiedBeds > 0 ? 'text-orange-500' : 'text-green-500'}`}>
-                            {room.occupiedBeds}
+                     <div className="flex justify-between items-center p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/50">
+                        <span className="text-label-md text-on-surface-variant uppercase tracking-wider flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[18px]">group</span> Occupied
+                        </span>
+                        <span className={`font-bold px-2 py-0.5 rounded-md ${room.occupiedBeds > 0 ? (room.occupiedBeds >= room.totalBeds ? 'bg-error-container text-error' : 'bg-primary-container text-primary') : 'bg-surface-container text-on-surface'}`}>
+                            {room.occupiedBeds} / {room.totalBeds}
                         </span>
                     </div>
                 </div>
             </div>
         </div>
 
+        {/* Bed Configuration Main Content */}
         <div className="lg:col-span-2">
-            <div className="p-6 bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-brand-primary/5">
-                <h3 className="font-semibold text-brand-text dark:text-dark-text mb-6">Bed Configuration</h3>
+            <div className="p-6 bg-surface rounded-2xl shadow-sm border border-outline-variant">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-outline-variant">
+                    <h3 className="text-body-lg font-bold text-primary flex items-center gap-2">
+                        <span className="material-symbols-outlined text-secondary">hotel</span>
+                        Bed Configuration
+                    </h3>
+                    <div className="text-label-md text-on-surface-variant">
+                        {room.totalBeds - room.occupiedBeds} beds available
+                    </div>
+                </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {Array.from({ length: room.totalBeds }).map((_, index) => {
@@ -150,51 +181,58 @@ export default function RoomDetailsPage() {
                         return (
                             <div 
                                 key={index}
-                                className={`p-4 rounded-xl border-2 transition-all ${
+                                className={`p-5 rounded-2xl border-2 transition-all group relative overflow-hidden ${
                                     isOccupied 
-                                        ? 'border-brand-primary/20 bg-brand-primary/5' 
-                                        : 'border-dashed border-gray-300 dark:border-gray-700 hover:border-brand-primary/50'
+                                        ? 'border-primary/20 bg-primary-container/20 hover:border-primary/40' 
+                                        : 'border-dashed border-outline-variant bg-surface-container-lowest hover:border-primary hover:bg-surface-container'
                                 }`}
                             >
-                                <div className="flex items-center justify-between mb-3">
-                                    <span className="font-bold text-brand-text/70 dark:text-dark-text/70">
+                                <div className="flex items-center justify-between mb-4">
+                                    <span className="font-bold text-on-surface-variant uppercase tracking-wider text-label-md flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-[18px]">bed</span>
                                         Bed {bedNumber}
                                     </span>
                                     {isOccupied ? (
-                                        <span className="px-2 py-1 bg-brand-primary text-white text-xs font-bold rounded-lg">
+                                        <span className="px-2.5 py-1 bg-primary text-on-primary text-[10px] font-bold rounded-lg uppercase tracking-wider">
                                             Occupied
                                         </span>
                                     ) : (
-                                        <span className="px-2 py-1 bg-green-500/10 text-green-600 text-xs font-bold rounded-lg">
+                                        <span className="px-2.5 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-lg uppercase tracking-wider">
                                             Available
                                         </span>
                                     )}
                                 </div>
 
                                 {isOccupied ? (
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white">
-                                            <HiUser size={20} />
+                                    <div className="flex items-center justify-between gap-3 bg-surface p-3 rounded-xl shadow-sm border border-outline-variant/30">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-lg shadow-sm">
+                                                {student.fullName.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-primary text-sm truncate max-w-[120px]">
+                                                    {student.fullName}
+                                                </p>
+                                                <p className="text-[10px] text-on-surface-variant uppercase tracking-wider mt-0.5">
+                                                    ID: {student._id.substring(student._id.length - 6)}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-brand-text dark:text-dark-text">
-                                                {student.fullName}
-                                            </p>
-                                            <button 
-                                                onClick={() => handleViewDetails(student._id)}
-                                                className="text-xs text-brand-primary hover:underline bg-transparent border-none p-0 cursor-pointer"
-                                            >
-                                                View Details
-                                            </button>
-                                        </div>
+                                        <button 
+                                            onClick={() => handleViewDetails(student._id)}
+                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary hover:text-on-primary text-primary transition-colors"
+                                            title="View Student Details"
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">visibility</span>
+                                        </button>
                                     </div>
                                 ) : (
                                     <button
                                         onClick={() => handleCreateStudent(index)}
-                                        className="w-full py-2 flex items-center justify-center gap-2 bg-white dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-lg hover:border-brand-primary hover:text-brand-primary transition-all text-sm font-medium text-gray-500"
+                                        className="w-full py-3 flex items-center justify-center gap-2 bg-background border border-outline-variant rounded-xl text-on-surface-variant transition-all font-bold group-hover:bg-primary group-hover:text-on-primary group-hover:border-primary"
                                     >
-                                        <HiOutlineUserAdd size={18} />
-                                        Add Student
+                                        <span className="material-symbols-outlined">person_add</span>
+                                        Assign Student
                                     </button>
                                 )}
                             </div>
@@ -239,6 +277,6 @@ export default function RoomDetailsPage() {
         message="Are you sure you want to delete this room? All students assigned to this room will also be removed. This action cannot be undone."
         isDeleting={isDeletingRoom}
       />
-    </div>
+    </>
   );
 }
