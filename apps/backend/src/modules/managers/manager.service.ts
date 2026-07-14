@@ -89,6 +89,13 @@ class ManagerService {
     if (!manager) {
       throw ApiError.notFound('Manager not found');
     }
+
+    if (data.hostelId) {
+      await User.findByIdAndUpdate(manager.userId, {
+        hostelId: new mongoose.Types.ObjectId(data.hostelId)
+      });
+    }
+
     return manager;
   }
 

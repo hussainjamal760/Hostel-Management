@@ -178,7 +178,10 @@ export class HostelService {
       throw ApiError.forbidden('You do not have permission to update this hostel');
     }
 
-    Object.assign(hostel, data);
+    hostel.set(data);
+    if (data.paymentDetails) {
+      hostel.markModified('paymentDetails');
+    }
 
     if (hostel.totalRooms < 0) hostel.totalRooms = 0;
     if (hostel.totalBeds < 0) hostel.totalBeds = 0;

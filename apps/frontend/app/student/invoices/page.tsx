@@ -6,7 +6,6 @@ import { useGetStudentMeQuery } from '@/lib/services/studentApi';
 import { useGetHostelByIdQuery } from '@/lib/services/hostelApi';
 import { toast } from 'react-hot-toast';
 import jsPDF from 'jspdf';
-import { HiPrinter, HiDownload } from 'react-icons/hi';
 
 export default function StudentInvoicesPage() {
   const { data: studentData, isLoading: isStudentLoading } = useGetStudentMeQuery();
@@ -76,41 +75,58 @@ export default function StudentInvoicesPage() {
   ];
 
   if (isLoading) {
-      return <div className="p-8 text-center text-gray-500">Loading invoices...</div>;
+      return (
+          <div className="flex flex-col items-center justify-center h-[50vh] bg-surface rounded-3xl border border-outline-variant shadow-sm">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-primary mb-4"></div>
+            <p className="text-body-lg text-on-surface-variant font-medium">Loading invoices...</p>
+          </div>
+      );
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-8 max-w-4xl">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+    <div className="space-y-8 pb-12 max-w-5xl mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-           <h1 className="text-3xl font-extrabold text-brand-text ">Hostel Fee Challans</h1>
-           <p className="text-brand-text/60 ">Official fee receipts and payment portal</p>
+           <h1 className="text-display-lg-mobile md:text-display-lg text-primary flex items-center gap-3">
+                <span className="material-symbols-outlined text-[36px] text-secondary">receipt_long</span>
+                Hostel Fee Challans
+           </h1>
+           <p className="text-body-lg text-on-surface-variant mt-1">Official fee receipts and payment portal</p>
         </div>
         
-        <div className="flex gap-2 bg-white text-black p-2 rounded-lg shadow-sm border border-gray-200">
+        <div className="flex items-center bg-surface-container-low px-4 py-2 rounded-2xl shadow-sm border border-outline-variant/50">
+            <span className="material-symbols-outlined text-[20px] text-on-surface-variant mr-2">calendar_month</span>
             <select 
                 value={selectedMonth} 
                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                className="border-none bg-transparent font-medium focus:ring-0 cursor-pointer"
+                className="border-none bg-transparent font-bold text-on-surface focus:ring-0 cursor-pointer pl-1 pr-6 py-2"
             >
                 {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
             </select>
-            <div className="w-px bg-gray-300"></div>
+            <div className="w-px h-6 bg-outline-variant mx-2"></div>
             <select 
                 value={selectedYear} 
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="border-none bg-transparent font-medium focus:ring-0 cursor-pointer"
+                className="border-none bg-transparent font-bold text-on-surface focus:ring-0 cursor-pointer pl-2 pr-6 py-2"
             >
                  {years.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
         </div>
       </div>
       
-      <div className="grid gap-12">
+      <div className="space-y-12">
           {invoices.length === 0 && (
-            <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-3xl bg-white/5">
-                <p className="text-brand-text/60  text-xl font-medium">No fee challans found for {months.find(m => m.value === selectedMonth)?.label} {selectedYear}.</p>
-                <button onClick={() => { setSelectedMonth(new Date().getMonth() + 1); setSelectedYear(new Date().getFullYear()); }} className="mt-4 text-brand-primary font-bold hover:underline">
+            <div className="py-16 flex flex-col items-center justify-center text-on-surface-variant bg-surface rounded-3xl border border-dashed border-outline-variant shadow-sm">
+                <div className="w-20 h-20 bg-surface-container-lowest rounded-full flex items-center justify-center mb-4">
+                  <span className="material-symbols-outlined text-[40px] opacity-50">receipt_long</span>
+                </div>
+                <p className="text-display-xs font-bold text-on-surface mb-2">No fee challans found</p>
+                <p className="text-body-lg mb-6">There are no records for {months.find(m => m.value === selectedMonth)?.label} {selectedYear}.</p>
+                <button 
+                  onClick={() => { setSelectedMonth(new Date().getMonth() + 1); setSelectedYear(new Date().getFullYear()); }} 
+                  className="px-6 py-2.5 bg-primary text-white font-bold rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+                >
+                    <span className="material-symbols-outlined text-[20px]">today</span>
                     View Current Month
                 </button>
             </div>
@@ -216,207 +232,194 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
     };
 
     return (
-        <div className={`relative bg-white border-2 rounded-lg overflow-hidden shadow-2xl font-serif ${
-            statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'
+        <div className={`relative bg-surface rounded-3xl overflow-hidden shadow-sm border transition-all hover:shadow-md ${
+            statusDisplay === 'OVERDUE' ? 'border-error border-2' : 'border-outline-variant'
         }`}>
             {statusDisplay === 'COMPLETED' && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-30deg] opacity-20 pointer-events-none">
-                    <div className="border-8 border-green-600 rounded-full px-12 py-6 text-7xl font-black text-green-600 tracking-tighter uppercase">
-                        RECEIVED
-                    </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] opacity-10 pointer-events-none select-none z-0">
+                    <span className="material-symbols-outlined text-[240px] text-green-600">verified</span>
                 </div>
             )}
              {statusDisplay === 'UNDER_REVIEW' && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] opacity-10 pointer-events-none">
-                    <div className="border-8 border-amber-600 rounded-xl px-12 py-6 text-4xl font-black text-amber-600 uppercase tracking-tighter text-center">
-                        REQUEST SENT<br/>FOR VERIFICATION
-                    </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] opacity-5 pointer-events-none select-none z-0">
+                    <span className="material-symbols-outlined text-[240px] text-secondary">pending_actions</span>
                 </div>
             )}
              {statusDisplay === 'OVERDUE' && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] opacity-10 pointer-events-none">
-                    <div className="border-8 border-red-600 rounded-xl px-12 py-6 text-6xl font-black text-red-600 uppercase tracking-tighter text-center">
-                        OVERDUE
-                    </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] opacity-[0.03] pointer-events-none select-none z-0">
+                    <span className="material-symbols-outlined text-[240px] text-error">warning</span>
                 </div>
             )}
 
-            <div className={`p-6 border-b-2 flex justify-between items-start ${
-                statusDisplay === 'OVERDUE' ? 'bg-red-50 border-red-600' : 'bg-gray-50 border-gray-900'
+            <div className={`p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-outline-variant/50 relative z-10 ${
+                statusDisplay === 'OVERDUE' ? 'bg-error-container/30' : 'bg-surface-container-lowest'
             }`}>
-                <div>
-                   <h2 className={`text-2xl font-black uppercase tracking-tight leading-none mb-1 ${
-                       statusDisplay === 'OVERDUE' ? 'text-red-900' : 'text-gray-900'
-                   }`}>Fee Challan Form</h2>
-                   <p className="text-sm font-bold text-gray-600 uppercase tracking-widest">{hostelData?.data?.name || "Hostelite Management System"}</p>
+                <div className="mb-4 md:mb-0">
+                   <h2 className={`text-display-md font-bold mb-1 flex items-center gap-3 ${
+                       statusDisplay === 'OVERDUE' ? 'text-error' : 'text-on-surface'
+                   }`}>
+                        <span className="material-symbols-outlined text-[32px]">receipt</span>
+                        Fee Challan
+                   </h2>
+                   <p className="text-label-md font-bold text-on-surface-variant uppercase tracking-wider">{hostelData?.data?.name || "Hostelite Management System"}</p>
                 </div>
-                <div className="text-right">
-                    <div className="flex items-center justify-end gap-2 mb-2">
-                        <button 
-                            onClick={handlePrint}
-                            className="flex items-center gap-1 text-xs font-bold bg-gray-900 text-white px-3 py-1.5 rounded hover:bg-gray-800 transition-colors"
-                        >
-                            <HiPrinter /> Print / Save PDF
-                        </button>
+                <div className="flex flex-col md:items-end gap-3 w-full md:w-auto">
+                    <div className="flex items-center gap-3 bg-surface-container-low px-4 py-2 rounded-xl border border-outline-variant/50">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest leading-tight">Receipt No.</span>
+                            <span className="font-mono text-body-lg font-bold text-primary tracking-tighter leading-none mt-0.5">{invoice.receiptNumber}</span>
+                        </div>
                     </div>
-                    <div className="text-xs font-bold text-gray-500 uppercase mb-1">Receipt No.</div>
-                    <div className="text-lg font-black font-mono tracking-tighter text-black">
-                        {invoice.receiptNumber}
-                    </div>
+                    <button 
+                        onClick={handlePrint}
+                        className="w-full md:w-auto flex items-center justify-center gap-2 text-label-md font-bold bg-primary text-white px-5 py-2.5 rounded-xl hover:shadow-md transition-all shadow-sm"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">print</span> 
+                        Print PDF
+                    </button>
                 </div>
             </div>
 
-            <div className={`flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x-2 ${
-                 statusDisplay === 'OVERDUE' ? 'divide-red-600' : 'divide-gray-900'
-            }`}>
-                <div className="flex-1 p-6 space-y-6">
-                    <div className="grid grid-cols-2 gap-x-12 gap-y-4">
-                        <div className="col-span-2">
-                             <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Student Particulars</div>
-                             <div className="text-xl font-bold border-b text-black border-gray-200 pb-1">{student?.fullName}</div>
+            <div className="flex flex-col lg:flex-row relative z-10">
+                <div className="flex-1 p-6 md:p-8 space-y-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50">
+                        <div className="sm:col-span-2 lg:col-span-3 pb-4 border-b border-outline-variant/50">
+                             <div className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Student Name</div>
+                             <div className="text-display-xs font-bold text-on-surface">{student?.fullName}</div>
                         </div>
                         <div>
-                             <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Room / Bed</div>
-                             <div className="font-bold border-b text-black border-gray-200 pb-1">{student?.roomId?.roomNumber} / {student?.bedNumber}</div>
+                             <div className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Room / Bed</div>
+                             <div className="text-body-lg font-bold text-on-surface flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[18px] text-secondary">meeting_room</span>
+                                {student?.roomId?.roomNumber} / {student?.bedNumber}
+                             </div>
                         </div>
                         <div>
-                             <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">For Period</div>
-                             <div className="font-bold border-b text-black border-gray-200 pb-1">{monthName} {displayYear}</div>
+                             <div className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Billing Month</div>
+                             <div className="text-body-lg font-bold text-on-surface flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[18px] text-secondary">calendar_month</span>
+                                {monthName} {displayYear}
+                             </div>
                         </div>
                     </div>
 
-                    <div className={`border-2 ${statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'}`}>
-                         <div className={`p-2 border-b-2 font-black text-black text-xs uppercase tracking-widest flex justify-between ${
-                             statusDisplay === 'OVERDUE' ? 'bg-red-50 border-red-600 text-red-900' : 'bg-gray-100 border-gray-900'
-                         }`}>
-                            <span>Description</span>
-                            <span>Amount</span>
+                    <div className="rounded-2xl border border-outline-variant/50 overflow-hidden bg-surface-container-lowest">
+                         <div className="px-6 py-4 border-b border-outline-variant/50 bg-surface-container-low flex justify-between items-center">
+                            <span className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Description</span>
+                            <span className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Amount</span>
                          </div>
-                         <div className="p-3">
-                             <div className="flex justify-between items-end mb-1">
-                                <span className="text-sm font-bold italic text-black tracking-tight">Accommodation (Hostel Fee)</span>
-                                <span className="font-mono font-bold text-black tracking-tighter">PKR {displayAmount.toLocaleString()}</span>
+                         <div className="p-6">
+                             <div className="flex justify-between items-center mb-6">
+                                <span className="text-body-lg font-bold text-on-surface">Accommodation (Hostel Fee)</span>
+                                <span className="text-body-lg font-medium text-on-surface">PKR {displayAmount.toLocaleString()}</span>
                              </div>
-                             <div className="flex justify-between items-end pt-4 border-t border-gray-300 mt-4">
-                                <span className="text-sm font-black uppercase tracking-widest text-black">Total Payable</span>
-                                <span className="text-xl font-black font-mono tracking-tighter underline underline-offset-4 decoration-2 text-black">PKR {displayAmount.toLocaleString()}</span>
+                             <div className="flex justify-between items-center pt-5 border-t border-dashed border-outline-variant">
+                                <span className="text-label-lg font-bold uppercase tracking-wider text-on-surface">Total Payable</span>
+                                <span className="text-display-sm font-bold text-primary">PKR {displayAmount.toLocaleString()}</span>
                              </div>
                          </div>
                     </div>
                     
                     {statusDisplay === 'UNDER_REVIEW' && (
-                        <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-lg flex items-center gap-4">
-                            <div className="h-10 w-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                        <div className="p-5 bg-secondary-container border border-secondary/20 rounded-2xl flex items-center gap-4">
+                            <div className="w-12 h-12 bg-secondary text-white rounded-xl flex items-center justify-center shadow-sm shrink-0">
+                                <span className="material-symbols-outlined text-[24px]">hourglass_top</span>
                             </div>
                             <div>
-                                <h4 className="font-black text-amber-800 uppercase text-xs tracking-widest">Verification Pending</h4>
-                                <p className="text-[10px] text-amber-700 font-bold uppercase opacity-70 italic">Proof submitted. Waiting for manager approval.</p>
+                                <h4 className="font-bold text-secondary text-label-lg uppercase tracking-wider mb-1">Verification Pending</h4>
+                                <p className="text-body-sm font-medium text-secondary/80">Proof submitted. Waiting for manager approval.</p>
                             </div>
                         </div>
                     )}
 
                     {statusDisplay === 'COMPLETED' && (
-                        <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg flex items-center gap-4">
-                            <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                </svg>
+                        <div className="p-5 bg-green-50 border border-green-200 rounded-2xl flex items-center gap-4">
+                            <div className="w-12 h-12 bg-green-600 text-white rounded-xl flex items-center justify-center shadow-sm shrink-0">
+                                <span className="material-symbols-outlined text-[24px]">verified</span>
                             </div>
                             <div>
-                                <h4 className="font-black text-green-800 uppercase text-xs tracking-widest">Payment Accepted</h4>
-                                <p className="text-[10px] text-green-700 font-bold uppercase opacity-70 italic">Your payment has been verified.</p>
+                                <h4 className="font-bold text-green-800 text-label-lg uppercase tracking-wider mb-1">Payment Accepted</h4>
+                                <p className="text-body-sm font-medium text-green-700/80">Your payment has been successfully verified.</p>
                             </div>
                         </div>
                     )}
                 </div>
 
-                <div className="md:w-72 p-6 flex flex-col justify-between bg-gray-50/50">
+                <div className="lg:w-[340px] border-t lg:border-t-0 lg:border-l border-outline-variant/50 bg-surface-container-lowest p-6 md:p-8 flex flex-col justify-between">
                     <div>
-                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Payment Methods</div>
+                        <div className="flex items-center gap-2 mb-6 text-primary">
+                            <span className="material-symbols-outlined text-[20px]">account_balance</span>
+                            <span className="text-label-md font-bold uppercase tracking-wider">Payment Options</span>
+                        </div>
+
                         {paymentDetails?.bankName ? (
                             <div className="space-y-4">
                                 <div>
-                                    <div className="text-[10px] font-bold text-blue-600 uppercase mb-0.5">Bank / Provider</div>
-                                    <div className="font-black text-sm uppercase tracking-tight">{paymentDetails.bankName}</div>
+                                    <div className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Bank / Provider</div>
+                                    <div className="text-body-lg font-bold text-on-surface">{paymentDetails.bankName}</div>
                                 </div>
-                                <div className="p-3 bg-white border border-gray-200 rounded shadow-sm">
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Account Number</div>
-                                    <div className="font-black font-mono text-lg tracking-tighter text-blue-800 break-all leading-none">{paymentDetails.accountNumber}</div>
-                                    <div className="text-[10px] font-bold text-gray-500 mt-2 italic">{paymentDetails.accountTitle}</div>
+                                <div className="p-4 bg-surface border border-outline-variant/50 rounded-2xl shadow-sm">
+                                    <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Account Number</div>
+                                    <div className="font-mono text-xl font-bold text-primary break-all mb-3">{paymentDetails.accountNumber}</div>
+                                    <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Account Title</div>
+                                    <div className="text-body-sm font-bold text-on-surface">{paymentDetails.accountTitle}</div>
                                 </div>
                                 {paymentDetails.instructions && (
-                                    <div className="text-[10px] italic text-gray-500 leading-tight">
-                                        * {paymentDetails.instructions}
+                                    <div className="p-3 bg-surface-container-low rounded-xl text-body-sm text-on-surface-variant italic border border-outline-variant/50">
+                                        <span className="material-symbols-outlined text-[14px] inline-block align-middle mr-1">info</span>
+                                        {paymentDetails.instructions}
                                     </div>
                                 )}
                             </div>
                         ) : (
-                            <div className="p-4 border border-dashed border-gray-300 text-center rounded">
-                                <p className="text-[10px] font-medium text-gray-400 uppercase">No Online Details Configured</p>
+                            <div className="p-6 border border-dashed border-outline-variant text-center rounded-2xl bg-surface">
+                                <span className="material-symbols-outlined text-[32px] text-on-surface-variant mb-2">money_off</span>
+                                <p className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">No Online Details Configured</p>
                             </div>
                         )}
                     </div>
 
                     <div className="mt-8 flex flex-col gap-4">
                         {effectiveProof && (
-                             <div className={`relative aspect-square bg-gray-200 rounded-lg overflow-hidden border-2 group shadow-md ${
-                                 statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'
+                             <div className={`relative aspect-[4/3] bg-surface rounded-2xl overflow-hidden border-2 group shadow-sm ${
+                                 statusDisplay === 'OVERDUE' ? 'border-error' : 'border-primary/20'
                              }`}>
-                                <img src={effectiveProof} alt="Thumbnail" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                     <span className="text-[10px] font-black text-white uppercase tracking-widest">Preview</span>
+                                <img src={effectiveProof} alt="Proof" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                     <span className="text-label-md font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-[20px]">visibility</span>
+                                        Preview Attached
+                                     </span>
                                 </div>
                              </div>
                         )}
 
                         {(statusDisplay === 'UNPAID' || statusDisplay === 'OVERDUE' || (statusDisplay === 'UNDER_REVIEW' && !uploading)) ? (
-                            <label className="group flex flex-col items-center justify-center p-4 border-2 border-dashed border-blue-400 hover:border-blue-600 bg-white cursor-pointer rounded-xl transition-all shadow-sm">
-                                <span className="text-xs font-black text-blue-600 uppercase tracking-widest mb-1 group-hover:scale-110 transition-transform text-center">
-                                    {uploading ? (
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent animate-spin rounded-full"></div>
-                                            <span>Uploading...</span>
-                                        </div>
-                                    ) : (effectiveProof ? 'Change Receipt' : 'Upload Receipt')}
+                            <label className="group flex flex-col items-center justify-center p-6 border-2 border-dashed border-primary/50 hover:border-primary hover:bg-primary/5 bg-surface cursor-pointer rounded-2xl transition-all shadow-sm">
+                                <span className="material-symbols-outlined text-[28px] text-primary mb-2 group-hover:-translate-y-1 transition-transform">
+                                    {uploading ? 'cloud_sync' : (effectiveProof ? 'cloud_done' : 'cloud_upload')}
                                 </span>
-                                <span className="text-[8px] font-medium text-blue-500 uppercase tracking-widest opacity-60">PDF or Images</span>
+                                <span className="text-label-md font-bold text-primary uppercase tracking-widest mb-1 text-center">
+                                    {uploading ? 'Uploading...' : (effectiveProof ? 'Change Receipt' : 'Upload Receipt')}
+                                </span>
+                                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-70">JPG, PNG, PDF</span>
                                 <input 
                                     type="file" 
                                     className="hidden" 
-                                    accept="image/*"
+                                    accept="image/*,.pdf"
                                     onChange={(e) => e.target.files && onUpload(e.target.files[0])}
                                     disabled={uploading}
                                 />
                             </label>
                         ) : statusDisplay === 'COMPLETED' ? (
-                            <div className="p-3 bg-green-50 border-2 border-green-600 rounded text-center">
-                                <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Payment Accepted</span>
+                            <div className="p-4 bg-green-50 border border-green-200 rounded-2xl text-center flex flex-col items-center gap-2">
+                                <span className="material-symbols-outlined text-[24px] text-green-600">check_circle</span>
+                                <span className="text-label-sm font-bold text-green-700 uppercase tracking-widest">Requirement Met</span>
                             </div>
                         ) : null}
                     </div>
                 </div>
             </div>
-
-            {effectiveProof && (
-                <div className={`p-8 bg-gray-100 border-t-2 ${
-                    statusDisplay === 'OVERDUE' ? 'border-red-600' : 'border-gray-900'
-                }`}>
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Original Full-Size Receipt Attached</div>
-                        <a href={effectiveProof} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 text-[10px] font-black uppercase tracking-widest underline decoration-2 underline-offset-2">Open in New Tab</a>
-                    </div>
-                    <div className="relative rounded-lg overflow-hidden border-2 border-gray-900 bg-white p-2 shadow-inner">
-                        <img 
-                            src={effectiveProof} 
-                            alt="Payment Proof" 
-                            className="w-full h-auto max-h-[600px] object-contain"
-                        />
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

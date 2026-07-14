@@ -46,6 +46,11 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
 
   const onSubmit = async (data: FormValues) => {
     try {
+      if (!data.hostelId) {
+        toast.error('Please select a hostel for this manager');
+        return;
+      }
+
       if (isEditMode && initialValues?._id) {
         await updateManager({ id: initialValues._id, data }).unwrap();
         toast.success('Manager updated successfully!');
@@ -179,12 +184,13 @@ export default function ManagerForm({ initialValues, isEditMode = false, onSucce
                <select
                  {...register('hostelId')}
                  className="w-full p-4 pl-12 pr-10 rounded-2xl border-2 border-outline-variant/50 bg-transparent focus:border-primary focus:ring-0 transition-all text-primary font-body-lg hover:border-outline-variant appearance-none"
-                 disabled={isEditMode}
                >
-                 <option value="">Select a Hostel</option>
-                 {hostels.map((hostel) => (
+                 {hostels.length !== 1 && (
+                   <option value="">Select a Hostel</option>
+                 )}
+                 {hostels.map((hostel: any) => (
                    <option key={hostel._id} value={hostel._id}>
-                     {hostel.name} ({hostel.address.city || 'Unknown'})
+                     {hostel.name} ({hostel.address?.city || 'Unknown'})
                    </option>
                  ))}
                </select>
