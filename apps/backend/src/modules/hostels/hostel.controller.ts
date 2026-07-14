@@ -48,7 +48,6 @@ export class HostelController {
   });
 
   updateHostel = asyncHandler(async (req: Request, res: Response) => {
-    console.log("== UPDATE HOSTEL BODY ==", JSON.stringify(req.body));
     const allowedUpdates: any = {};
     const safeFields = ['name', 'address', 'phoneNumber', 'monthlyRent', 'totalRooms', 'totalBeds', 'amenities', 'status', 'isActive', 'paymentDetails', 'images'];
     safeFields.forEach(field => {
@@ -56,8 +55,6 @@ export class HostelController {
         allowedUpdates[field] = req.body[field];
       }
     });
-
-    console.log("== ALLOWED UPDATES ==", JSON.stringify(allowedUpdates));
 
     const result = await hostelService.updateHostel(
       req.params.id,

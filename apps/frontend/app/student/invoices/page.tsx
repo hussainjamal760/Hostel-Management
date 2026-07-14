@@ -232,192 +232,179 @@ function ChallanForm({ invoice, student, uploading, localPreview, onUpload }: Ch
     };
 
     return (
-        <div className={`relative bg-surface rounded-3xl overflow-hidden shadow-sm border transition-all hover:shadow-md ${
-            statusDisplay === 'OVERDUE' ? 'border-error border-2' : 'border-outline-variant'
-        }`}>
-            {statusDisplay === 'COMPLETED' && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] opacity-10 pointer-events-none select-none z-0">
-                    <span className="material-symbols-outlined text-[240px] text-green-600">verified</span>
+        <div className={`relative bg-surface rounded-2xl overflow-hidden shadow-lg border transition-all ${
+            statusDisplay === 'OVERDUE' ? 'border-error' : 'border-outline-variant/40'
+        } max-w-4xl mx-auto flex flex-col md:flex-row mb-8`}>
+            
+            {/* Main Invoice Ticket */}
+            <div className="flex-1 flex flex-col relative bg-white min-h-[450px]">
+                {/* Background Watermark Stamp */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden z-10 flex items-center justify-center">
+                   {statusDisplay === 'COMPLETED' && <div className="text-[120px] md:text-[180px] text-green-500/10 font-black -rotate-12 select-none uppercase tracking-widest border-8 border-green-500/10 rounded-3xl px-8">PAID</div>}
+                   {statusDisplay === 'UNDER_REVIEW' && <div className="text-[100px] md:text-[140px] text-secondary/10 font-black -rotate-12 select-none uppercase tracking-widest border-8 border-secondary/10 rounded-3xl px-8">REVIEW</div>}
+                   {statusDisplay === 'OVERDUE' && <div className="text-[100px] md:text-[150px] text-error/10 font-black -rotate-12 select-none uppercase tracking-widest border-8 border-error/10 rounded-3xl px-8">OVERDUE</div>}
+                   {statusDisplay === 'UNPAID' && <div className="text-[100px] md:text-[150px] text-on-surface-variant/5 font-black -rotate-12 select-none uppercase tracking-widest border-8 border-on-surface-variant/5 rounded-3xl px-8">UNPAID</div>}
                 </div>
-            )}
-             {statusDisplay === 'UNDER_REVIEW' && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] opacity-5 pointer-events-none select-none z-0">
-                    <span className="material-symbols-outlined text-[240px] text-secondary">pending_actions</span>
-                </div>
-            )}
-             {statusDisplay === 'OVERDUE' && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-15deg] opacity-[0.03] pointer-events-none select-none z-0">
-                    <span className="material-symbols-outlined text-[240px] text-error">warning</span>
-                </div>
-            )}
 
-            <div className={`p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-outline-variant/50 relative z-10 ${
-                statusDisplay === 'OVERDUE' ? 'bg-error-container/30' : 'bg-surface-container-lowest'
-            }`}>
-                <div className="mb-4 md:mb-0">
-                   <h2 className={`text-display-md font-bold mb-1 flex items-center gap-3 ${
-                       statusDisplay === 'OVERDUE' ? 'text-error' : 'text-on-surface'
-                   }`}>
-                        <span className="material-symbols-outlined text-[32px]">receipt</span>
-                        Fee Challan
-                   </h2>
-                   <p className="text-label-md font-bold text-on-surface-variant uppercase tracking-wider">{hostelData?.data?.name || "Hostelite Management System"}</p>
-                </div>
-                <div className="flex flex-col md:items-end gap-3 w-full md:w-auto">
-                    <div className="flex items-center gap-3 bg-surface-container-low px-4 py-2 rounded-xl border border-outline-variant/50">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest leading-tight">Receipt No.</span>
-                            <span className="font-mono text-body-lg font-bold text-primary tracking-tighter leading-none mt-0.5">{invoice.receiptNumber}</span>
-                        </div>
+                {/* Header Section */}
+                <div className={`p-8 pb-6 flex justify-between items-start relative z-20 ${
+                    statusDisplay === 'OVERDUE' ? 'bg-error text-white' : 'bg-primary text-white'
+                }`}>
+                    <div>
+                        <h2 className="text-display-sm font-black uppercase tracking-widest mb-1">Hostel Fee Challan</h2>
+                        <div className="text-label-lg font-medium opacity-90">{hostelData?.data?.name || "Official Receipt"}</div>
                     </div>
-                    <button 
-                        onClick={handlePrint}
-                        className="w-full md:w-auto flex items-center justify-center gap-2 text-label-md font-bold bg-primary text-white px-5 py-2.5 rounded-xl hover:shadow-md transition-all shadow-sm"
-                    >
-                        <span className="material-symbols-outlined text-[18px]">print</span> 
-                        Print PDF
-                    </button>
+                    <div className="text-right">
+                        <div className="text-[10px] uppercase font-bold tracking-widest opacity-80 mb-1">Receipt No.</div>
+                        <div className="font-mono text-xl font-bold">{invoice.receiptNumber}</div>
+                    </div>
+                </div>
+
+                {/* Details Section */}
+                <div className="px-8 py-6 relative z-20 grid grid-cols-2 gap-8 border-b border-dashed border-outline-variant/40">
+                    <div>
+                        <div className="text-[10px] uppercase font-bold text-on-surface-variant tracking-widest mb-1">Billed To</div>
+                        <div className="text-body-lg font-bold text-on-surface">{student?.fullName}</div>
+                        <div className="text-body-sm text-on-surface-variant font-medium mt-1">Room {student?.roomId?.roomNumber} / Bed {student?.bedNumber}</div>
+                        {student?.rollNumber && <div className="text-body-sm text-on-surface-variant font-medium">Roll No: {student.rollNumber}</div>}
+                    </div>
+                    <div className="text-right">
+                        <div className="text-[10px] uppercase font-bold text-on-surface-variant tracking-widest mb-1">Billing Period</div>
+                        <div className="text-body-lg font-bold text-on-surface">{monthName} {displayYear}</div>
+                        
+                        <div className="text-[10px] uppercase font-bold text-on-surface-variant tracking-widest mb-1 mt-4">Issue Date</div>
+                        <div className="text-body-sm font-bold text-on-surface">{new Date(invoice.createdAt).toLocaleDateString()}</div>
+                    </div>
+                </div>
+
+                {/* Line Items Table */}
+                <div className="px-8 py-6 relative z-20 flex-1">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b-2 border-outline-variant/50">
+                                <th className="pb-3 text-[11px] uppercase tracking-widest text-on-surface-variant font-black text-left">Description</th>
+                                <th className="pb-3 text-[11px] uppercase tracking-widest text-on-surface-variant font-black text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody className="font-bold text-on-surface text-body-lg">
+                            <tr>
+                                <td className="py-5">Hostel Accommodation Fee</td>
+                                <td className="py-5 text-right font-mono tracking-tight">PKR {displayAmount.toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Total Footer */}
+                <div className="px-8 py-6 bg-surface-container-lowest border-t-2 border-outline-variant/50 flex justify-between items-center relative z-20 mt-auto">
+                    <div className="text-label-lg uppercase tracking-widest text-on-surface-variant font-black">Total Payable</div>
+                    <div className="text-display-sm font-black text-primary tracking-tighter">PKR {displayAmount.toLocaleString()}</div>
                 </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row relative z-10">
-                <div className="flex-1 p-6 md:p-8 space-y-8">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50">
-                        <div className="sm:col-span-2 lg:col-span-3 pb-4 border-b border-outline-variant/50">
-                             <div className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Student Name</div>
-                             <div className="text-display-xs font-bold text-on-surface">{student?.fullName}</div>
-                        </div>
-                        <div>
-                             <div className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Room / Bed</div>
-                             <div className="text-body-lg font-bold text-on-surface flex items-center gap-2">
-                                <span className="material-symbols-outlined text-[18px] text-secondary">meeting_room</span>
-                                {student?.roomId?.roomNumber} / {student?.bedNumber}
-                             </div>
-                        </div>
-                        <div>
-                             <div className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Billing Month</div>
-                             <div className="text-body-lg font-bold text-on-surface flex items-center gap-2">
-                                <span className="material-symbols-outlined text-[18px] text-secondary">calendar_month</span>
-                                {monthName} {displayYear}
-                             </div>
-                        </div>
-                    </div>
+            {/* Middle Perforation Effect (Desktop Only) */}
+            <div className="hidden md:flex flex-col justify-between items-center w-6 relative -mx-3 z-30 pointer-events-none">
+                <div className="w-6 h-6 rounded-full bg-[#f8f9fa] -mt-3 shadow-inner border border-outline-variant/30"></div>
+                <div className="w-px h-full border-r-[3px] border-dashed border-outline-variant/30"></div>
+                <div className="w-6 h-6 rounded-full bg-[#f8f9fa] -mb-3 shadow-inner border border-outline-variant/30"></div>
+            </div>
+            
+            {/* Mobile Perforation Effect (Mobile Only) */}
+            <div className="md:hidden flex justify-between items-center h-6 relative -my-3 z-30 pointer-events-none">
+                <div className="w-6 h-6 rounded-full bg-[#f8f9fa] -ml-3 shadow-inner border border-outline-variant/30"></div>
+                <div className="h-px w-full border-b-[3px] border-dashed border-outline-variant/30"></div>
+                <div className="w-6 h-6 rounded-full bg-[#f8f9fa] -mr-3 shadow-inner border border-outline-variant/30"></div>
+            </div>
 
-                    <div className="rounded-2xl border border-outline-variant/50 overflow-hidden bg-surface-container-lowest">
-                         <div className="px-6 py-4 border-b border-outline-variant/50 bg-surface-container-low flex justify-between items-center">
-                            <span className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Description</span>
-                            <span className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Amount</span>
-                         </div>
-                         <div className="p-6">
-                             <div className="flex justify-between items-center mb-6">
-                                <span className="text-body-lg font-bold text-on-surface">Accommodation (Hostel Fee)</span>
-                                <span className="text-body-lg font-medium text-on-surface">PKR {displayAmount.toLocaleString()}</span>
-                             </div>
-                             <div className="flex justify-between items-center pt-5 border-t border-dashed border-outline-variant">
-                                <span className="text-label-lg font-bold uppercase tracking-wider text-on-surface">Total Payable</span>
-                                <span className="text-display-sm font-bold text-primary">PKR {displayAmount.toLocaleString()}</span>
-                             </div>
-                         </div>
-                    </div>
-                    
-                    {statusDisplay === 'UNDER_REVIEW' && (
-                        <div className="p-5 bg-secondary-container border border-secondary/20 rounded-2xl flex items-center gap-4">
-                            <div className="w-12 h-12 bg-secondary text-white rounded-xl flex items-center justify-center shadow-sm shrink-0">
-                                <span className="material-symbols-outlined text-[24px]">hourglass_top</span>
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-secondary text-label-lg uppercase tracking-wider mb-1">Verification Pending</h4>
-                                <p className="text-body-sm font-medium text-secondary/80">Proof submitted. Waiting for manager approval.</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {statusDisplay === 'COMPLETED' && (
-                        <div className="p-5 bg-green-50 border border-green-200 rounded-2xl flex items-center gap-4">
-                            <div className="w-12 h-12 bg-green-600 text-white rounded-xl flex items-center justify-center shadow-sm shrink-0">
-                                <span className="material-symbols-outlined text-[24px]">verified</span>
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-green-800 text-label-lg uppercase tracking-wider mb-1">Payment Accepted</h4>
-                                <p className="text-body-sm font-medium text-green-700/80">Your payment has been successfully verified.</p>
-                            </div>
-                        </div>
-                    )}
+            {/* Action / Payment Panel */}
+            <div className="md:w-[340px] bg-surface-container-low p-8 flex flex-col relative z-20">
+                
+                <div className="mb-8 flex justify-between items-center">
+                    <h3 className="text-[11px] uppercase font-black tracking-widest text-on-surface-variant flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[18px]">account_balance</span> Payment Info
+                    </h3>
+                    <button 
+                        onClick={handlePrint} 
+                        className="w-10 h-10 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white flex items-center justify-center transition-all shadow-sm" 
+                        title="Download PDF"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">print</span>
+                    </button>
                 </div>
 
-                <div className="lg:w-[340px] border-t lg:border-t-0 lg:border-l border-outline-variant/50 bg-surface-container-lowest p-6 md:p-8 flex flex-col justify-between">
-                    <div>
-                        <div className="flex items-center gap-2 mb-6 text-primary">
-                            <span className="material-symbols-outlined text-[20px]">account_balance</span>
-                            <span className="text-label-md font-bold uppercase tracking-wider">Payment Options</span>
+                {paymentDetails?.bankName ? (
+                    <div className="bg-white rounded-2xl p-6 border border-outline-variant/50 shadow-sm mb-6 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-full -mr-2 -mt-2"></div>
+                        
+                        <div className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1">Bank / Provider</div>
+                        <div className="text-body-lg font-bold text-on-surface mb-4">{paymentDetails.bankName}</div>
+                        
+                        <div className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1">Account Number</div>
+                        <div className="font-mono text-xl font-black text-primary break-all mb-4 tracking-tighter">{paymentDetails.accountNumber}</div>
+                        
+                        <div className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1">Account Title</div>
+                        <div className="text-body-sm font-bold text-on-surface">{paymentDetails.accountTitle}</div>
+                        
+                        {paymentDetails.instructions && (
+                            <div className="mt-5 text-[11px] font-medium text-on-surface-variant border-t border-dashed border-outline-variant/50 pt-4 leading-relaxed">
+                                <span className="material-symbols-outlined text-[14px] align-middle mr-1 text-primary">info</span>
+                                {paymentDetails.instructions}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="p-6 border-2 border-dashed border-outline-variant/50 rounded-2xl mb-6 text-center text-on-surface-variant/70 bg-white">
+                        <span className="material-symbols-outlined text-[32px] mb-2 opacity-50">money_off</span>
+                        <div className="text-[11px] font-black uppercase tracking-widest">No Bank Details Given</div>
+                    </div>
+                )}
+
+                <div className="mt-auto">
+                    {/* Status Alerts */}
+                    {statusDisplay === 'UNDER_REVIEW' && (
+                        <div className="mb-5 p-4 bg-secondary/10 border border-secondary/20 rounded-xl text-secondary text-xs font-black text-center uppercase tracking-widest flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined text-[18px]">pending</span> Verification Pending
                         </div>
+                    )}
+                    {statusDisplay === 'COMPLETED' && (
+                        <div className="mb-5 p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-700 text-xs font-black text-center uppercase tracking-widest flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined text-[18px]">check_circle</span> Payment Verified
+                        </div>
+                    )}
+                    {statusDisplay === 'OVERDUE' && (
+                        <div className="mb-5 p-4 bg-error/10 border border-error/20 rounded-xl text-error text-xs font-black text-center uppercase tracking-widest flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined text-[18px]">warning</span> Payment Overdue
+                        </div>
+                    )}
 
-                        {paymentDetails?.bankName ? (
-                            <div className="space-y-4">
-                                <div>
-                                    <div className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">Bank / Provider</div>
-                                    <div className="text-body-lg font-bold text-on-surface">{paymentDetails.bankName}</div>
-                                </div>
-                                <div className="p-4 bg-surface border border-outline-variant/50 rounded-2xl shadow-sm">
-                                    <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Account Number</div>
-                                    <div className="font-mono text-xl font-bold text-primary break-all mb-3">{paymentDetails.accountNumber}</div>
-                                    <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Account Title</div>
-                                    <div className="text-body-sm font-bold text-on-surface">{paymentDetails.accountTitle}</div>
-                                </div>
-                                {paymentDetails.instructions && (
-                                    <div className="p-3 bg-surface-container-low rounded-xl text-body-sm text-on-surface-variant italic border border-outline-variant/50">
-                                        <span className="material-symbols-outlined text-[14px] inline-block align-middle mr-1">info</span>
-                                        {paymentDetails.instructions}
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="p-6 border border-dashed border-outline-variant text-center rounded-2xl bg-surface">
-                                <span className="material-symbols-outlined text-[32px] text-on-surface-variant mb-2">money_off</span>
-                                <p className="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">No Online Details Configured</p>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mt-8 flex flex-col gap-4">
-                        {effectiveProof && (
-                             <div className={`relative aspect-[4/3] bg-surface rounded-2xl overflow-hidden border-2 group shadow-sm ${
-                                 statusDisplay === 'OVERDUE' ? 'border-error' : 'border-primary/20'
-                             }`}>
-                                <img src={effectiveProof} alt="Proof" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                     <span className="text-label-md font-bold text-white uppercase tracking-widest flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-[20px]">visibility</span>
-                                        Preview Attached
-                                     </span>
-                                </div>
-                             </div>
-                        )}
-
-                        {(statusDisplay === 'UNPAID' || statusDisplay === 'OVERDUE' || (statusDisplay === 'UNDER_REVIEW' && !uploading)) ? (
-                            <label className="group flex flex-col items-center justify-center p-6 border-2 border-dashed border-primary/50 hover:border-primary hover:bg-primary/5 bg-surface cursor-pointer rounded-2xl transition-all shadow-sm">
-                                <span className="material-symbols-outlined text-[28px] text-primary mb-2 group-hover:-translate-y-1 transition-transform">
-                                    {uploading ? 'cloud_sync' : (effectiveProof ? 'cloud_done' : 'cloud_upload')}
+                    {effectiveProof && (
+                        <div className="mb-5 relative aspect-[4/3] rounded-xl overflow-hidden border border-outline-variant/50 shadow-sm group bg-white">
+                            <img src={effectiveProof} alt="Receipt Proof" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm">
+                                <span className="text-xs text-white uppercase font-black tracking-widest flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[18px]">visibility</span> Proof Attached
                                 </span>
-                                <span className="text-label-md font-bold text-primary uppercase tracking-widest mb-1 text-center">
-                                    {uploading ? 'Uploading...' : (effectiveProof ? 'Change Receipt' : 'Upload Receipt')}
-                                </span>
-                                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-70">JPG, PNG, PDF</span>
-                                <input 
-                                    type="file" 
-                                    className="hidden" 
-                                    accept="image/*,.pdf"
-                                    onChange={(e) => e.target.files && onUpload(e.target.files[0])}
-                                    disabled={uploading}
-                                />
-                            </label>
-                        ) : statusDisplay === 'COMPLETED' ? (
-                            <div className="p-4 bg-green-50 border border-green-200 rounded-2xl text-center flex flex-col items-center gap-2">
-                                <span className="material-symbols-outlined text-[24px] text-green-600">check_circle</span>
-                                <span className="text-label-sm font-bold text-green-700 uppercase tracking-widest">Requirement Met</span>
                             </div>
-                        ) : null}
-                    </div>
+                        </div>
+                    )}
+
+                    {(statusDisplay === 'UNPAID' || statusDisplay === 'OVERDUE' || (statusDisplay === 'UNDER_REVIEW' && !uploading)) && (
+                        <label className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-primary/40 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary cursor-pointer rounded-xl transition-all shadow-sm group">
+                            <span className="material-symbols-outlined text-[28px] mb-2 group-hover:-translate-y-1 transition-transform">
+                                {uploading ? 'cloud_sync' : (effectiveProof ? 'published_with_changes' : 'cloud_upload')}
+                            </span>
+                            <span className="text-[11px] font-black uppercase tracking-widest text-center">
+                                {uploading ? 'Uploading...' : (effectiveProof ? 'Change Receipt' : 'Upload Receipt')}
+                            </span>
+                            <input 
+                                type="file" 
+                                className="hidden" 
+                                accept="image/*,.pdf"
+                                onChange={(e) => e.target.files && onUpload(e.target.files[0])}
+                                disabled={uploading}
+                            />
+                        </label>
+                    )}
                 </div>
             </div>
         </div>
