@@ -30,11 +30,11 @@ class MailService {
   async sendVerificationEmail(to: string, code: string) {
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-        <h2 style="color: #4f46e5; text-align: center;">Verify Your Email</h2>
+        <h2 style="color: #8b5e34; text-align: center;">Verify Your Email</h2>
         <p>Hello,</p>
         <p>Thank you for signing up. Please use the following verification code to complete your registration:</p>
-        <div style="background-color: #f3f4f6; padding: 15px; text-align: center; border-radius: 5px; margin: 20px 0;">
-          <span style="font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #111827;">${code}</span>
+        <div style="background-color: #fdf8f5; padding: 15px; text-align: center; border-radius: 5px; margin: 20px 0; border: 1px solid #e8dcc8;">
+          <span style="font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #5c3a21;">${code}</span>
         </div>
         <p>This code will expire in 10 minutes.</p>
         <p>If you did not request this email, please ignore it.</p>
@@ -72,6 +72,68 @@ class MailService {
       logger.error(`Error sending email: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
       throw error;
     }
+  }
+
+  async sendNewOwnerNotificationToAdmin(adminEmail: string, owner: { name: string, email: string, phone: string }) {
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+        <h2 style="color: #8b5e34;">New Owner Account Created</h2>
+        <p>A new hostel owner has signed up and verified their email. They will likely be submitting a hostel registration soon.</p>
+        <div style="background-color: #fdf8f5; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #e8dcc8;">
+          <p><strong>Name:</strong> <span style="color: #5c3a21;">${owner.name}</span></p>
+          <p><strong>Email:</strong> <span style="color: #5c3a21;">${owner.email}</span></p>
+          <p><strong>Phone:</strong> <span style="color: #5c3a21;">${owner.phone}</span></p>
+        </div>
+        <p>You can review their details and upcoming hostel submissions in the Admin Dashboard.</p>
+        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+        <p style="font-size: 12px; color: #6b7280; text-align: center;">Hostel Management System</p>
+      </div>
+    `;
+
+    await this.send({
+      to: adminEmail,
+      subject: 'New Owner Registration - Action May Be Required',
+      html,
+    });
+  }
+
+  async sendHostelStatusNotificationToOwner(ownerEmail: string, ownerName: string, hostelName: string, status: 'APPROVED' | 'REJECTED' | 'INACTIVE', remarks?: string) {
+    let statusText = '';
+    let statusColor = '';
+    
+    if (status === 'APPROVED') {
+      statusText = 'Approved';
+      statusColor = '#10b981'; // Green
+    } else if (status === 'REJECTED') {
+      statusText = 'Rejected';
+      statusColor = '#ef4444'; // Red
+    } else if (status === 'INACTIVE') {
+      statusText = 'Deactivated';
+      statusColor = '#f59e0b'; // Amber
+    }
+
+    const remarksHtml = remarks ? `<p><strong>Admin Remarks:</strong> ${remarks}</p>` : '';
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+        <h2 style="color: ${statusColor};">Hostel Registration Update</h2>
+        <p>Hello ${ownerName},</p>
+        <p>There is an update regarding your hostel registration for <strong style="color: #8b5e34;">${hostelName}</strong>.</p>
+        <div style="background-color: #fdf8f5; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #e8dcc8;">
+          <p><strong>Status:</strong> <span style="color: ${statusColor}; font-weight: bold;">${statusText}</span></p>
+          ${remarksHtml}
+        </div>
+        <p>If you have any questions or concerns, please contact the platform administrator.</p>
+        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+        <p style="font-size: 12px; color: #6b7280; text-align: center;">Hostel Management System</p>
+      </div>
+    `;
+
+    await this.send({
+      to: ownerEmail,
+      subject: `Hostel Status Update - ${hostelName}`,
+      html,
+    });
   }
 }
 

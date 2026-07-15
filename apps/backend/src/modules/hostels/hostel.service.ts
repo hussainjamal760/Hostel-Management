@@ -2,7 +2,7 @@ import mongoose, { FilterQuery } from 'mongoose';
 import { Hostel, IHostelDocument } from './hostel.model';
 import { User } from '../users/user.model';
 import { CreateHostelInput, UpdateHostelInput } from '@hostelite/shared-validators';
-import { ApiError } from '../../utils';
+import { ApiError, mailService } from '../../utils';
 import { Role } from '@hostelite/shared-types';
 
 export class HostelService {
@@ -169,14 +169,17 @@ export class HostelService {
   }
 
   async updateHostel(id: string, data: UpdateHostelInput, requesterId: string, role: Role) {
-    const hostel = await Hostel.findById(id);
+    const hostel = await Hostel.findById(id).populate('ownerId', 'name email');
     if (!hostel) {
       throw ApiError.notFound('Hostel not found');
     }
 
-    if (role !== 'ADMIN' && hostel.ownerId.toString() !== requesterId) {
+    if (role !== 'ADMIN' && (hostel.ownerId as any)._id.toString() !== requesterId) {
       throw ApiError.forbidden('You do not have permission to update this hostel');
     }
+
+    const previousStatus = hostel.status;
+    const previousIsActive = hostel.isActive;
 
     hostel.set(data);
     if (data.paymentDetails) {
@@ -187,6 +190,38 @@ export class HostelService {
     if (hostel.totalBeds < 0) hostel.totalBeds = 0;
 
     await hostel.save();
+
+    // Check if status or isActive changed and notify owner
+    if (role === 'ADMIN') {
+      const statusChanged = data.status && data.status !== previousStatus;
+      const isActiveChanged = data.isActive !== undefined && data.isActive !== previousIsActive;
+      
+      if (statusChanged || isActiveChanged) {
+        let notificationStatus: 'APPROVED' | 'REJECTED' | 'INACTIVE' | null = null;
+        
+        if (data.status === 'APPROVED' || (data.status === undefined && hostel.status === 'APPROVED' && isActiveChanged && data.isActive)) {
+           notificationStatus = 'APPROVED';
+        } else if (data.status === 'REJECTED') {
+           notificationStatus = 'REJECTED';
+        } else if (isActiveChanged && data.isActive === false) {
+           notificationStatus = 'INACTIVE';
+        }
+
+        if (notificationStatus && hostel.ownerId) {
+           try {
+              const owner: any = hostel.ownerId; // Cast to any since it is populated
+              await mailService.sendHostelStatusNotificationToOwner(
+                 owner.email,
+                 owner.name,
+                 hostel.name,
+                 notificationStatus
+              );
+           } catch (err) {
+              console.error('Failed to send owner notification for hostel status change:', err);
+           }
+        }
+      }
+    }
 
     return hostel;
   }

@@ -79,6 +79,20 @@ export class AuthService {
     await user.save();
     await PendingUser.deleteOne({ _id: pendingUser._id });
 
+    // Notify admins about the new owner registration
+    try {
+      const admins = await User.find({ role: 'ADMIN' });
+      for (const admin of admins) {
+        await mailService.sendNewOwnerNotificationToAdmin(admin.email, {
+          name: user.name,
+          email: user.email,
+          phone: user.phone || 'N/A'
+        });
+      }
+    } catch (err) {
+      logger.error('Failed to send admin notification for new owner: ' + err);
+    }
+
     return { message: 'Email verified successfully. You can now login.' };
   }
 

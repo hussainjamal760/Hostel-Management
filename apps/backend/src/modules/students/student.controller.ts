@@ -145,14 +145,14 @@ export class StudentController {
     
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-        <h2 style="color: #4f46e5; text-align: center;">Welcome to your Hostel!</h2>
+        <h2 style="color: #8b5e34; text-align: center;">Welcome to your Hostel!</h2>
         <p>Hello ${student.fullName},</p>
         <p>Your student account activation link is here. Please click the button below to set your password and activate your account:</p>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${activationLink}" style="padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Activate Account</a>
+          <a href="${activationLink}" style="padding: 12px 24px; background-color: #8b5e34; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Activate Account</a>
         </div>
         <p style="color: #6b7280; font-size: 14px;">Or copy and paste this link into your browser:</p>
-        <p style="background-color: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 14px; word-break: break-all;">${activationLink}</p>
+        <p style="background-color: #fdf8f5; padding: 10px; border-radius: 4px; font-size: 14px; word-break: break-all; border: 1px solid #e8dcc8;">${activationLink}</p>
         <p>This link will expire in 24 hours.</p>
         <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
         <p style="font-size: 12px; color: #6b7280; text-align: center;">&copy; ${new Date().getFullYear()} Hostel Management System. All rights reserved.</p>
