@@ -63,4 +63,10 @@ router.delete(
   studentController.deleteStudent
 );
 
+router.post(
+  '/:id/resend-activation',
+  authorize('ADMIN', 'OWNER', 'MANAGER'),
+  studentController.resendActivation
+);
+
 export default router;

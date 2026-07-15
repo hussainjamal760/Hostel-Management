@@ -50,7 +50,7 @@ export const studentApi = baseApi.injectEndpoints({
       }),
       providesTags: (result, error, id) => [{ type: 'Student', id }],
     }),
-    createStudent: builder.mutation<ApiResponse<{ student: IStudent; user: any; password: string }>, CreateStudentInput>({
+    createStudent: builder.mutation<ApiResponse<{ student: IStudent; user: any; activationToken: string }>, CreateStudentInput>({
       query: (data) => ({
         url: '/students',
         method: 'POST',
@@ -72,6 +72,12 @@ export const studentApi = baseApi.injectEndpoints({
         method: 'DELETE',
       }),
       invalidatesTags: ['Student', 'Room', 'Hostel'],
+    }),
+    resendActivation: builder.mutation<ApiResponse<{ activationToken: string }>, string>({
+      query: (id) => ({
+        url: `/students/${id}/resend-activation`,
+        method: 'POST',
+      }),
     }),
     getDashboardAnalytics: builder.query<ApiResponse<any>, string>({
       query: (hostelId) => ({
@@ -114,4 +120,5 @@ export const {
   useGetStudentMeQuery,
   useGetDashboardAnalyticsQuery,
   useGetDueWarningQuery,
+  useResendActivationMutation,
 } = studentApi;

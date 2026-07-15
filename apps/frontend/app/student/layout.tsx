@@ -31,13 +31,19 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
   useEffect(() => {
     setMounted(true);
+    
+    // Bypass auth checks for the activation page
+    if (pathname === '/student/activate') {
+        return;
+    }
+
     if (mounted && !isAuthenticated) {
         router.push('/login');
     } else if (mounted && user?.role !== 'STUDENT') {
         toast.error('Unauthorized access');
         router.back();
     }
-  }, [isAuthenticated, user, router, mounted]);
+  }, [isAuthenticated, user, router, mounted, pathname]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -53,6 +59,11 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  // Bypass layout wrapper for activation page
+  if (pathname === '/student/activate') {
+    return <>{children}</>;
+  }
 
   if (mounted && (!user || user.role !== 'STUDENT')) return null;
 

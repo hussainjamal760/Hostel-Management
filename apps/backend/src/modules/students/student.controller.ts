@@ -58,17 +58,9 @@ export class StudentController {
   });
 
   updateStudent = asyncHandler(async (req: Request, res: Response) => {
-    const allowedUpdates: any = {};
-    const safeFields = ['name', 'phone', 'emergencyContact', 'address', 'roomId'];
-    safeFields.forEach(field => {
-      if (req.body[field] !== undefined) {
-        allowedUpdates[field] = req.body[field];
-      }
-    });
-
     const result = await studentService.updateStudent(
       req.params.id,
-      allowedUpdates,
+      req.body,
       req.user?.hostelId,
       req.user?.role as Role
     );
@@ -116,6 +108,64 @@ export class StudentController {
 
     const warning = await studentService.getStudentDueWarning(student._id.toString());
     ApiResponse.success(res, warning, 'Due warning fetched successfully');
+  });
+
+  resendActivation = asyncHandler(async (req: Request, res: Response) => {
+    const studentId = req.params.id;
+    let hostelId = req.query.hostelId as string;
+    
+    if (req.user?.role === 'MANAGER') {
+      hostelId = req.user.hostelId!;
+    }
+    
+    if (!hostelId) {
+      throw ApiError.badRequest('Hostel ID is required');
+    }
+
+    const student = await studentService.getStudentById(studentId);
+    
+    if (req.user?.role === 'MANAGER' && student.hostelId.toString() !== req.user.hostelId) {
+      throw ApiError.forbidden('Access denied');
+    }
+
+    const User = require('../users/user.model').default;
+    const user = await User.findById(student.userId).select('+activationToken').exec();
+
+    if (!user) {
+      throw ApiError.notFound('User not found');
+    }
+
+    if (!user.activationToken) {
+      throw ApiError.badRequest('Student is already activated');
+    }
+
+    const env = require('../../config/env').default;
+    const mailService = require('../../utils/mail.service').mailService;
+    const activationLink = `${env.FRONTEND_URL}/student/activate?token=${user.activationToken}`;
+    
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+        <h2 style="color: #4f46e5; text-align: center;">Welcome to your Hostel!</h2>
+        <p>Hello ${student.fullName},</p>
+        <p>Your student account activation link is here. Please click the button below to set your password and activate your account:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${activationLink}" style="padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Activate Account</a>
+        </div>
+        <p style="color: #6b7280; font-size: 14px;">Or copy and paste this link into your browser:</p>
+        <p style="background-color: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 14px; word-break: break-all;">${activationLink}</p>
+        <p>This link will expire in 24 hours.</p>
+        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+        <p style="font-size: 12px; color: #6b7280; text-align: center;">&copy; ${new Date().getFullYear()} Hostel Management System. All rights reserved.</p>
+      </div>
+    `;
+
+    await mailService.sendEmail({
+      to: user.email,
+      subject: 'Activate Your Student Account',
+      html: emailHtml
+    });
+
+    ApiResponse.success(res, { activationToken: user.activationToken }, 'Activation email resent successfully');
   });
 }
 

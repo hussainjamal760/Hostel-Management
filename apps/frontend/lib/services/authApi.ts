@@ -69,6 +69,16 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
+    activateStudent: builder.mutation<MessageResponse, { token: string; password: string }>({
+      query: (data) => ({
+        url: '/auth/activate-student',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    verifyActivationToken: builder.query<ApiResponse<{ valid: boolean; email: string }>, string>({
+      query: (token) => `/auth/verify-activation-token?token=${token}`,
+    }),
     logout: builder.mutation<void, void>({
       query: () => ({
         url: '/auth/logout',
@@ -92,6 +102,8 @@ export const {
   useLoginMutation,
   useSignupMutation,
   useVerifyEmailMutation,
+  useActivateStudentMutation,
+  useVerifyActivationTokenQuery,
   useLogoutMutation,
   useChangePasswordMutation,
   useGetMeQuery,

@@ -37,6 +37,9 @@ const env = cleanEnv(process.env, {
 
   // CORS
   CORS_ORIGIN: str({ default: 'http://localhost:5000' }),
+  
+  // Frontend
+  FRONTEND_URL: str({ default: 'http://localhost:3000' }),
 
 });
 

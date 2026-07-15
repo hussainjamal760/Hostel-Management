@@ -215,6 +215,42 @@ export class AuthService {
     }
     return user;
   }
+
+  async activateStudent(token: string, newPassword: string) {
+    const user = await User.findOne({ activationToken: token }).select('+activationToken +activationTokenExpiresAt').exec();
+
+    if (!user) {
+      throw ApiError.badRequest('Invalid or expired activation link');
+    }
+
+    if (user.activationTokenExpiresAt && user.activationTokenExpiresAt < new Date()) {
+      throw ApiError.badRequest('Activation link has expired. Please contact the manager for a new one.');
+    }
+
+    user.password = await hashPassword(newPassword);
+    user.activationToken = undefined;
+    user.activationTokenExpiresAt = undefined;
+    user.isEmailVerified = true;
+    user.isFirstLogin = false;
+    
+    await user.save();
+
+    return { message: 'Account activated successfully. You can now login.' };
+  }
+
+  async verifyActivationToken(token: string) {
+    const user = await User.findOne({ activationToken: token }).select('+activationToken +activationTokenExpiresAt').exec();
+
+    if (!user) {
+      throw ApiError.badRequest('Account already activated or invalid link');
+    }
+
+    if (user.activationTokenExpiresAt && user.activationTokenExpiresAt < new Date()) {
+      throw ApiError.badRequest('Activation link has expired');
+    }
+
+    return { valid: true, email: user.email };
+  }
 }
 
 export default new AuthService();

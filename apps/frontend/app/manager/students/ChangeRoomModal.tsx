@@ -97,47 +97,50 @@ export default function ChangeRoomModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
-      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl bg-white dark:bg-[#1a0f0a] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="fixed inset-0 z-[100] bg-surface-container-highest/80 backdrop-blur-sm" onClick={() => setOpen(false)} />
+      <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
+        <div className="w-full max-w-2xl bg-surface rounded-3xl shadow-2xl border border-outline-variant overflow-hidden flex flex-col max-h-[90vh]">
           
-          <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-[#1a0f0a]">
+          <div className="p-6 border-b border-outline-variant flex items-center justify-between bg-surface">
             <div>
-              <h2 className="text-xl font-bold text-brand-text dark:text-dark-text">Change Room</h2>
-              <p className="text-sm text-brand-text/60">Moving {studentName}</p>
+              <h2 className="text-body-xl font-bold text-primary">Change Room</h2>
+              <p className="text-body-sm text-on-surface-variant mt-1">Moving {studentName}</p>
             </div>
-            <button onClick={() => setOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
-              <HiX size={24} />
+            <button onClick={() => setOpen(false)} className="p-2 hover:bg-surface-container text-on-surface-variant rounded-full transition-colors">
+              <span className="material-symbols-outlined">close</span>
             </button>
           </div>
 
-          <div className="p-6 overflow-y-auto space-y-6">
+          <div className="p-6 overflow-y-auto space-y-6 custom-scrollbar">
             
-            <div className="flex items-center gap-4 bg-brand-primary/5 p-4 rounded-xl border border-brand-primary/10">
+            <div className="flex items-center gap-4 bg-primary-container/20 p-5 rounded-2xl border border-primary-container">
                 <div className="flex-1">
-                    <p className="text-xs font-bold uppercase text-brand-text/50">Current Location</p>
-                    <p className="font-semibold text-brand-text dark:text-dark-text">
-                        Room {currentRoom?.roomNumber || 'N/A'} • Bed {currentBed || 'N/A'}
+                    <p className="text-label-sm font-bold uppercase text-on-surface-variant mb-1">Current Location</p>
+                    <p className="font-bold text-primary">
+                        Room {currentRoom?.roomNumber || 'N/A'} <span className="text-on-surface-variant/50 mx-1">•</span> Bed {currentBed || 'N/A'}
                     </p>
                 </div>
-                <HiArrowRight className="text-brand-primary/40" size={24} />
+                <span className="material-symbols-outlined text-primary/40 text-3xl">arrow_forward</span>
                 <div className="flex-1 text-right">
-                    <p className="text-xs font-bold uppercase text-brand-text/50">Target Location</p>
-                    <p className="font-semibold text-brand-text dark:text-dark-text">
-                        {selectedRoom ? `Room ${selectedRoom.roomNumber}` : 'Select Room'} • {selectedBed ? `Bed ${selectedBed}` : 'Select Bed'}
+                    <p className="text-label-sm font-bold uppercase text-on-surface-variant mb-1">Target Location</p>
+                    <p className="font-bold text-primary">
+                        {selectedRoom ? `Room ${selectedRoom.roomNumber}` : 'Select Room'} <span className="text-on-surface-variant/50 mx-1">•</span> {selectedBed ? `Bed ${selectedBed}` : 'Select Bed'}
                     </p>
                 </div>
             </div>
 
-            <div className="space-y-2">
-                <label className="text-sm font-bold text-brand-text dark:text-dark-text">Select New Room</label>
+            <div className="space-y-3">
+                <label className="text-label-lg font-bold text-primary flex items-center gap-2">
+                    <span className="material-symbols-outlined text-secondary">meeting_room</span>
+                    Select New Room
+                </label>
                 <select 
                     value={selectedRoomId}
                     onChange={(e) => {
                         setSelectedRoomId(e.target.value);
                         setSelectedBed('');
                     }}
-                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-brand-primary"
+                    className="w-full px-4 py-3.5 rounded-xl bg-background border border-outline-variant text-primary font-bold outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all appearance-none"
                 >
                     <option value="">-- Choose a Room --</option>
                     {[...rooms]
@@ -162,13 +165,16 @@ export default function ChangeRoomModal({
             </div>
 
             {selectedRoomId && (
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <label className="text-sm font-bold text-brand-text dark:text-dark-text">Select Bed</label>
-                        <div className="flex gap-4 text-xs font-medium">
-                            <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-green-100 border border-green-200"></div> Available</span>
-                            <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-red-100 border border-red-200"></div> Taken</span>
-                            <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-brand-primary text-white"></div> Selected</span>
+                <div className="space-y-4 pt-4 border-t border-outline-variant/50">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <label className="text-label-lg font-bold text-primary flex items-center gap-2">
+                            <span className="material-symbols-outlined text-secondary">bed</span>
+                            Select Bed
+                        </label>
+                        <div className="flex gap-4 text-xs font-bold">
+                            <span className="flex items-center gap-1.5"><div className="w-3.5 h-3.5 rounded bg-surface border border-outline-variant"></div> Available</span>
+                            <span className="flex items-center gap-1.5"><div className="w-3.5 h-3.5 rounded bg-error-container border border-error-container"></div> Taken</span>
+                            <span className="flex items-center gap-1.5"><div className="w-3.5 h-3.5 rounded bg-primary"></div> Selected</span>
                         </div>
                     </div>
                     
@@ -181,16 +187,16 @@ export default function ChangeRoomModal({
                                     onClick={() => !bed.isTaken && setSelectedBed(bed.bedNumber)}
                                     disabled={bed.isTaken}
                                     className={`
-                                        aspect-square rounded-xl flex flex-col items-center justify-center gap-1 border transition-all
+                                        aspect-square rounded-2xl flex flex-col items-center justify-center gap-1 border transition-all
                                         ${bed.isTaken 
-                                            ? 'bg-red-50 border-red-100 text-red-300 cursor-not-allowed' 
+                                            ? 'bg-error-container/20 border-error-container text-error/40 cursor-not-allowed' 
                                             : isSelected 
-                                                ? 'bg-brand-primary border-brand-primary text-white shadow-lg shadow-brand-primary/30 scale-105'
-                                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 hover:border-green-300 hover:bg-green-50 hover:text-green-600'
+                                                ? 'bg-primary border-primary text-on-primary shadow-lg shadow-primary/30 scale-105'
+                                                : 'bg-surface border-outline-variant text-on-surface-variant hover:border-primary/50 hover:bg-primary-container hover:text-primary'
                                         }
                                     `}
                                  >
-                                     <RiHotelBedLine size={24} />
+                                     <span className="material-symbols-outlined text-[28px]">bed</span>
                                      <span className="text-xs font-bold">{bed.bedNumber}</span>
                                  </button>
                              );
@@ -200,18 +206,19 @@ export default function ChangeRoomModal({
             )}
           </div>
 
-          <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3 bg-gray-50 dark:bg-[#1a0f0a]/50">
+          <div className="p-6 border-t border-outline-variant flex justify-end gap-3 bg-surface-container">
             <button 
                 onClick={() => setOpen(false)}
-                className="px-6 py-2.5 rounded-xl font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-6 py-2.5 rounded-xl font-bold bg-surface border border-outline-variant text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors"
             >
                 Cancel
             </button>
             <button 
                 onClick={handleSubmit}
                 disabled={!selectedRoomId || !selectedBed || isUpdating}
-                className="px-6 py-2.5 rounded-xl font-bold bg-brand-primary text-white hover:brightness-110 shadow-lg shadow-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="px-6 py-2.5 flex items-center gap-2 rounded-xl font-bold bg-primary text-on-primary hover:bg-on-primary-fixed-variant shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
+                <span className="material-symbols-outlined">{isUpdating ? 'hourglass_top' : 'move_up'}</span>
                 {isUpdating ? 'Moving Student...' : 'Confirm Move'}
             </button>
           </div>

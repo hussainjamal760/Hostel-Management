@@ -13,6 +13,8 @@ const router = Router();
 
 router.post('/signup', authLimiter, validate(signupSchema), authController.signup);
 router.post('/verify-email', authLimiter, validate(verifyEmailSchema), authController.verifyEmail);
+router.post('/activate-student', authLimiter, authController.activateStudent);
+router.get('/verify-activation-token', authLimiter, authController.verifyActivationToken);
 router.post('/login', authLimiter, validate(loginSchema), authController.login);
 router.post('/refresh', validate(refreshTokenSchema), authController.refresh);
 router.post('/logout', authenticate, authController.logout);

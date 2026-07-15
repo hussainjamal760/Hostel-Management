@@ -1,12 +1,13 @@
 import { User } from './user.model';
 import { Hostel } from '../hostels/hostel.model';
 import { ApiError, generatePassword, generateAdminUsername, hashPassword } from '../../utils';
+import crypto from 'crypto';
 import { CreateUserInput, UpdateUserInput } from '@hostelite/shared-validators';
 import { Role } from '@hostelite/shared-types';
 
 export class UserService {
   async createUser(
-    data: CreateUserInput & { username?: string; password?: string; isEmailVerified?: boolean }, 
+    data: CreateUserInput & { username?: string; password?: string; isEmailVerified?: boolean; generateActivationToken?: boolean }, 
     creatorRole: Role, 
     creatorHostelId?: string
   ) {
@@ -61,14 +62,25 @@ export class UserService {
       }
     }
 
+    let activationToken;
+    let activationTokenExpiresAt;
+
+    if (data.generateActivationToken) {
+      activationToken = crypto.randomBytes(32).toString('hex');
+      // Token expires in 24 hours
+      activationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    }
+
     const user = await User.create({
       ...data,
       username,
       password: hashedPassword,
-      isEmailVerified: data.isEmailVerified !== undefined ? data.isEmailVerified : false
+      isEmailVerified: data.isEmailVerified !== undefined ? data.isEmailVerified : false,
+      activationToken,
+      activationTokenExpiresAt
     });
     
-    return { user, password: rawPassword }; 
+    return { user, password: rawPassword, activationToken }; 
   }
 
   async bulkDeleteUsers(ids: string[]) {

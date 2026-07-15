@@ -14,6 +14,24 @@ export class AuthController {
     ApiResponse.success(res, result, 'Email verified successfully');
   });
 
+  activateStudent = asyncHandler(async (req: Request, res: Response) => {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      throw ApiError.badRequest('Token and password are required');
+    }
+    const result = await authService.activateStudent(token, password);
+    ApiResponse.success(res, result, 'Account activated successfully');
+  });
+
+  verifyActivationToken = asyncHandler(async (req: Request, res: Response) => {
+    const { token } = req.query;
+    if (!token || typeof token !== 'string') {
+      throw ApiError.badRequest('Token is required');
+    }
+    const result = await authService.verifyActivationToken(token);
+    ApiResponse.success(res, result, 'Token is valid');
+  });
+
   login = asyncHandler(async (req: Request, res: Response) => {
     const result = await authService.login(req.body);
     res.cookie('token', result.tokens.accessToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: env.COOKIE_ACCESS_MAX_AGE_MS });

@@ -9,6 +9,8 @@ export interface IUserDocument extends Omit<IUser, '_id'>, Document {
   isEmailVerified: boolean;
   verificationCode?: string;
   verificationCodeExpiresAt?: Date;
+  activationToken?: string;
+  activationTokenExpiresAt?: Date;
   hashedRefreshToken?: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
@@ -75,6 +77,14 @@ const userSchema = new Schema<IUserDocument>(
       select: false,
     },
     verificationCodeExpiresAt: {
+      type: Date,
+      select: false,
+    },
+    activationToken: {
+      type: String,
+      select: false,
+    },
+    activationTokenExpiresAt: {
       type: Date,
       select: false,
     },

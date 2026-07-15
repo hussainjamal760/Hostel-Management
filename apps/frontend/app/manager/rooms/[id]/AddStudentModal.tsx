@@ -41,7 +41,7 @@ interface AddStudentModalProps {
 
 export default function AddStudentModal({ open, setOpen, roomId, bedNumber, onSuccess }: AddStudentModalProps) {
   const [createStudent, { isLoading }] = useCreateStudentMutation();
-  const [credentials, setCredentials] = useState<{username: string, password: string} | null>(null);
+  const [activationToken, setActivationToken] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<FormInputs>({
     resolver: zodResolver(formSchema),
@@ -71,10 +71,7 @@ export default function AddStudentModal({ open, setOpen, roomId, bedNumber, onSu
       
       const result = response.data || response;
       
-      setCredentials({
-        username: result.user.username,
-        password: result.password 
-      });
+      setActivationToken(result.activationToken);
       
       toast.success('Student created successfully');
       onSuccess();
@@ -86,7 +83,7 @@ export default function AddStudentModal({ open, setOpen, roomId, bedNumber, onSu
 
   const handleClose = () => {
     setOpen(false);
-    setCredentials(null);
+    setActivationToken(null);
     reset();
   };
 
@@ -97,21 +94,20 @@ export default function AddStudentModal({ open, setOpen, roomId, bedNumber, onSu
       <div className="fixed inset-0 z-[100] bg-surface-container-highest/80 backdrop-blur-sm" onClick={handleClose} />
       <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
         <div className="w-full max-w-4xl bg-surface rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto border border-outline-variant custom-scrollbar">
-          {credentials ? (
+          {activationToken ? (
              <div className="p-10 text-center space-y-6">
                 <div className="w-24 h-24 bg-primary-container rounded-full flex items-center justify-center mx-auto text-primary">
-                    <span className="material-symbols-outlined text-[48px]">check_circle</span>
+                    <span className="material-symbols-outlined text-[48px]">mark_email_read</span>
                 </div>
-                <h2 className="text-display-lg text-primary">Success!</h2>
-                <p className="text-body-lg text-on-surface-variant max-w-md mx-auto">Student account has been created. Please safely store these credentials.</p>
+                <h2 className="text-display-lg text-primary">Student Created!</h2>
+                <p className="text-body-lg text-on-surface-variant max-w-md mx-auto">An activation email has been sent to the student. You can also copy the activation link below.</p>
                 
                 <div className="bg-surface-container-lowest p-6 rounded-2xl border border-dashed border-outline inline-block w-full max-w-md">
-                    <div className="grid grid-cols-2 gap-4 text-left">
-                        <div className="text-label-md uppercase tracking-wider text-on-surface-variant">Username</div>
-                        <div className="font-mono font-bold text-lg text-primary select-all bg-surface-container p-2 rounded-lg text-center border border-outline-variant">{credentials.username}</div>
-                        
-                        <div className="text-label-md uppercase tracking-wider text-on-surface-variant">Password</div>
-                        <div className="font-mono font-bold text-lg text-primary select-all bg-surface-container p-2 rounded-lg text-center border border-outline-variant">{credentials.password}</div>
+                    <div className="text-left space-y-2">
+                        <div className="text-label-md uppercase tracking-wider text-on-surface-variant">Activation Link</div>
+                        <div className="font-mono text-sm text-primary select-all bg-surface-container p-3 rounded-lg border border-outline-variant break-all">
+                            {`${typeof window !== 'undefined' ? window.location.origin : ''}/student/activate?token=${activationToken}`}
+                        </div>
                     </div>
                 </div>
                 

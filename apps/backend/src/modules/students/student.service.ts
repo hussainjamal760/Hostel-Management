@@ -35,14 +35,10 @@ export class StudentService {
       throw ApiError.badRequest(`Bed ${data.bedNumber} is already occupied`);
     }
 
-    const firstName = data.fullName.trim().split(' ')[0].toLowerCase();
-
-    const cnicSuffix = data.cnic.slice(-3);
-    const phoneSuffix = data.phone.slice(-3);
-    const username = `${firstName}-${cnicSuffix}-${phoneSuffix}`;
+    const username = data.email.toLowerCase();
 
 
-    const { user, password } = await userService.createUser(
+    const { user, activationToken } = await userService.createUser(
       {
         name: data.fullName,
         email: data.email,
@@ -51,7 +47,8 @@ export class StudentService {
         hostelId,
         username,
         password: generatePassword(6),
-        isEmailVerified: true,
+        isEmailVerified: false,
+        generateActivationToken: true,
       },
       'MANAGER',
       hostelId
@@ -75,7 +72,39 @@ export class StudentService {
         console.error("Failed to generate initial invoice:", invError);
       }
 
-      return { student, user, password };
+      if (activationToken) {
+        try {
+          const env = require('../../config/env').default;
+          const mailService = require('../../utils/mail.service').mailService;
+          const activationLink = `${env.FRONTEND_URL}/student/activate?token=${activationToken}`;
+          
+          const emailHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+              <h2 style="color: #4f46e5; text-align: center;">Welcome to your Hostel!</h2>
+              <p>Hello ${data.fullName},</p>
+              <p>Your student account has been created successfully. Please click the button below to set your password and activate your account:</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${activationLink}" style="padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Activate Account</a>
+              </div>
+              <p style="color: #6b7280; font-size: 14px;">Or copy and paste this link into your browser:</p>
+              <p style="background-color: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 14px; word-break: break-all;">${activationLink}</p>
+              <p>This link will expire in 24 hours.</p>
+              <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+              <p style="font-size: 12px; color: #6b7280; text-align: center;">&copy; ${new Date().getFullYear()} Hostel Management System. All rights reserved.</p>
+            </div>
+          `;
+
+          await mailService.sendEmail({
+            to: data.email,
+            subject: 'Activate Your Student Account',
+            html: emailHtml
+          });
+        } catch (err) {
+          console.error("Failed to send activation email:", err);
+        }
+      }
+
+      return { student, user, activationToken };
 
     } catch (error) {
       await userService.deleteUser(user._id.toString());
@@ -140,7 +169,7 @@ export class StudentService {
     }
 
     const students = await Student.find(filter)
-      .populate('userId', 'username email phone avatar')
+      .populate('userId', '+activationToken username email phone avatar')
       .populate('roomId', 'roomNumber roomType')
       .populate('hostelId', 'name address')
       .sort({ createdAt: -1 })
@@ -166,7 +195,7 @@ export class StudentService {
 
   async getStudentById(id: string) {
     const student = await Student.findById(id)
-      .populate('userId', 'username email phone avatar')
+      .populate('userId', '+activationToken username email phone avatar')
       .populate('roomId', 'roomNumber roomType')
       .exec();
 
@@ -180,7 +209,7 @@ export class StudentService {
     console.log(`[Debug] Looking for student profile for UserID: ${userId} (Type: ${typeof userId})`);
 
     const student = await Student.findOne({ userId: new Types.ObjectId(userId) })
-      .populate('userId', 'username email phone avatar')
+      .populate('userId', '+activationToken username email phone avatar')
       .populate('roomId', 'roomNumber roomType')
       .exec();
 
