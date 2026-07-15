@@ -65,8 +65,8 @@ const Header = () => {
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-9 h-9 bg-brand-primary rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(255,107,0,0.4)] transition-transform group-hover:scale-110">
-              <span className="text-black font-black text-lg">H</span>
+            <div className="relative w-10 h-10 bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_15px_rgba(255,107,0,0.4)] transition-transform group-hover:scale-110">
+              <img src="/logo.png" alt="Hostelite Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">
               <span className="text-white font-black text-xl tracking-tighter leading-none">HOSTELITE</span>
@@ -153,8 +153,8 @@ const Header = () => {
         {/* Drawer Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
           <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-            <div className="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center shadow-[0_0_12px_rgba(255,107,0,0.4)]">
-              <span className="text-black font-black text-base">H</span>
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-1 shadow-[0_0_12px_rgba(255,107,0,0.4)]">
+              <img src="/logo.png" alt="Hostelite Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-white font-black text-lg tracking-tighter">HOSTELITE</span>
           </Link>

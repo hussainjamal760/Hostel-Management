@@ -86,125 +86,150 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-bg dark:bg-dark-bg px-4 py-12 sm:px-6 lg:px-8 transition-colors">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="h-12 w-12 rounded-xl bg-brand-primary dark:bg-dark-primary flex items-center justify-center text-white dark:text-dark-bg font-bold text-2xl transition-transform group-hover:scale-105">
-              H
-            </div>
-          </Link>
-          <h2 className="mt-6 text-3xl font-bold tracking-tight text-brand-text dark:text-dark-text">
-            Create your account
-          </h2>
-          <p className="mt-2 text-sm text-brand-text/60 dark:text-dark-text/60">
-            Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-brand-primary dark:text-dark-primary hover:underline">
-              Sign in
-            </Link>
-          </p>
+    <div className="flex min-h-screen bg-surface">
+      {/* Left Side - Image with slant */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-primary items-end pb-12 px-12 overflow-hidden rounded-r-[60px] shadow-2xl z-10">
+        <div className="absolute inset-0">
+          <img 
+            src="/images/hostel_lounge.png" 
+            alt="Modern Hostel Lounge" 
+            className="w-full h-full object-cover opacity-90"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent"></div>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-brand-text dark:text-dark-text mb-2">
-                Full Name
-              </label>
-              <div className="relative">
-                <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50" size={20} />
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-brand-primary/5 dark:bg-dark-primary/5 border border-brand-primary/10 dark:border-dark-primary/10 text-brand-text dark:text-dark-text placeholder:text-brand-text/50 dark:placeholder:text-dark-text/50 focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-primary"
-                  placeholder="Enter your full name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
+        <div className="relative z-20 text-on-primary">
+          <div className="mb-4">
+            <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-sm font-medium">Join Our Community</span>
+          </div>
+          <h1 className="text-4xl font-bold mb-4">Hostelite Manager</h1>
+          <p className="text-on-primary-fixed-variant text-lg max-w-md">
+            The easiest way to manage your hostel business, track payments, and communicate with students.
+          </p>
+          
+          <div className="mt-8 flex items-center gap-4">
+            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center p-1.5 shadow-lg">
+              <img src="/logo.png" alt="Hostelite Logo" className="w-full h-full object-contain" />
             </div>
-
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-brand-text dark:text-dark-text mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <HiOutlineMail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50" size={20} />
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-brand-primary/5 dark:bg-dark-primary/5 border border-brand-primary/10 dark:border-dark-primary/10 text-brand-text dark:text-dark-text placeholder:text-brand-text/50 dark:placeholder:text-dark-text/50 focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-primary"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-brand-text dark:text-dark-text mb-2">
-                Phone Number
-              </label>
-              <div className="relative">
-                <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50" size={20} />
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  required
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-brand-primary/5 dark:bg-dark-primary/5 border border-brand-primary/10 dark:border-dark-primary/10 text-brand-text dark:text-dark-text placeholder:text-brand-text/50 dark:placeholder:text-dark-text/50 focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-primary"
-                  placeholder="Enter your phone number"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-brand-text dark:text-dark-text mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50" size={20} />
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  minLength={6}
-                  className="w-full pl-12 pr-12 py-3 rounded-xl bg-brand-primary/5 dark:bg-dark-primary/5 border border-brand-primary/10 dark:border-dark-primary/10 text-brand-text dark:text-dark-text placeholder:text-brand-text/50 dark:placeholder:text-dark-text/50 focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-dark-primary"
-                  placeholder="Create a password (min 6 characters)"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-text/50 dark:text-dark-text/50 hover:text-brand-text dark:hover:text-dark-text"
-                >
-                  {showPassword ? <HiOutlineEyeOff size={20} /> : <HiOutlineEye size={20} />}
-                </button>
-              </div>
+              <p className="font-bold">Hostelite Admin</p>
+              <p className="text-sm opacity-80">Property Management</p>
             </div>
           </div>
+        </div>
+      </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 rounded-xl bg-brand-primary dark:bg-dark-primary text-white dark:text-dark-bg font-bold hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-          >
-            {isLoading ? 'Creating account...' : 'Create Account'}
-          </button>
-        </form>
+      {/* Right Side - Form */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-12 bg-surface-container-lowest py-12">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center lg:text-left">
+            <Link href="/" className="inline-flex items-center gap-2 lg:hidden mb-6">
+              <img src="/logo.png" alt="Hostelite Logo" className="h-12 w-auto object-contain" />
+            </Link>
+            <h2 className="text-4xl font-bold tracking-tight text-primary">
+              Create an account
+            </h2>
+            <p className="mt-2 text-lg text-on-surface-variant font-medium">
+              Start managing your hostel today
+            </p>
+          </div>
+          
+          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <div>
+                <div className="relative">
+                  <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" size={20} />
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl bg-surface border-2 border-outline-variant text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium"
+                    placeholder="Full Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+              </div>
 
-        <div className="text-center">
-          <Link href="/" className="text-sm text-brand-text/60 dark:text-dark-text/60 hover:underline">
-            ← Back to home
-          </Link>
+              <div>
+                <div className="relative">
+                  <HiOutlineMail className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" size={20} />
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl bg-surface border-2 border-outline-variant text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium"
+                    placeholder="Email Address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="relative">
+                  <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" size={20} />
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    required
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl bg-surface border-2 border-outline-variant text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium"
+                    placeholder="Phone Number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="relative">
+                  <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" size={20} />
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    className="w-full pl-12 pr-12 py-4 rounded-2xl bg-surface border-2 border-outline-variant text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium"
+                    placeholder="Create a password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors"
+                  >
+                    {showPassword ? <HiOutlineEyeOff size={20} /> : <HiOutlineEye size={20} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-4 rounded-2xl bg-primary text-on-primary font-bold text-lg hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/30 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none mt-4"
+            >
+              {isLoading ? 'Creating account...' : 'Create Account'}
+            </button>
+          </form>
+
+          <div className="mt-8 text-center text-sm">
+            <span className="text-on-surface-variant font-medium">Already have an account? </span>
+            <Link href="/login" className="font-bold text-primary hover:text-secondary transition-colors">
+              Sign in
+            </Link>
+          </div>
+          
+          <div className="mt-8 text-center">
+            <Link href="/" className="text-sm font-medium text-on-surface-variant hover:text-primary transition-colors">
+              ← Back to home
+            </Link>
+          </div>
         </div>
       </div>
     </div>

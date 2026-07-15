@@ -10,8 +10,8 @@ const Footer = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
                 <div className="md:col-span-2">
                     <Link href="/" className="flex items-center gap-3 mb-8 group w-fit">
-                        <div className="relative w-10 h-10 bg-brand-primary rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(255,107,0,0.4)] transition-transform group-hover:scale-110">
-                            <span className="text-black font-black text-xl">H</span>
+                        <div className="relative w-12 h-12 bg-white rounded-full flex items-center justify-center p-1.5 shadow-[0_0_20px_rgba(255,107,0,0.4)] transition-transform group-hover:scale-110">
+                            <img src="/logo.png" alt="Hostelite Logo" className="w-full h-full object-contain" />
                         </div>
                         <div className="flex flex-col">
                             <span className="text-white font-black text-2xl tracking-tighter leading-none">
